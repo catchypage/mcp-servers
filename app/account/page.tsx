@@ -3,6 +3,7 @@
 import { useSession } from 'next-auth/react'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import LogoutAuth from '@/components/auth/LogoutAuth'
 
 export default function AccountPage() {
   const { data: session, status } = useSession()
@@ -51,12 +52,15 @@ export default function AccountPage() {
             Manage your account and subscription from here.
           </p>
 
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border company-border-primary company-text-primary hover:company-bg-tertiary transition-colors"
-          >
-            ← Back to Home
-          </Link>
+          <div className="flex flex-wrap gap-3">
+            <Link
+              href="/"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border company-border-primary company-text-primary hover:company-bg-tertiary transition-colors"
+            >
+              ← Back to Home
+            </Link>
+            <LogoutAuth />
+          </div>
         </div>
       </div>
     </div>
