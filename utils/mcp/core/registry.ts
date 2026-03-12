@@ -1,0 +1,68 @@
+/**
+ * MCP App Registry.
+ * Add new apps here - each gets its own /api/mcp/[appId] route.
+ */
+
+export interface McpToolDefinition {
+  name: string
+  title?: string
+  description: string
+  inputSchema: {
+    type: string
+    properties?: Record<string, unknown>
+    required?: string[]
+  }
+  annotations?: Record<string, boolean>
+  securitySchemes?: { type: string; scopes?: string[] }[]
+  _meta?: Record<string, unknown>
+}
+
+export interface McpAppConfig {
+  id: string
+  name: string
+  description?: string
+  version?: string
+  tools: McpToolDefinition[]
+  internalTools?: McpToolDefinition[]
+  widget?: string
+  resources?: {
+    uri: string
+    name: string
+    description?: string
+    mimeType?: string
+  }[]
+}
+
+import { resumeTools, resumeInternalTools } from '@/utils/mcp/apps/resume/tools'
+
+export const MCP_APPS: Record<string, McpAppConfig> = {
+  resume: {
+    id: 'resume',
+    name: 'Resume Builder',
+    description: 'Create and improve resumes',
+    version: '1.0.0',
+    tools: resumeTools,
+    internalTools: resumeInternalTools,
+    widget: '/mcp/resume.bundle.js',
+    resources: [
+      {
+        uri: '/api/mcp/resume/widget',
+        name: 'Resume Widget',
+        description: 'Interactive resume builder',
+        mimeType: 'text/html+skybridge',
+      },
+    ],
+  },
+}
+
+export function resolveApp(appId: string): McpAppConfig | null {
+  return MCP_APPS[appId] ?? null
+}
+
+/**
+ * Domains per app (for reference / docs).
+ * Actual mapping: MCP_DOMAIN_MAP env or domain-map.ts
+ */
+export const APP_DOMAINS: Record<string, string[]> = {
+  resume: ['resume.pyxl.pro', 'resume.example.com'],
+}

@@ -1,16 +1,17 @@
 'use client'
 
-import type { ReactElement } from 'react'
+import HeroSection from '@/components/sections/HeroSection'
+import AboutSection from '@/components/sections/AboutSection'
+import CapabilitiesSection from '@/components/sections/CapabilitiesSection'
+import AppFooter from '@/components/footer/AppFooter'
 
-const Home = ((): ReactElement => {
+export default function HomePage() {
   return (
     <>
-      <div className=" text-black">
-        <h1>Kek</h1>
-      </div>
+      <HeroSection />
+      <AboutSection />
+      <CapabilitiesSection />
+      <AppFooter />
     </>
   )
-}) as React.FC
-
-Home.displayName = 'Home'
-export default Home
+}

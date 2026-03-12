@@ -5,6 +5,7 @@ import {
   Noto_Sans_Symbols,
 } from 'next/font/google'
 import '../styles/main.css'
+import '../styles/theme.css'
 import Providers from '@/components/providers/SessionProvider'
 import Main from './Main'
 
@@ -31,7 +32,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning data-theme="dark">
       <body
         className={`${inter.className} ${playfairDisplay.variable} ${cinzel.variable} ${notoSansSymbols.variable} antialiased min-h-screen transition-colors duration-300 loading`}
       >

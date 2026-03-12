@@ -74,7 +74,9 @@ module.exports = {
     "dist",
     "**/*.d.ts",
     "**/*.js",
+    "**/*.cjs",
     "**/*.mjs",
     "example-projects/",
+    "scripts/",
   ],
 };

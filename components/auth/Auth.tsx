@@ -49,13 +49,36 @@ const Auth = ({
       <div className="flex items-center gap-2 sm:gap-3">
         <button
           onClick={() => modalAuth && handleOpenModal(modalAuth)}
-          className="px-3 py-1 sm:px-4 sm:py-1.5 text-sm font-medium text-white bg-gradient-to-r from-[var(--accent-yellow)] to-[var(--accent-gold)] rounded-lg hover:opacity-90 transition-all duration-200 shadow-lg whitespace-nowrap"
+          className="px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium rounded-lg transition-all duration-200 whitespace-nowrap company-shadow-sm"
+          style={{
+            backgroundColor: 'var(--company-button-primary-bg)',
+            color: 'var(--company-button-primary-text)',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = 'var(--company-button-primary-hover)'
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = 'var(--company-button-primary-bg)'
+          }}
         >
           Sign in
         </button>
         <button
           onClick={() => setShowRegisterModal(true)}
-          className="px-3 py-1 sm:px-4 sm:py-1.5 text-sm font-medium text-[var(--text-primary)] bg-[var(--secondary-bg)] border border-[var(--card-border)] rounded-lg hover:bg-[var(--secondary-bg)]/70 transition-all duration-200 whitespace-nowrap"
+          className="px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium rounded-lg transition-all duration-200 whitespace-nowrap border-2"
+          style={{
+            color: 'var(--company-button-secondary-text)',
+            borderColor: 'var(--company-button-secondary-border)',
+            backgroundColor: 'var(--company-button-secondary-bg)',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = 'var(--company-button-secondary-hover-bg)'
+            e.currentTarget.style.color = 'var(--company-button-secondary-hover-text)'
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = 'var(--company-button-secondary-bg)'
+            e.currentTarget.style.color = 'var(--company-button-secondary-text)'
+          }}
         >
           Sign up
         </button>

@@ -14,6 +14,7 @@ export async function middleware(req: NextRequest) {
     originalPath.startsWith('/api/gpt') ||
     originalPath.startsWith('/api/webhooks') ||
     originalPath.startsWith('/api/oauth') ||
+    originalPath.startsWith('/api/mcp') ||
     originalPath.startsWith('/api/mailgun-webhook') ||
     originalPath.startsWith('/api/cron')
   ) {

@@ -1,8 +1,11 @@
 // Site constants
-export const SITE_NAME = 'Astr.one'
+export const SITE_NAME = 'Pyxl'
 
 export const SITE_DOMAIN =
-  process.env.NEXT_PUBLIC_SITE_URL ?? 'https://astr.one'
+  process.env.NEXT_PUBLIC_SITE_URL ?? 'https://pyxl.pro'
+
+// Tunnel URL for local dev (ChatGPT needs public URL for OAuth)
+export const TUNNEL_URL = process.env.TUNNEL_URL ?? ''
 
 /*
  * ORIGIN теперь всегда равен SITE_DOMAIN,
