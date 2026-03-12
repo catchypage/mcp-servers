@@ -1,0 +1,16 @@
+{
+  "functions": {
+    "app/api/gpt/**/*": {
+      "maxDuration": 60
+    },
+    "app/api/generate/**": {
+      "maxDuration": 60
+    }
+  },
+  "crons": [
+    {
+      "path": "/api/cron/refresh-news",
+      "schedule": "0 0 */3 * *"
+    }
+  ]
+}

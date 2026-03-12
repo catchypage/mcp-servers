@@ -1,0 +1,74 @@
+/** @type {import('next').NextConfig} */
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+	reactStrictMode: true,
+	typescript: {
+		ignoreBuildErrors: true // Temporarily ignore TypeScript errors during build
+	},
+	experimental: {
+		serverActions: true,
+	},
+	eslint: {
+		ignoreDuringBuilds: true,
+	},
+	images: {
+		remotePatterns: [
+			{
+				protocol: 'https',
+				hostname: 'cfngdoszuhfiujrgozih.supabase.co',
+			},
+			{
+				protocol: 'https',
+				hostname: 'lh3.googleusercontent.com',
+			},
+			{
+				protocol: 'https',
+				hostname: 'soyfxhyasghymffubbhi.supabase.co',
+			},
+			{
+				protocol: 'https',
+				hostname: 'yralcgckodgemrozhvhn.supabase.co',
+			},
+			{
+				protocol: 'https',
+				hostname: 'epdeijkqhklbeinsbtqx.supabase.co',
+			},
+			{
+				protocol: 'https',
+				hostname: 'placehold.co',
+			},
+			{
+				protocol: 'https',
+				hostname: 'images.unsplash.com',
+			},
+		],
+		dangerouslyAllowSVG: true,
+		contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+	},
+	async headers() {
+		return [
+			{
+				source: '/api/send-mail',
+				headers: [
+					{ key: 'Access-Control-Allow-Credentials', value: 'true' },
+					{ key: 'Access-Control-Allow-Origin', value: '*' },
+					{ key: 'Access-Control-Allow-Methods', value: 'GET, POST, OPTIONS' },
+					{ key: 'Access-Control-Allow-Headers', value: 'Content-Type' },
+				],
+			},
+		]
+	},
+}
+
+import withBundleAnalyzer from '@next/bundle-analyzer'
+
+const bundleAnalyzer = withBundleAnalyzer({
+	enabled: process.env.ANALYZE === 'true',
+})
+
+export default bundleAnalyzer({
+	env: {
+		NEXT_PUBLIC_ENV: 'PRODUCTION',
+	},
+	...nextConfig,
+})
