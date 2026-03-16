@@ -48,13 +48,22 @@ const Modal = ({
           onClose()
         }
       }}
-      className={`fixed z-[9999999] h-[100vh] w-[100vw] top-0 left-0 bg-black bg-opacity-30 flex justify-center items-center p-4 ${className}`}
+      className={`fixed z-[9999999] h-[100vh] w-[100vw] top-0 left-0 flex justify-center items-center p-4 ${className}`}
+      style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
     >
-      <div className="max-h-[90vh] w-full max-w-md overflow-hidden bg-gray-900/90 backdrop-blur-xl rounded-xl border border-gray-700/50 shadow-xl">
+      <div
+        className="max-h-[90vh] w-full max-w-md overflow-hidden backdrop-blur-xl rounded-xl shadow-xl"
+        style={{
+          backgroundColor: 'var(--company-bg-secondary)',
+          border: '1px solid var(--company-border-primary)',
+        }}
+      >
         {showStripe && (
           <div className="relative">
-            <div className="absolute inset-0 bg-gradient-to-r from-yellow-400 via-fuchsia-500 to-cyan-400 h-1" />
-            <div className="absolute inset-0 bg-gradient-to-r from-yellow-400/5 via-fuchsia-500/5 to-cyan-400/5 opacity-30" />
+            <div
+              className="absolute inset-0 h-1"
+              style={{ background: 'linear-gradient(90deg, var(--accent-gold), var(--accent-yellow))' }}
+            />
           </div>
         )}
         {children}

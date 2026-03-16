@@ -109,7 +109,12 @@ export default function RegisterModal({ isOpen, onClose }: RegisterModalProps) {
         <button
           onClick={() => void handleGoogleSignIn()}
           disabled={isLoading}
-          className="w-full flex items-center justify-center gap-3 bg-gradient-to-r from-[var(--accent-primary)] to-[var(--accent-yellow)] hover:opacity-90 text-white font-medium px-4 py-3 rounded-lg transition-all duration-200 shadow-lg"
+          className="w-full flex items-center justify-center gap-3 hover:opacity-90 font-medium px-4 py-3 rounded-lg transition-all duration-200 shadow-lg"
+          style={{
+            background:
+              'linear-gradient(90deg, var(--company-button-primary-bg), var(--accent-gold))',
+            color: 'var(--company-button-primary-text)',
+          }}
         >
           {isLoading ? (
             <svg
@@ -147,10 +152,19 @@ export default function RegisterModal({ isOpen, onClose }: RegisterModalProps) {
 
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
-            <span className="w-full border-t border-white/20" />
+            <span
+              className="w-full border-t"
+              style={{ borderColor: 'var(--company-border-primary)' }}
+            />
           </div>
           <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-[var(--bg-primary)] px-2 text-[var(--text-secondary)]">
+            <span
+              className="px-2"
+              style={{
+                backgroundColor: 'var(--bg-primary)',
+                color: 'var(--text-secondary)',
+              }}
+            >
               or
             </span>
           </div>
@@ -166,7 +180,11 @@ export default function RegisterModal({ isOpen, onClose }: RegisterModalProps) {
               placeholder="Name (optional)"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/60 focus:outline-none focus:border-[var(--accent-gold)]"
+              className="w-full px-4 py-3 rounded-lg border text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/60 focus:outline-none focus:border-[var(--accent-gold)]"
+              style={{
+                backgroundColor: 'var(--company-bg-tertiary)',
+                borderColor: 'var(--company-border-primary)',
+              }}
             />
           )}
           <input
@@ -175,7 +193,11 @@ export default function RegisterModal({ isOpen, onClose }: RegisterModalProps) {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/60 focus:outline-none focus:border-[var(--accent-gold)]"
+            className="w-full px-4 py-3 rounded-lg border text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/60 focus:outline-none focus:border-[var(--accent-gold)]"
+            style={{
+              backgroundColor: 'var(--company-bg-tertiary)',
+              borderColor: 'var(--company-border-primary)',
+            }}
           />
           <input
             type="password"
@@ -184,13 +206,21 @@ export default function RegisterModal({ isOpen, onClose }: RegisterModalProps) {
             onChange={(e) => setPassword(e.target.value)}
             required
             minLength={6}
-            className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/60 focus:outline-none focus:border-[var(--accent-gold)]"
+            className="w-full px-4 py-3 rounded-lg border text-[var(--text-primary)] placeholder:text-[var(--text-secondary)]/60 focus:outline-none focus:border-[var(--accent-gold)]"
+            style={{
+              backgroundColor: 'var(--company-bg-tertiary)',
+              borderColor: 'var(--company-border-primary)',
+            }}
           />
           {error && <p className="text-sm text-red-400">{error}</p>}
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full py-3 rounded-lg bg-[var(--accent-gold)] hover:opacity-90 text-black font-medium transition-opacity disabled:opacity-50"
+            className="w-full py-3 rounded-lg hover:opacity-90 font-medium transition-opacity disabled:opacity-50"
+            style={{
+              backgroundColor: 'var(--accent-gold)',
+              color: 'var(--company-button-primary-text)',
+            }}
           >
             {isLoading ? 'Please wait...' : isSignUp ? 'Sign Up' : 'Sign In'}
           </button>

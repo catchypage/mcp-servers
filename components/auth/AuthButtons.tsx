@@ -7,7 +7,12 @@ const AuthButtons = ({
     <div className="flex flex-col gap-4">
       <button
         onClick={() => singInWithProvider('google')}
-        className="w-full flex items-center justify-center gap-3 bg-white/5 hover:bg-white/10 text-white font-medium px-4 py-3 rounded-lg transition-colors duration-200 border border-white/10"
+        className="w-full flex items-center justify-center gap-3 font-medium px-4 py-3 rounded-lg transition-colors duration-200 border"
+        style={{
+          backgroundColor: 'var(--company-bg-tertiary)',
+          color: 'var(--text-primary)',
+          borderColor: 'var(--company-border-primary)',
+        }}
       >
         <svg className="w-5 h-5" viewBox="0 0 24 24">
           <path

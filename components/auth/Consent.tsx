@@ -30,12 +30,27 @@ const Consent = ({
   }
 
   return (
-    <div className="flex justify-center items-center gap-1 h-[100%]">
-      <div className="bg-gray-800/50 backdrop-blur-sm md:w-1/2 flex flex-col justify-center items-stretch gap-5 p-8 rounded-2xl border border-gray-700/50">
+    <div
+      className="flex justify-center items-center gap-1 h-[100%] min-h-screen"
+      style={{ backgroundColor: 'var(--company-bg-primary)' }}
+    >
+      <div
+        className="md:w-1/2 flex flex-col justify-center items-stretch gap-5 p-8 rounded-2xl border backdrop-blur-sm"
+        style={{
+          backgroundColor: 'var(--company-bg-secondary)',
+          borderColor: 'var(--company-border-primary)',
+        }}
+      >
         <div className="flex flex-col gap-5">
-          <h1 className="text-white text-center text-xl">
+          <h1
+            className="text-center text-xl"
+            style={{ color: 'var(--text-primary)' }}
+          >
             {'Sign Up'} to{' '}
-            <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-purple-400">
+            <span
+              className="text-2xl font-bold"
+              style={{ color: 'var(--accent-gold)' }}
+            >
               {SITE_NAME}
             </span>
           </h1>

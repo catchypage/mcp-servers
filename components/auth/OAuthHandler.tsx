@@ -28,10 +28,16 @@ function OAuthContent() {
 
   if (status === 'loading') {
     return (
-      <div className="fixed inset-0 flex items-center justify-center bg-white">
+      <div
+        className="fixed inset-0 flex items-center justify-center"
+        style={{ backgroundColor: 'var(--company-bg-primary)' }}
+      >
         <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 border-4 border-main-color border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-gray-600">Loading...</p>
+          <div
+            className="w-12 h-12 border-4 border-t-transparent rounded-full animate-spin"
+            style={{ borderColor: 'var(--accent-gold)' }}
+          />
+          <p style={{ color: 'var(--text-secondary)' }}>Loading...</p>
         </div>
       </div>
     )
@@ -66,10 +72,16 @@ export default function OAuthHandler() {
   return (
     <Suspense
       fallback={
-        <div className="fixed inset-0 flex items-center justify-center bg-white">
+        <div
+          className="fixed inset-0 flex items-center justify-center"
+          style={{ backgroundColor: 'var(--company-bg-primary)' }}
+        >
           <div className="flex flex-col items-center gap-4">
-            <div className="w-12 h-12 border-4 border-main-color border-t-transparent rounded-full animate-spin"></div>
-            <p className="text-gray-600">Loading...</p>
+            <div
+              className="w-12 h-12 border-4 border-t-transparent rounded-full animate-spin"
+              style={{ borderColor: 'var(--accent-gold)' }}
+            />
+            <p style={{ color: 'var(--text-secondary)' }}>Loading...</p>
           </div>
         </div>
       }
