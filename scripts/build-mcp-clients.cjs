@@ -28,6 +28,11 @@ function buildMcpClients() {
       entry: '../components/mcp/resume/resume-entry.tsx',
       output: 'resume.bundle.js',
     },
+    {
+      name: 'ChefPlan',
+      entry: '../components/mcp/chefplan/chefplan-entry.tsx',
+      output: 'chefplan.bundle.js',
+    },
     // Add more: { name: 'Humanize', entry: '.../aihumanize/aihumanize-entry.tsx', output: 'aihumanize.bundle.js' },
   ]
 

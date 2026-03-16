@@ -34,6 +34,7 @@ export interface McpAppConfig {
 }
 
 import { resumeTools, resumeInternalTools } from '@/utils/mcp/apps/resume/tools'
+import { chefplanTools, chefplanInternalTools } from '@/utils/mcp/apps/chefplan/tools'
 
 export const MCP_APPS: Record<string, McpAppConfig> = {
   resume: {
@@ -53,6 +54,23 @@ export const MCP_APPS: Record<string, McpAppConfig> = {
       },
     ],
   },
+  chefplan: {
+    id: 'chefplan',
+    name: 'ChefPlan Meal Planner',
+    description: 'AI-powered weekly meal planning with nutrition tracking, shopping lists, and grocery ordering',
+    version: '1.0.0',
+    tools: chefplanTools,
+    internalTools: chefplanInternalTools,
+    widget: '/mcp/chefplan.bundle.js',
+    resources: [
+      {
+        uri: '/api/mcp/chefplan/widget',
+        name: 'ChefPlan Widget',
+        description: 'Interactive meal planning widget',
+        mimeType: 'text/html+skybridge',
+      },
+    ],
+  },
 }
 
 export function resolveApp(appId: string): McpAppConfig | null {
@@ -65,4 +83,5 @@ export function resolveApp(appId: string): McpAppConfig | null {
  */
 export const APP_DOMAINS: Record<string, string[]> = {
   resume: ['resume.pyxl.pro', 'resume.example.com'],
+  chefplan: ['chefplan.pyxl.pro', 'meals.pyxl.pro', 'chefplan.example.com'],
 }

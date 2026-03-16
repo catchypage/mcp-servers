@@ -18,6 +18,10 @@ const handlerRegistry: Record<string, () => HandlersMap> = {
     const { getResumeToolHandlers } = require('@/utils/mcp/apps/resume/tools')
     return getResumeToolHandlers()
   },
+  chefplan: () => {
+    const { getChefplanToolHandlers } = require('@/utils/mcp/apps/chefplan/tools')
+    return getChefplanToolHandlers()
+  },
 }
 
 export function getToolHandlers(appId: string): HandlersMap | null {
@@ -29,6 +33,10 @@ export function getWidgetHtml(app: McpAppConfig, baseUrl: string): string {
   if (app.id === 'resume') {
     const { resumeWidgetHTML } = require('@/utils/mcp/apps/resume/widget')
     return resumeWidgetHTML(baseUrl)
+  }
+  if (app.id === 'chefplan') {
+    const { chefplanWidgetHTML } = require('@/utils/mcp/apps/chefplan/widget')
+    return chefplanWidgetHTML(baseUrl)
   }
   return `<!DOCTYPE html><html><body><p>Widget for ${app.name}</p></body></html>`
 }
