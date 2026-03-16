@@ -13,12 +13,13 @@ interface SignModalProps {
     scope: string
     redirectUri?: string
     user_request?: string
+    callbackUrl?: string // Custom callback URL for MCP OAuth flow
   }
 }
 
 const SignModal = ({
   register = false,
-  options: { scope, state = 'default_state', redirectUri },
+  options: { scope, state = 'default_state', redirectUri, callbackUrl: customCallbackUrl },
 }: SignModalProps) => {
   const pathName = usePathname()
 
@@ -32,6 +33,13 @@ const SignModal = ({
   const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
+    // If custom callback URL is provided (e.g., MCP OAuth flow), use it directly
+    if (customCallbackUrl) {
+      setIsGptFlow(true)
+      setRedirectUrl(customCallbackUrl)
+      return
+    }
+
     const isGptAuthentication =
       !!redirectUri && redirectUri.includes('chat.openai.com')
     setIsGptFlow(isGptAuthentication)
@@ -56,7 +64,7 @@ const SignModal = ({
     } else {
       setRedirectUrl(`${window.location.origin}${pathName}`)
     }
-  }, [scope, register, pathName, state, redirectUri])
+  }, [scope, register, pathName, state, redirectUri, customCallbackUrl])
 
   const singInWithProvider = (provider: string) => {
     if (provider === 'google') {
