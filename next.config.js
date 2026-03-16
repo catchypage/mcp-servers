@@ -56,6 +56,31 @@ const nextConfig = {
 					{ key: 'Access-Control-Allow-Headers', value: 'Content-Type' },
 				],
 			},
+			{
+				source: '/.well-known/:path*',
+				headers: [
+					{ key: 'Access-Control-Allow-Origin', value: '*' },
+					{ key: 'Access-Control-Allow-Methods', value: 'GET, OPTIONS' },
+					{ key: 'Access-Control-Allow-Headers', value: 'Content-Type' },
+				],
+			},
+			{
+				source: '/api/mcp/:path*',
+				headers: [
+					{ key: 'Access-Control-Allow-Origin', value: '*' },
+					{ key: 'Access-Control-Allow-Methods', value: 'GET, POST, OPTIONS' },
+					{ key: 'Access-Control-Allow-Headers', value: 'Content-Type, Authorization' },
+					{ key: 'Access-Control-Allow-Private-Network', value: 'true' },
+				],
+			},
+		]
+	},
+	async rewrites() {
+		return [
+			{
+				source: '/.well-known/jwks.json',
+				destination: '/api/.well-known/jwks',
+			},
 		]
 	},
 }
