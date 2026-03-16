@@ -125,6 +125,9 @@ export async function handleMcpRequest(
 
       try {
         const result = await handler(app, args ?? {}, authResult.user!.id)
+        const baseUrl = getBaseUrlFromRequest(req)
+        const widgetHtml = getWidgetHtml(app, baseUrl)
+
         return NextResponse.json(
           {
             ...response,
@@ -136,6 +139,21 @@ export async function handleMcpRequest(
                 },
               ],
               structuredContent: result,
+              _meta: {
+                ui: {
+                  widget: {
+                    mimeType: 'text/html+skybridge',
+                    content: widgetHtml,
+                    _meta: {
+                      'openai/widgetDomain': baseUrl,
+                      'openai/widgetCSP': {
+                        connect_domains: [baseUrl],
+                        resource_domains: [baseUrl],
+                      },
+                    },
+                  },
+                },
+              },
             },
           },
           { headers: { 'Content-Type': 'application/json', ...corsHeaders } }
