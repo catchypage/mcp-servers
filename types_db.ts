@@ -931,6 +931,87 @@ export interface Database {
           },
         ]
       }
+      mcp_oauth_codes: {
+        Row: {
+          code: string
+          client_id: string
+          user_id: string
+          redirect_uri: string
+          scope: string
+          code_challenge: string
+          code_challenge_method: string
+          resource: string | null
+          state: string
+          expires_at: string
+          created_at: string
+        }
+        Insert: {
+          code: string
+          client_id: string
+          user_id: string
+          redirect_uri: string
+          scope?: string
+          code_challenge: string
+          code_challenge_method: string
+          resource?: string | null
+          state: string
+          expires_at: string
+          created_at?: string
+        }
+        Update: Partial<{
+          code: string
+          client_id: string
+          user_id: string
+          redirect_uri: string
+          scope: string
+          code_challenge: string
+          code_challenge_method: string
+          resource: string | null
+          state: string
+          expires_at: string
+          created_at: string
+        }>
+        Relationships: []
+      }
+      mcp_oauth_states: {
+        Row: {
+          id: string
+          client_id: string
+          redirect_uri: string
+          scope: string
+          state: string
+          code_challenge: string
+          code_challenge_method: string
+          resource: string | null
+          expires_at: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          client_id: string
+          redirect_uri: string
+          scope?: string
+          state: string
+          code_challenge: string
+          code_challenge_method: string
+          resource?: string | null
+          expires_at: string
+          created_at?: string
+        }
+        Update: Partial<{
+          id: string
+          client_id: string
+          redirect_uri: string
+          scope: string
+          state: string
+          code_challenge: string
+          code_challenge_method: string
+          resource: string | null
+          expires_at: string
+          created_at: string
+        }>
+        Relationships: []
+      }
     }
     Views: {
       v_gpt_callback: {

@@ -9,7 +9,9 @@ import { getBaseUrl } from '@/utils/mcp/getBaseUrl'
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
-const JWT_SECRET = new TextEncoder().encode(process.env.NEXTAUTH_SECRET)
+const JWT_SECRET = new TextEncoder().encode(
+  process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET,
+)
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -33,7 +35,8 @@ export async function OPTIONS() {
 
 /**
  * OAuth 2.0 Token Endpoint.
- * Exchanges authorization code for JWT (PKCE) or refresh_token for new access_token.
+ * Exchanges authorization code for JWT (PKCE) or refresh_token for new
+ * access_token.
  */
 export async function POST(req: NextRequest) {
   try {
@@ -46,13 +49,16 @@ export async function POST(req: NextRequest) {
     const codeVerifier = params.get('code_verifier')
     const refreshToken = params.get('refresh_token')
 
-    const baseUrl = getBaseUrl()
+    const baseUrl = getBaseUrl(req.headers.get('host') ?? undefined)
 
     if (grantType === 'authorization_code') {
       if (!code || !codeVerifier || !clientId) {
         return NextResponse.json(
-          { error: 'invalid_request', error_description: 'Missing required parameters' },
-          { status: 400, headers: corsHeaders }
+          {
+            error: 'invalid_request',
+            error_description: 'Missing required parameters',
+          },
+          { status: 400, headers: corsHeaders },
         )
       }
 
@@ -64,30 +70,39 @@ export async function POST(req: NextRequest) {
 
       if (codeError ?? !codeData) {
         return NextResponse.json(
-          { error: 'invalid_grant', error_description: 'Invalid authorization code' },
-          { status: 400, headers: corsHeaders }
+          {
+            error: 'invalid_grant',
+            error_description: 'Invalid authorization code',
+          },
+          { status: 400, headers: corsHeaders },
         )
       }
 
       if (new Date(codeData.expires_at) < new Date()) {
         await supabaseAdmin.from('mcp_oauth_codes').delete().eq('code', code)
         return NextResponse.json(
-          { error: 'invalid_grant', error_description: 'Authorization code expired' },
-          { status: 400, headers: corsHeaders }
+          {
+            error: 'invalid_grant',
+            error_description: 'Authorization code expired',
+          },
+          { status: 400, headers: corsHeaders },
         )
       }
 
       if (codeData.client_id !== clientId) {
         return NextResponse.json(
           { error: 'invalid_grant', error_description: 'Client ID mismatch' },
-          { status: 400, headers: corsHeaders }
+          { status: 400, headers: corsHeaders },
         )
       }
 
       if (!verifyPkce(codeVerifier, codeData.code_challenge)) {
         return NextResponse.json(
-          { error: 'invalid_grant', error_description: 'PKCE verification failed' },
-          { status: 400, headers: corsHeaders }
+          {
+            error: 'invalid_grant',
+            error_description: 'PKCE verification failed',
+          },
+          { status: 400, headers: corsHeaders },
         )
       }
 
@@ -100,14 +115,14 @@ export async function POST(req: NextRequest) {
       if (userError ?? !userData) {
         return NextResponse.json(
           { error: 'invalid_grant', error_description: 'User not found' },
-          { status: 400, headers: corsHeaders }
+          { status: 400, headers: corsHeaders },
         )
       }
 
       await supabaseAdmin.from('mcp_oauth_codes').delete().eq('code', code)
 
-      const resource = (codeData.resource as string) ?? `${baseUrl}/api/mcp`
-      const scope = (codeData.scope as string) ?? 'user:read'
+      const resource = codeData.resource ?? `${baseUrl}/api/mcp`
+      const scope = codeData.scope ?? 'user:read'
 
       const accessToken = await new SignJWT({
         sub: userData.auth_id ?? userData.id,
@@ -148,15 +163,18 @@ export async function POST(req: NextRequest) {
           refresh_token: newRefreshToken,
           scope,
         },
-        { status: 200, headers: corsHeaders }
+        { status: 200, headers: corsHeaders },
       )
     }
 
     if (grantType === 'refresh_token') {
       if (!refreshToken) {
         return NextResponse.json(
-          { error: 'invalid_request', error_description: 'Refresh token required' },
-          { status: 400, headers: corsHeaders }
+          {
+            error: 'invalid_request',
+            error_description: 'Refresh token required',
+          },
+          { status: 400, headers: corsHeaders },
         )
       }
 
@@ -205,12 +223,15 @@ export async function POST(req: NextRequest) {
             refresh_token: refreshToken,
             scope,
           },
-          { status: 200, headers: corsHeaders }
+          { status: 200, headers: corsHeaders },
         )
       } catch {
         return NextResponse.json(
-          { error: 'invalid_grant', error_description: 'Invalid refresh token' },
-          { status: 400, headers: corsHeaders }
+          {
+            error: 'invalid_grant',
+            error_description: 'Invalid refresh token',
+          },
+          { status: 400, headers: corsHeaders },
         )
       }
     }
@@ -218,15 +239,16 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       {
         error: 'unsupported_grant_type',
-        error_description: 'Only authorization_code and refresh_token are supported',
+        error_description:
+          'Only authorization_code and refresh_token are supported',
       },
-      { status: 400, headers: corsHeaders }
+      { status: 400, headers: corsHeaders },
     )
   } catch (error) {
     console.error('MCP token endpoint error:', error)
     return NextResponse.json(
       { error: 'server_error', error_description: 'Internal server error' },
-      { status: 500, headers: corsHeaders }
+      { status: 500, headers: corsHeaders },
     )
   }
 }

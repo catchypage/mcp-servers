@@ -1,15 +1,25 @@
 import type { McpAppConfig, McpToolDefinition } from '@/utils/mcp/core/registry'
-import type { MealPlan, RecipeDetails, SwapCandidate, DayPlan, Meal, ShoppingSection } from './types'
+import type {
+  MealPlan,
+  RecipeDetails,
+  SwapCandidate,
+  DayPlan,
+  Meal,
+  ShoppingSection,
+} from './types'
 import { nanoid } from 'nanoid'
 
-// ============================================================================
-// TOOL DEFINITIONS
-// ============================================================================
+/*
+ * ============================================================================
+ * TOOL DEFINITIONS
+ * ============================================================================
+ */
 
 const generateWeeklyPlanTool: McpToolDefinition = {
   name: 'generate_weekly_plan',
   title: 'Generate Weekly Meal Plan',
-  description: 'Create a personalized weekly meal plan based on household size, dietary preferences, allergies, budget, and goals.',
+  description:
+    'Create a personalized weekly meal plan based on household size, dietary preferences, allergies, budget, and goals.',
   inputSchema: {
     type: 'object',
     properties: {
@@ -20,12 +30,14 @@ const generateWeeklyPlanTool: McpToolDefinition = {
       dietary_preferences: {
         type: 'array',
         items: { type: 'string' },
-        description: 'Dietary preferences: healthy, high_protein, low_carb, vegetarian, vegan, keto, mediterranean',
+        description:
+          'Dietary preferences: healthy, high_protein, low_carb, vegetarian, vegan, keto, mediterranean',
       },
       allergies: {
         type: 'array',
         items: { type: 'string' },
-        description: 'Food allergies: dairy, gluten, nuts, shellfish, eggs, soy',
+        description:
+          'Food allergies: dairy, gluten, nuts, shellfish, eggs, soy',
       },
       budget_target: {
         type: 'number',
@@ -33,7 +45,8 @@ const generateWeeklyPlanTool: McpToolDefinition = {
       },
       goal: {
         type: 'string',
-        description: 'Primary goal: healthy, high_protein, cheap, quick, balanced',
+        description:
+          'Primary goal: healthy, high_protein, cheap, quick, balanced',
       },
       max_prep_minutes: {
         type: 'number',
@@ -54,7 +67,8 @@ const generateWeeklyPlanTool: McpToolDefinition = {
 const getRecipeDetailsTool: McpToolDefinition = {
   name: 'get_recipe_details',
   title: 'Get Recipe Details',
-  description: 'Get full recipe details including ingredients, instructions, nutrition, and substitutions.',
+  description:
+    'Get full recipe details including ingredients, instructions, nutrition, and substitutions.',
   inputSchema: {
     type: 'object',
     properties: {
@@ -75,7 +89,8 @@ const getRecipeDetailsTool: McpToolDefinition = {
 const swapMealTool: McpToolDefinition = {
   name: 'swap_meal',
   title: 'Swap Meal',
-  description: 'Get alternative meal options or replace a specific meal in the plan.',
+  description:
+    'Get alternative meal options or replace a specific meal in the plan.',
   inputSchema: {
     type: 'object',
     properties: {
@@ -84,11 +99,13 @@ const swapMealTool: McpToolDefinition = {
       constraints: {
         type: 'array',
         items: { type: 'string' },
-        description: 'Optional constraints: cheaper, faster, vegetarian, kid_friendly, high_protein',
+        description:
+          'Optional constraints: cheaper, faster, vegetarian, kid_friendly, high_protein',
       },
       replace_with: {
         type: 'string',
-        description: 'If provided, directly replace with this meal_id from candidates',
+        description:
+          'If provided, directly replace with this meal_id from candidates',
       },
     },
     required: ['plan_id', 'meal_id'],
@@ -137,7 +154,8 @@ const updatePlanConstraintsTool: McpToolDefinition = {
 const buildShoppingListTool: McpToolDefinition = {
   name: 'build_shopping_list',
   title: 'Build Shopping List',
-  description: 'Generate a consolidated shopping list grouped by store section.',
+  description:
+    'Generate a consolidated shopping list grouped by store section.',
   inputSchema: {
     type: 'object',
     properties: {
@@ -157,7 +175,8 @@ const buildShoppingListTool: McpToolDefinition = {
 const createOrderLinkTool: McpToolDefinition = {
   name: 'create_order_link',
   title: 'Create Order Link',
-  description: 'Generate a deep link to order ingredients from a grocery provider.',
+  description:
+    'Generate a deep link to order ingredients from a grocery provider.',
   inputSchema: {
     type: 'object',
     properties: {
@@ -181,7 +200,8 @@ const createOrderLinkTool: McpToolDefinition = {
 const getUserInfoTool: McpToolDefinition = {
   name: 'get_user_info',
   title: 'Get User Info',
-  description: 'INTERNAL: Widget-only. Get current user info for personalization.',
+  description:
+    'INTERNAL: Widget-only. Get current user info for personalization.',
   inputSchema: { type: 'object', properties: {}, required: [] },
   annotations: {
     readOnlyHint: true,
@@ -193,9 +213,11 @@ const getUserInfoTool: McpToolDefinition = {
   _meta: { 'openai/hidden': true },
 }
 
-// ============================================================================
-// EXPORTS
-// ============================================================================
+/*
+ * ============================================================================
+ * EXPORTS
+ * ============================================================================
+ */
 
 export const chefplanTools: McpToolDefinition[] = [
   generateWeeklyPlanTool,
@@ -208,37 +230,210 @@ export const chefplanTools: McpToolDefinition[] = [
 
 export const chefplanInternalTools: McpToolDefinition[] = [getUserInfoTool]
 
-// ============================================================================
-// MOCK DATA GENERATORS
-// ============================================================================
+/*
+ * ============================================================================
+ * MOCK DATA GENERATORS
+ * ============================================================================
+ */
 
 const MEAL_TEMPLATES = {
   breakfast: [
-    { title: 'Greek Yogurt Parfait', prep: 10, cost: 4.5, cal: 320, protein: 22, carbs: 28, fat: 9, tags: ['high-protein', 'quick'] },
-    { title: 'Avocado Toast with Eggs', prep: 15, cost: 5.2, cal: 420, protein: 18, carbs: 32, fat: 24, tags: ['healthy', 'popular'] },
-    { title: 'Overnight Oats', prep: 5, cost: 2.8, cal: 350, protein: 12, carbs: 58, fat: 8, tags: ['budget', 'meal-prep'] },
-    { title: 'Veggie Omelette', prep: 12, cost: 4.0, cal: 280, protein: 20, carbs: 8, fat: 18, tags: ['low-carb', 'keto'] },
-    { title: 'Smoothie Bowl', prep: 8, cost: 5.5, cal: 380, protein: 14, carbs: 52, fat: 12, tags: ['vegan', 'refreshing'] },
+    {
+      title: 'Greek Yogurt Parfait',
+      prep: 10,
+      cost: 4.5,
+      cal: 320,
+      protein: 22,
+      carbs: 28,
+      fat: 9,
+      tags: ['high-protein', 'quick'],
+    },
+    {
+      title: 'Avocado Toast with Eggs',
+      prep: 15,
+      cost: 5.2,
+      cal: 420,
+      protein: 18,
+      carbs: 32,
+      fat: 24,
+      tags: ['healthy', 'popular'],
+    },
+    {
+      title: 'Overnight Oats',
+      prep: 5,
+      cost: 2.8,
+      cal: 350,
+      protein: 12,
+      carbs: 58,
+      fat: 8,
+      tags: ['budget', 'meal-prep'],
+    },
+    {
+      title: 'Veggie Omelette',
+      prep: 12,
+      cost: 4.0,
+      cal: 280,
+      protein: 20,
+      carbs: 8,
+      fat: 18,
+      tags: ['low-carb', 'keto'],
+    },
+    {
+      title: 'Smoothie Bowl',
+      prep: 8,
+      cost: 5.5,
+      cal: 380,
+      protein: 14,
+      carbs: 52,
+      fat: 12,
+      tags: ['vegan', 'refreshing'],
+    },
   ],
   lunch: [
-    { title: 'Chicken Rice Bowls', prep: 20, cost: 6.5, cal: 540, protein: 38, carbs: 52, fat: 16, tags: ['high-protein', 'meal-prep'] },
-    { title: 'Mediterranean Salad', prep: 15, cost: 7.2, cal: 420, protein: 24, carbs: 28, fat: 22, tags: ['healthy', 'mediterranean'] },
-    { title: 'Turkey Wrap', prep: 10, cost: 5.8, cal: 480, protein: 32, carbs: 42, fat: 18, tags: ['quick', 'portable'] },
-    { title: 'Lentil Soup', prep: 25, cost: 3.5, cal: 320, protein: 18, carbs: 48, fat: 4, tags: ['budget', 'vegan'] },
-    { title: 'Tuna Poke Bowl', prep: 15, cost: 8.5, cal: 450, protein: 36, carbs: 38, fat: 14, tags: ['high-protein', 'fresh'] },
+    {
+      title: 'Chicken Rice Bowls',
+      prep: 20,
+      cost: 6.5,
+      cal: 540,
+      protein: 38,
+      carbs: 52,
+      fat: 16,
+      tags: ['high-protein', 'meal-prep'],
+    },
+    {
+      title: 'Mediterranean Salad',
+      prep: 15,
+      cost: 7.2,
+      cal: 420,
+      protein: 24,
+      carbs: 28,
+      fat: 22,
+      tags: ['healthy', 'mediterranean'],
+    },
+    {
+      title: 'Turkey Wrap',
+      prep: 10,
+      cost: 5.8,
+      cal: 480,
+      protein: 32,
+      carbs: 42,
+      fat: 18,
+      tags: ['quick', 'portable'],
+    },
+    {
+      title: 'Lentil Soup',
+      prep: 25,
+      cost: 3.5,
+      cal: 320,
+      protein: 18,
+      carbs: 48,
+      fat: 4,
+      tags: ['budget', 'vegan'],
+    },
+    {
+      title: 'Tuna Poke Bowl',
+      prep: 15,
+      cost: 8.5,
+      cal: 450,
+      protein: 36,
+      carbs: 38,
+      fat: 14,
+      tags: ['high-protein', 'fresh'],
+    },
   ],
   dinner: [
-    { title: 'Lentil Pasta Bake', prep: 25, cost: 8.2, cal: 710, protein: 29, carbs: 66, fat: 18, tags: ['comfort-food', 'family'] },
-    { title: 'Grilled Salmon with Veggies', prep: 22, cost: 12.5, cal: 580, protein: 42, carbs: 18, fat: 32, tags: ['high-protein', 'healthy'] },
-    { title: 'Chicken Stir Fry', prep: 20, cost: 7.8, cal: 520, protein: 38, carbs: 42, fat: 18, tags: ['quick', 'asian'] },
-    { title: 'Beef Tacos', prep: 25, cost: 9.2, cal: 640, protein: 34, carbs: 48, fat: 28, tags: ['kid-friendly', 'popular'] },
-    { title: 'Veggie Curry', prep: 30, cost: 6.5, cal: 480, protein: 16, carbs: 58, fat: 18, tags: ['vegan', 'spicy'] },
+    {
+      title: 'Lentil Pasta Bake',
+      prep: 25,
+      cost: 8.2,
+      cal: 710,
+      protein: 29,
+      carbs: 66,
+      fat: 18,
+      tags: ['comfort-food', 'family'],
+    },
+    {
+      title: 'Grilled Salmon with Veggies',
+      prep: 22,
+      cost: 12.5,
+      cal: 580,
+      protein: 42,
+      carbs: 18,
+      fat: 32,
+      tags: ['high-protein', 'healthy'],
+    },
+    {
+      title: 'Chicken Stir Fry',
+      prep: 20,
+      cost: 7.8,
+      cal: 520,
+      protein: 38,
+      carbs: 42,
+      fat: 18,
+      tags: ['quick', 'asian'],
+    },
+    {
+      title: 'Beef Tacos',
+      prep: 25,
+      cost: 9.2,
+      cal: 640,
+      protein: 34,
+      carbs: 48,
+      fat: 28,
+      tags: ['kid-friendly', 'popular'],
+    },
+    {
+      title: 'Veggie Curry',
+      prep: 30,
+      cost: 6.5,
+      cal: 480,
+      protein: 16,
+      carbs: 58,
+      fat: 18,
+      tags: ['vegan', 'spicy'],
+    },
   ],
   snack: [
-    { title: 'Apple & Peanut Butter', prep: 2, cost: 1.5, cal: 180, protein: 6, carbs: 22, fat: 8, tags: ['quick', 'healthy'] },
-    { title: 'Greek Yogurt & Berries', prep: 3, cost: 2.2, cal: 150, protein: 12, carbs: 18, fat: 2, tags: ['high-protein', 'low-fat'] },
-    { title: 'Trail Mix', prep: 1, cost: 2.0, cal: 200, protein: 6, carbs: 20, fat: 12, tags: ['portable', 'energy'] },
-    { title: 'Hummus & Veggies', prep: 5, cost: 3.0, cal: 160, protein: 6, carbs: 18, fat: 8, tags: ['vegan', 'fiber'] },
+    {
+      title: 'Apple & Peanut Butter',
+      prep: 2,
+      cost: 1.5,
+      cal: 180,
+      protein: 6,
+      carbs: 22,
+      fat: 8,
+      tags: ['quick', 'healthy'],
+    },
+    {
+      title: 'Greek Yogurt & Berries',
+      prep: 3,
+      cost: 2.2,
+      cal: 150,
+      protein: 12,
+      carbs: 18,
+      fat: 2,
+      tags: ['high-protein', 'low-fat'],
+    },
+    {
+      title: 'Trail Mix',
+      prep: 1,
+      cost: 2.0,
+      cal: 200,
+      protein: 6,
+      carbs: 20,
+      fat: 12,
+      tags: ['portable', 'energy'],
+    },
+    {
+      title: 'Hummus & Veggies',
+      prep: 5,
+      cost: 3.0,
+      cal: 160,
+      protein: 6,
+      carbs: 18,
+      fat: 8,
+      tags: ['vegan', 'fiber'],
+    },
   ],
 }
 
@@ -248,7 +443,10 @@ function randomPick<T>(arr: T[]): T {
   return arr[Math.floor(Math.random() * arr.length)]
 }
 
-function generateMeal(type: 'breakfast' | 'lunch' | 'dinner' | 'snack', servings: number): Meal {
+function generateMeal(
+  type: 'breakfast' | 'lunch' | 'dinner' | 'snack',
+  servings: number,
+): Meal {
   const template = randomPick(MEAL_TEMPLATES[type])
   return {
     meal_id: nanoid(8),
@@ -282,7 +480,7 @@ function generateDayPlan(day: string, servings: number): DayPlan {
       carbs_g: acc.carbs_g + meal.macros.carbs_g,
       fat_g: acc.fat_g + meal.macros.fat_g,
     }),
-    { calories: 0, protein_g: 0, carbs_g: 0, fat_g: 0 }
+    { calories: 0, protein_g: 0, carbs_g: 0, fat_g: 0 },
   )
 
   return { day, totals, meals }
@@ -299,15 +497,30 @@ function generateShoppingList(days: DayPlan[]): ShoppingSection[] {
         { name: 'Spinach', quantity: 1, unit: 'bag', estimated_cost: 3.5 },
         { name: 'Avocados', quantity: 4, unit: 'pieces', estimated_cost: 6.0 },
         { name: 'Tomatoes', quantity: 6, unit: 'pieces', estimated_cost: 4.5 },
-        { name: 'Bell Peppers', quantity: 3, unit: 'pieces', estimated_cost: 4.5 },
+        {
+          name: 'Bell Peppers',
+          quantity: 3,
+          unit: 'pieces',
+          estimated_cost: 4.5,
+        },
         { name: 'Lemons', quantity: 3, unit: 'pieces', estimated_cost: 2.0 },
       ],
     },
     {
       section: 'Proteins',
       items: [
-        { name: 'Chicken Breast', quantity: 2, unit: 'lbs', estimated_cost: 12.0 },
-        { name: 'Salmon Fillet', quantity: 1, unit: 'lb', estimated_cost: 14.0 },
+        {
+          name: 'Chicken Breast',
+          quantity: 2,
+          unit: 'lbs',
+          estimated_cost: 12.0,
+        },
+        {
+          name: 'Salmon Fillet',
+          quantity: 1,
+          unit: 'lb',
+          estimated_cost: 14.0,
+        },
         { name: 'Ground Turkey', quantity: 1, unit: 'lb', estimated_cost: 8.0 },
         { name: 'Eggs', quantity: 12, unit: 'pieces', estimated_cost: 5.0 },
       ],
@@ -327,22 +540,39 @@ function generateShoppingList(days: DayPlan[]): ShoppingSection[] {
         { name: 'Lentils', quantity: 1, unit: 'lb', estimated_cost: 3.0 },
         { name: 'Olive Oil', quantity: 1, unit: 'bottle', estimated_cost: 8.0 },
         { name: 'Pasta', quantity: 1, unit: 'lb', estimated_cost: 2.5 },
-        { name: 'Canned Tomatoes', quantity: 2, unit: 'cans', estimated_cost: 4.0 },
+        {
+          name: 'Canned Tomatoes',
+          quantity: 2,
+          unit: 'cans',
+          estimated_cost: 4.0,
+        },
       ],
     },
     {
       section: 'Frozen',
       items: [
-        { name: 'Mixed Berries', quantity: 1, unit: 'bag', estimated_cost: 5.0 },
-        { name: 'Frozen Vegetables', quantity: 2, unit: 'bags', estimated_cost: 6.0 },
+        {
+          name: 'Mixed Berries',
+          quantity: 1,
+          unit: 'bag',
+          estimated_cost: 5.0,
+        },
+        {
+          name: 'Frozen Vegetables',
+          quantity: 2,
+          unit: 'bags',
+          estimated_cost: 6.0,
+        },
       ],
     },
   ]
 }
 
-// ============================================================================
-// TOOL HANDLERS
-// ============================================================================
+/*
+ * ============================================================================
+ * TOOL HANDLERS
+ * ============================================================================
+ */
 
 // In-memory plan storage (would be DB in production)
 const planStore = new Map<string, MealPlan>()
@@ -350,29 +580,36 @@ const planStore = new Map<string, MealPlan>()
 export type ToolHandler = (
   app: McpAppConfig,
   args: Record<string, unknown>,
-  userId: string
+  userId: string,
 ) => Promise<Record<string, unknown>>
 
 async function handleGenerateWeeklyPlan(
   _app: McpAppConfig,
   args: Record<string, unknown>,
-  _userId: string
+  _userId: string,
 ): Promise<Record<string, unknown>> {
-  const householdSize = Math.min(10, Math.max(1, Number(args.household_size) || 4))
+  const householdSize = Math.min(
+    10,
+    Math.max(1, Number(args.household_size) || 4),
+  )
   const budgetTarget = Number(args.budget_target) || 75
   const maxPrepMinutes = Number(args.max_prep_minutes) || 30
   const dietaryPreferences = Array.isArray(args.dietary_preferences)
     ? args.dietary_preferences.map(String)
     : ['healthy']
-  const allergies = Array.isArray(args.allergies) ? args.allergies.map(String) : []
+  const allergies = Array.isArray(args.allergies)
+    ? args.allergies.map(String)
+    : []
   const goal = String(args.goal || 'balanced')
 
   const days = DAYS.map((day) => generateDayPlan(day, householdSize))
   const shoppingList = generateShoppingList(days)
 
   const totalCost = shoppingList.reduce(
-    (sum, section) => sum + section.items.reduce((s, item) => s + (item.estimated_cost || 0), 0),
-    0
+    (sum, section) =>
+      sum +
+      section.items.reduce((s, item) => s + (item.estimated_cost || 0), 0),
+    0,
   )
 
   const avgNutrition = days.reduce(
@@ -382,7 +619,7 @@ async function handleGenerateWeeklyPlan(
       carbs: acc.carbs + day.totals.carbs_g / 7,
       fat: acc.fat + day.totals.fat_g / 7,
     }),
-    { calories: 0, protein: 0, carbs: 0, fat: 0 }
+    { calories: 0, protein: 0, carbs: 0, fat: 0 },
   )
 
   const plan: MealPlan = {
@@ -409,7 +646,11 @@ async function handleGenerateWeeklyPlan(
     shopping_list: shoppingList,
     order_options: [
       { provider: 'instacart', available: true, cta: 'Order with Instacart' },
-      { provider: 'amazon_fresh', available: true, cta: 'Order with Amazon Fresh' },
+      {
+        provider: 'amazon_fresh',
+        available: true,
+        cta: 'Order with Amazon Fresh',
+      },
       { provider: 'walmart', available: true, cta: 'Order with Walmart' },
     ],
   }
@@ -427,7 +668,7 @@ async function handleGenerateWeeklyPlan(
 async function handleGetRecipeDetails(
   _app: McpAppConfig,
   args: Record<string, unknown>,
-  _userId: string
+  _userId: string,
 ): Promise<Record<string, unknown>> {
   const planId = String(args.plan_id || '')
   const mealId = String(args.meal_id || '')
@@ -440,7 +681,9 @@ async function handleGetRecipeDetails(
   let foundMeal: Meal | undefined
   for (const day of plan.days) {
     foundMeal = day.meals.find((m) => m.meal_id === mealId)
-    if (foundMeal) break
+    if (foundMeal) {
+      break
+    }
   }
 
   if (!foundMeal) {
@@ -473,8 +716,16 @@ async function handleGetRecipeDetails(
       'Serve immediately and enjoy!',
     ],
     substitutions: [
-      { original: 'Olive oil', alternative: 'Avocado oil', notes: 'Same amount' },
-      { original: 'Fresh herbs', alternative: 'Dried herbs', notes: 'Use 1/3 the amount' },
+      {
+        original: 'Olive oil',
+        alternative: 'Avocado oil',
+        notes: 'Same amount',
+      },
+      {
+        original: 'Fresh herbs',
+        alternative: 'Dried herbs',
+        notes: 'Use 1/3 the amount',
+      },
     ],
   }
 
@@ -487,12 +738,14 @@ async function handleGetRecipeDetails(
 async function handleSwapMeal(
   _app: McpAppConfig,
   args: Record<string, unknown>,
-  _userId: string
+  _userId: string,
 ): Promise<Record<string, unknown>> {
   const planId = String(args.plan_id || '')
   const mealId = String(args.meal_id || '')
   const replaceWith = args.replace_with ? String(args.replace_with) : undefined
-  const constraints = Array.isArray(args.constraints) ? args.constraints.map(String) : []
+  const constraints = Array.isArray(args.constraints)
+    ? args.constraints.map(String)
+    : []
 
   const plan = planStore.get(planId)
   if (!plan) {
@@ -521,21 +774,22 @@ async function handleSwapMeal(
   const templates = MEAL_TEMPLATES[mealType]
 
   const candidates: SwapCandidate[] = templates
-    .filter((t) => t.title !== foundMeal!.title)
+    .filter((t) => t.title !== foundMeal.title)
     .slice(0, 4)
     .map((t, i) => ({
       meal_id: `swap_${nanoid(6)}`,
       title: t.title,
       prep_minutes: t.prep,
       calories: t.cal,
-      estimated_cost: Math.round(t.cost * foundMeal!.servings * 100) / 100,
+      estimated_cost: Math.round(t.cost * foundMeal.servings * 100) / 100,
       macros: { protein_g: t.protein, carbs_g: t.carbs, fat_g: t.fat },
       tags: t.tags,
       match_score: 0.9 - i * 0.1,
     }))
 
   if (replaceWith) {
-    const newMealData = candidates.find((c) => c.meal_id === replaceWith) || candidates[0]
+    const newMealData =
+      candidates.find((c) => c.meal_id === replaceWith) || candidates[0]
     const newMeal: Meal = {
       meal_id: nanoid(8),
       type: mealType,
@@ -559,7 +813,7 @@ async function handleSwapMeal(
         carbs_g: acc.carbs_g + m.macros.carbs_g,
         fat_g: acc.fat_g + m.macros.fat_g,
       }),
-      { calories: 0, protein_g: 0, carbs_g: 0, fat_g: 0 }
+      { calories: 0, protein_g: 0, carbs_g: 0, fat_g: 0 },
     )
 
     planStore.set(planId, plan)
@@ -584,7 +838,7 @@ async function handleSwapMeal(
 async function handleUpdatePlanConstraints(
   _app: McpAppConfig,
   args: Record<string, unknown>,
-  _userId: string
+  _userId: string,
 ): Promise<Record<string, unknown>> {
   const planId = String(args.plan_id || '')
 
@@ -619,7 +873,7 @@ async function handleUpdatePlanConstraints(
 async function handleBuildShoppingList(
   _app: McpAppConfig,
   args: Record<string, unknown>,
-  _userId: string
+  _userId: string,
 ): Promise<Record<string, unknown>> {
   const planId = String(args.plan_id || '')
 
@@ -629,8 +883,10 @@ async function handleBuildShoppingList(
   }
 
   const totalCost = plan.shopping_list.reduce(
-    (sum, section) => sum + section.items.reduce((s, item) => s + (item.estimated_cost || 0), 0),
-    0
+    (sum, section) =>
+      sum +
+      section.items.reduce((s, item) => s + (item.estimated_cost || 0), 0),
+    0,
   )
 
   return {
@@ -644,7 +900,7 @@ async function handleBuildShoppingList(
 async function handleCreateOrderLink(
   _app: McpAppConfig,
   args: Record<string, unknown>,
-  _userId: string
+  _userId: string,
 ): Promise<Record<string, unknown>> {
   const planId = String(args.plan_id || '')
   const provider = String(args.provider || 'instacart')
@@ -668,14 +924,16 @@ async function handleCreateOrderLink(
     deeplink: `${baseUrl}?plan=${planId}`,
     items_count: plan.shopping_list.reduce((sum, s) => sum + s.items.length, 0),
     estimated_total: plan.budget_summary.estimated_total,
-    cta: `Order with ${provider.charAt(0).toUpperCase() + provider.slice(1).replace('_', ' ')}`,
+    cta: `Order with ${
+      provider.charAt(0).toUpperCase() + provider.slice(1).replace('_', ' ')
+    }`,
   }
 }
 
 async function handleGetUserInfo(
   _app: McpAppConfig,
   _args: Record<string, unknown>,
-  userId: string
+  userId: string,
 ): Promise<Record<string, unknown>> {
   const { supabaseAdmin } = await import('@/utils/supabase/supabase-admin')
   const { data: user } = await supabaseAdmin
@@ -692,9 +950,11 @@ async function handleGetUserInfo(
   }
 }
 
-// ============================================================================
-// HANDLER REGISTRY
-// ============================================================================
+/*
+ * ============================================================================
+ * HANDLER REGISTRY
+ * ============================================================================
+ */
 
 export function getChefplanToolHandlers(): Record<string, ToolHandler> {
   return {

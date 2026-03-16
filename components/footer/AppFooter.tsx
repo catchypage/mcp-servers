@@ -12,9 +12,7 @@ export default function AppFooter() {
       { name: 'Capabilities', href: '/#about-section' },
       { name: 'Account', href: '/account' },
     ],
-    product: [
-      { name: 'Get Started', href: '/account' },
-    ],
+    product: [{ name: 'Get Started', href: '/account' }],
   }
 
   return (

@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/utils/auth/auth-options'
+import { auth } from '@/auth'
 import { supabaseAdmin } from '@/utils/supabase/supabase-admin'
 import { nanoid } from 'nanoid'
 import { getBaseUrl } from '@/utils/mcp/getBaseUrl'
@@ -25,22 +24,31 @@ export async function GET(req: NextRequest) {
 
   if (!clientId || !redirectUri || !state) {
     return NextResponse.json(
-      { error: 'invalid_request', error_description: 'Missing required parameters' },
-      { status: 400 }
+      {
+        error: 'invalid_request',
+        error_description: 'Missing required parameters',
+      },
+      { status: 400 },
     )
   }
 
   if (responseType !== 'code') {
     return NextResponse.json(
-      { error: 'unsupported_response_type', error_description: 'Only code is supported' },
-      { status: 400 }
+      {
+        error: 'unsupported_response_type',
+        error_description: 'Only code is supported',
+      },
+      { status: 400 },
     )
   }
 
   if (!codeChallenge || codeChallengeMethod !== 'S256') {
     return NextResponse.json(
-      { error: 'invalid_request', error_description: 'PKCE with S256 is required' },
-      { status: 400 }
+      {
+        error: 'invalid_request',
+        error_description: 'PKCE with S256 is required',
+      },
+      { status: 400 },
     )
   }
 
@@ -52,12 +60,12 @@ export async function GET(req: NextRequest) {
   if (!allowedRedirects.some((allowed) => redirectUri.startsWith(allowed))) {
     return NextResponse.json(
       { error: 'invalid_request', error_description: 'Invalid redirect_uri' },
-      { status: 400 }
+      { status: 400 },
     )
   }
 
-  const session = await getServerSession(authOptions)
-  const baseUrl = getBaseUrl()
+  const session = await auth()
+  const baseUrl = getBaseUrl(req.headers.get('host') ?? undefined)
 
   if (session?.user) {
     let userData: { id: string; email: string | null } | null = null
@@ -85,54 +93,63 @@ export async function GET(req: NextRequest) {
 
     if (userError ?? !userData) {
       return NextResponse.redirect(
-        `${redirectUri}?error=access_denied&error_description=User not found&state=${state}`
+        `${redirectUri}?error=access_denied&error_description=User not found&state=${state}`,
       )
     }
 
     const authCode = `mcp_code_${nanoid(32)}`
 
-    const { error: insertError } = await supabaseAdmin.from('mcp_oauth_codes').insert({
-      code: authCode,
-      client_id: clientId,
-      user_id: userData.id,
-      redirect_uri: redirectUri,
-      scope: scope ?? 'user:read',
-      code_challenge: codeChallenge,
-      code_challenge_method: codeChallengeMethod,
-      resource: resource ?? null,
-      state,
-      expires_at: new Date(Date.now() + 10 * 60 * 1000).toISOString(),
-      created_at: new Date().toISOString(),
-    })
+    const { error: insertError } = await supabaseAdmin
+      .from('mcp_oauth_codes')
+      .insert({
+        code: authCode,
+        client_id: clientId,
+        user_id: userData.id,
+        redirect_uri: redirectUri,
+        scope: scope ?? 'user:read',
+        code_challenge: codeChallenge,
+        code_challenge_method: codeChallengeMethod,
+        resource: resource ?? null,
+        state,
+        expires_at: new Date(Date.now() + 10 * 60 * 1000).toISOString(),
+        created_at: new Date().toISOString(),
+      })
 
     if (insertError) {
       return NextResponse.redirect(
-        `${redirectUri}?error=server_error&error_description=Failed to generate code&state=${state}`
+        `${redirectUri}?error=server_error&error_description=Failed to generate code&state=${state}`,
       )
     }
 
-    return NextResponse.redirect(`${redirectUri}?code=${authCode}&state=${state}`)
+    return NextResponse.redirect(
+      `${redirectUri}?code=${authCode}&state=${state}`,
+    )
   }
 
   const oauthStateId = `oauth_state_${nanoid(16)}`
 
-  const { error: stateError } = await supabaseAdmin.from('mcp_oauth_states').insert({
-    id: oauthStateId,
-    client_id: clientId,
-    redirect_uri: redirectUri,
-    scope: scope ?? 'user:read',
-    state,
-    code_challenge: codeChallenge,
-    code_challenge_method: codeChallengeMethod,
-    resource: resource ?? null,
-    expires_at: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
-    created_at: new Date().toISOString(),
-  })
+  const { error: stateError } = await supabaseAdmin
+    .from('mcp_oauth_states')
+    .insert({
+      id: oauthStateId,
+      client_id: clientId,
+      redirect_uri: redirectUri,
+      scope: scope ?? 'user:read',
+      state,
+      code_challenge: codeChallenge,
+      code_challenge_method: codeChallengeMethod,
+      resource: resource ?? null,
+      expires_at: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
+      created_at: new Date().toISOString(),
+    })
 
   if (stateError) {
     return NextResponse.json(
-      { error: 'server_error', error_description: 'Failed to initialize authorization' },
-      { status: 500 }
+      {
+        error: 'server_error',
+        error_description: 'Failed to initialize authorization',
+      },
+      { status: 500 },
     )
   }
 

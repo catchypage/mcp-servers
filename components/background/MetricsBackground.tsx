@@ -7,10 +7,14 @@ export default function MetricsBackground() {
 
   useEffect(() => {
     const canvas = canvasRef.current
-    if (!canvas) return
+    if (!canvas) {
+      return
+    }
 
     const ctx = canvas.getContext('2d')
-    if (!ctx) return
+    if (!ctx) {
+      return
+    }
 
     const resizeCanvas = () => {
       canvas.width = window.innerWidth
@@ -30,7 +34,9 @@ export default function MetricsBackground() {
       const isDark =
         document.documentElement.getAttribute('data-theme') === 'dark'
 
-      ctx.fillStyle = isDark ? 'rgba(0, 0, 0, 0.08)' : 'rgba(255, 255, 255, 0.1)'
+      ctx.fillStyle = isDark
+        ? 'rgba(0, 0, 0, 0.08)'
+        : 'rgba(255, 255, 255, 0.1)'
       ctx.fillRect(0, 0, canvas.width, canvas.height)
 
       ctx.fillStyle = isDark

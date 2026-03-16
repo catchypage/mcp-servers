@@ -1,6 +1,6 @@
 import { Database } from '@/types_db'
+import type { SupabaseUser } from '@/utils/types'
 import { SupabaseClient, createClient } from '@supabase/supabase-js'
-import { SupabaseUser } from '../types'
 
 // Initialize supabase client
 const supabase = createClient(
@@ -74,10 +74,10 @@ export async function getCallback(
 export async function getUserInfo(
   supabase: SupabaseClient<Database>,
   userId: string,
-) {
+): Promise<SupabaseUser | null> {
   const { data, error } = await supabase
     .from('users')
-    .select<string, SupabaseUser>('*')
+    .select('*')
     .eq('id', userId)
 
   if (error) {
@@ -85,7 +85,7 @@ export async function getUserInfo(
     return null
   }
 
-  return data[0]
+  return data?.[0] ?? null
 }
 
 export async function getUserActiveSubscription(

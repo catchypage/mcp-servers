@@ -22,9 +22,20 @@ export async function OPTIONS() {
   return new NextResponse(null, { status: 204, headers: corsHeaders })
 }
 
+interface RegisterRequestBody {
+  redirect_uris?: string[]
+  client_name?: string
+  client_uri?: string
+  logo_uri?: string
+  scope?: string
+  grant_types?: string[]
+  response_types?: string[]
+  token_endpoint_auth_method?: string
+}
+
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json()
+    const body = (await req.json()) as RegisterRequestBody
     const baseUrl = getBaseUrlFromRequest(req)
 
     // Extract registration request fields
@@ -37,19 +48,12 @@ export async function POST(req: NextRequest) {
       grant_types = ['authorization_code', 'refresh_token'],
       response_types = ['code'],
       token_endpoint_auth_method = 'none',
-    } = body as {
-      redirect_uris?: string[]
-      client_name?: string
-      client_uri?: string
-      logo_uri?: string
-      scope?: string
-      grant_types?: string[]
-      response_types?: string[]
-      token_endpoint_auth_method?: string
-    }
+    } = body
 
-    // Generate client credentials
-    // For public clients (PKCE), we don't need a secret
+    /*
+     * Generate client credentials
+     * For public clients (PKCE), we don't need a secret
+     */
     const clientId = `mcp_${nanoid(24)}`
     const registrationAccessToken = nanoid(32)
 
@@ -65,7 +69,7 @@ export async function POST(req: NextRequest) {
       client_name,
       client_uri,
       logo_uri,
-      scope: scope || 'openid profile email user:read',
+      scope: scope ?? 'openid profile email user:read',
       grant_types,
       response_types,
       token_endpoint_auth_method,
@@ -74,9 +78,11 @@ export async function POST(req: NextRequest) {
       code_challenge_methods_supported: ['S256'],
     }
 
-    // In production, you'd store this in DB
-    // For now, we accept all registrations (stateless)
-    // The client_id format allows us to validate it later
+    /*
+     * In production, you'd store this in DB
+     * For now, we accept all registrations (stateless)
+     * The client_id format allows us to validate it later
+     */
 
     return NextResponse.json(clientMetadata, {
       status: 201,
@@ -99,7 +105,7 @@ export async function POST(req: NextRequest) {
           'Content-Type': 'application/json',
           ...corsHeaders,
         },
-      }
+      },
     )
   }
 }

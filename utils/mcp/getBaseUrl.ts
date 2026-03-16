@@ -9,7 +9,10 @@ export function getBaseUrl(host?: string | null): string {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? SITE_DOMAIN
   const tunnelUrl = process.env.TUNNEL_URL
 
-  if ((siteUrl === 'http://localhost:3000' || siteUrl.includes('localhost')) && tunnelUrl) {
+  if (
+    (siteUrl === 'http://localhost:3000' || siteUrl.includes('localhost')) &&
+    tunnelUrl
+  ) {
     return tunnelUrl
   }
 
@@ -25,7 +28,9 @@ export function getBaseUrl(host?: string | null): string {
  * Get base URL from request (for multi-domain).
  * Uses Host header when domain is mapped.
  */
-export function getBaseUrlFromRequest(req: { headers: { get: (name: string) => string | null } }): string {
+export function getBaseUrlFromRequest(req: {
+  headers: { get: (name: string) => string | null }
+}): string {
   const host = req.headers.get('host') ?? req.headers.get('x-forwarded-host')
   return getBaseUrl(host)
 }

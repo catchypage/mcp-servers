@@ -19,7 +19,12 @@ interface SignModalProps {
 
 const SignModal = ({
   register = false,
-  options: { scope, state = 'default_state', redirectUri, callbackUrl: customCallbackUrl },
+  options: {
+    scope,
+    state = 'default_state',
+    redirectUri,
+    callbackUrl: customCallbackUrl,
+  },
 }: SignModalProps) => {
   const pathName = usePathname()
 
@@ -33,7 +38,10 @@ const SignModal = ({
   const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
-    // If custom callback URL is provided (e.g., MCP OAuth flow), use it directly
+    /*
+     * If custom callback URL is provided (e.g., MCP OAuth flow),
+     * use it directly
+     */
     if (customCallbackUrl) {
       setIsGptFlow(true)
       setRedirectUrl(customCallbackUrl)
@@ -107,8 +115,14 @@ const SignModal = ({
       })
 
       if (result?.error) {
-        setError(isSignUp ? 'Account created. Please sign in.' : 'Invalid email or password')
-        if (isSignUp) setIsSignUp(false)
+        setError(
+          isSignUp
+            ? 'Account created. Please sign in.'
+            : 'Invalid email or password',
+        )
+        if (isSignUp) {
+          setIsSignUp(false)
+        }
         return
       }
 
@@ -140,11 +154,16 @@ const SignModal = ({
             <span className="w-full border-t border-white/20" />
           </div>
           <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-[var(--bg-primary)] px-2 text-white/60">or</span>
+            <span className="bg-[var(--bg-primary)] px-2 text-white/60">
+              or
+            </span>
           </div>
         </div>
 
-        <form onSubmit={handleCredentialsSubmit} className="flex flex-col gap-4">
+        <form
+          onSubmit={(e) => void handleCredentialsSubmit(e)}
+          className="flex flex-col gap-4"
+        >
           {isSignUp && (
             <input
               type="text"
@@ -171,9 +190,7 @@ const SignModal = ({
             minLength={6}
             className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-white placeholder:text-white/40 focus:outline-none focus:border-[var(--accent-gold)]"
           />
-          {error && (
-            <p className="text-sm text-red-400">{error}</p>
-          )}
+          {error && <p className="text-sm text-red-400">{error}</p>}
           <button
             type="submit"
             disabled={isLoading}
@@ -191,7 +208,9 @@ const SignModal = ({
           }}
           className="text-sm text-white/60 hover:text-white/80"
         >
-          {isSignUp ? 'Already have an account? Sign In' : "Don't have an account? Sign Up"}
+          {isSignUp
+            ? 'Already have an account? Sign In'
+            : "Don't have an account? Sign Up"}
         </button>
       </div>
     </div>

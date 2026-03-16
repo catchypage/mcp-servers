@@ -1,4 +1,3 @@
-
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import ChefPlanWidget from './ChefPlanWidget'
@@ -11,7 +10,7 @@ function initWidget() {
     root.render(
       <React.StrictMode>
         <ChefPlanWidget />
-      </React.StrictMode>
+      </React.StrictMode>,
     )
   } else {
     console.error('ChefPlan widget root element not found')

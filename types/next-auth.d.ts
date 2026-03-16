@@ -10,6 +10,7 @@ declare module 'next-auth' {
       supabaseUserId?: string
       created_at?: string | null
     }
+    lastRefresh?: number
   }
 
   interface User {

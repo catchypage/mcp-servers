@@ -10,24 +10,67 @@ export default function ResumeWidget() {
   const [loading, setLoading] = useState(false)
 
   const handleCreate = async () => {
-    if (!jobTitle.trim()) return
+    if (!jobTitle.trim()) {
+      return
+    }
     setLoading(true)
     setResult(null)
 
     try {
-      if (typeof window !== 'undefined' && (window as unknown as { openai?: { callTool?: (name: string, args: Record<string, unknown>) => Promise<unknown> } }).openai?.callTool) {
-        const res = await (window as unknown as { openai: { callTool: (name: string, args: Record<string, unknown>) => Promise<{ structuredContent?: { resume?: unknown } }> } }).openai.callTool('create_resume', {
+      if (
+        typeof window !== 'undefined' &&
+        (
+          window as unknown as {
+            openai?: {
+              callTool?: (
+                name: string,
+                args: Record<string, unknown>,
+              ) => Promise<unknown>
+            }
+          }
+        ).openai?.callTool
+      ) {
+        const res = await (
+          window as unknown as {
+            openai: {
+              callTool: (
+                name: string,
+                args: Record<string, unknown>,
+              ) => Promise<{ structuredContent?: { resume?: unknown } }>
+            }
+          }
+        ).openai.callTool('create_resume', {
           job_title: jobTitle,
           experience: experience || undefined,
-          skills: skills ? skills.split(',').map((s) => s.trim()).filter(Boolean) : undefined,
+          skills: skills
+            ? skills
+                .split(',')
+                .map((s) => s.trim())
+                .filter(Boolean)
+            : undefined,
         })
-        setResult(JSON.stringify((res as { structuredContent?: { resume?: unknown } })?.structuredContent?.resume ?? res, null, 2))
+        setResult(
+          JSON.stringify(
+            (res as { structuredContent?: { resume?: unknown } })
+              ?.structuredContent?.resume ?? res,
+            null,
+            2,
+          ),
+        )
       } else {
-        setResult(JSON.stringify({
-          jobTitle,
-          experience: experience || 'To be filled',
-          skills: skills ? skills.split(',').map((s) => s.trim()) : ['Add your skills'],
-        }, null, 2))
+        setResult(
+          JSON.stringify(
+            {
+              jobTitle,
+              experience: experience || 'To be filled',
+              skills: skills
+                ? skills.split(',').map((s) => s.trim())
+                : ['Add your skills'],
+            },
+            null,
+            2,
+          ),
+        )
       }
     } catch (err) {
       setResult('Error: ' + (err instanceof Error ? err.message : String(err)))
@@ -42,7 +85,9 @@ export default function ResumeWidget() {
         <h1 className="mb-6 text-2xl font-bold">Resume Builder</h1>
 
         <div className="mb-4">
-          <label className="mb-2 block text-sm text-gray-400">Job Title *</label>
+          <label className="mb-2 block text-sm text-gray-400">
+            Job Title *
+          </label>
           <input
             type="text"
             value={jobTitle}
@@ -64,7 +109,9 @@ export default function ResumeWidget() {
         </div>
 
         <div className="mb-6">
-          <label className="mb-2 block text-sm text-gray-400">Skills (comma-separated)</label>
+          <label className="mb-2 block text-sm text-gray-400">
+            Skills (comma-separated)
+          </label>
           <input
             type="text"
             value={skills}
@@ -75,7 +122,7 @@ export default function ResumeWidget() {
         </div>
 
         <button
-          onClick={handleCreate}
+          onClick={() => void handleCreate()}
           disabled={loading || !jobTitle.trim()}
           className="rounded-lg bg-blue-600 px-6 py-2 font-medium text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
         >

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyMcpToken, getWwwAuthenticateHeader } from '@/utils/mcp/auth'
-import { getBaseUrl, getBaseUrlFromRequest } from '@/utils/mcp/getBaseUrl'
+import { getBaseUrlFromRequest } from '@/utils/mcp/getBaseUrl'
 import { getToolHandlers, getWidgetHtml } from './handlers'
 import type { McpAppConfig } from './registry'
 
@@ -26,7 +26,7 @@ interface McpRequest {
 export async function handleMcpRequest(
   app: McpAppConfig,
   req: NextRequest,
-  resourceUrl: string
+  resourceUrl: string,
 ): Promise<NextResponse> {
   let body: McpRequest
 
@@ -35,7 +35,7 @@ export async function handleMcpRequest(
   } catch {
     return NextResponse.json(
       { jsonrpc: '2.0', id: null, result: {} },
-      { headers: corsHeaders }
+      { headers: corsHeaders },
     )
   }
 
@@ -60,14 +60,14 @@ export async function handleMcpRequest(
             },
           },
         },
-        { headers: { 'Content-Type': 'application/json', ...corsHeaders } }
+        { headers: { 'Content-Type': 'application/json', ...corsHeaders } },
       )
 
     case 'tools/list': {
       const allTools = [...app.tools, ...(app.internalTools ?? [])]
       return NextResponse.json(
         { ...response, result: { tools: allTools } },
-        { headers: { 'Content-Type': 'application/json', ...corsHeaders } }
+        { headers: { 'Content-Type': 'application/json', ...corsHeaders } },
       )
     }
 
@@ -97,11 +97,11 @@ export async function handleMcpRequest(
                 resourceUrl,
                 'invalid_token',
                 'Sign in required',
-                req
+                req,
               ),
               ...corsHeaders,
             },
-          }
+          },
         )
       }
 
@@ -119,7 +119,7 @@ export async function handleMcpRequest(
             ...response,
             error: { code: -32601, message: `Unknown tool: ${name}` },
           },
-          { headers: { 'Content-Type': 'application/json', ...corsHeaders } }
+          { headers: { 'Content-Type': 'application/json', ...corsHeaders } },
         )
       }
 
@@ -156,7 +156,7 @@ export async function handleMcpRequest(
               },
             },
           },
-          { headers: { 'Content-Type': 'application/json', ...corsHeaders } }
+          { headers: { 'Content-Type': 'application/json', ...corsHeaders } },
         )
       } catch (error) {
         const msg = error instanceof Error ? error.message : String(error)
@@ -169,7 +169,7 @@ export async function handleMcpRequest(
               isError: true,
             },
           },
-          { headers: { 'Content-Type': 'application/json', ...corsHeaders } }
+          { headers: { 'Content-Type': 'application/json', ...corsHeaders } },
         )
       }
     }
@@ -193,7 +193,7 @@ export async function handleMcpRequest(
       }
       return NextResponse.json(
         { ...response, result: { resources } },
-        { headers: { 'Content-Type': 'application/json', ...corsHeaders } }
+        { headers: { 'Content-Type': 'application/json', ...corsHeaders } },
       )
     }
 
@@ -209,7 +209,7 @@ export async function handleMcpRequest(
             ...response,
             error: { code: -32602, message: `Resource not found: ${uri}` },
           },
-          { headers: { 'Content-Type': 'application/json', ...corsHeaders } }
+          { headers: { 'Content-Type': 'application/json', ...corsHeaders } },
         )
       }
       const widgetHtml = getWidgetHtml(app, baseUrl)
@@ -233,7 +233,7 @@ export async function handleMcpRequest(
             ],
           },
         },
-        { headers: { 'Content-Type': 'application/json', ...corsHeaders } }
+        { headers: { 'Content-Type': 'application/json', ...corsHeaders } },
       )
     }
 
@@ -241,7 +241,7 @@ export async function handleMcpRequest(
     case 'notifications/list_changed':
       return NextResponse.json(
         { ...response, result: {} },
-        { headers: corsHeaders }
+        { headers: corsHeaders },
       )
 
     default:
@@ -250,8 +250,7 @@ export async function handleMcpRequest(
           ...response,
           error: { code: -32601, message: `Method not found: ${method}` },
         },
-        { headers: { 'Content-Type': 'application/json', ...corsHeaders } }
+        { headers: { 'Content-Type': 'application/json', ...corsHeaders } },
       )
   }
 }
-

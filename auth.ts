@@ -1,35 +1,23 @@
-import { type NextAuthOptions } from 'next-auth'
-import GoogleProvider from 'next-auth/providers/google'
-import CredentialsProvider from 'next-auth/providers/credentials'
+import NextAuth from 'next-auth'
+import Credentials from 'next-auth/providers/credentials'
 import bcrypt from 'bcryptjs'
 import { supabaseAdmin } from '@/utils/supabase/supabase-admin'
 import { v4 as uuidv4 } from 'uuid'
 import { headers } from 'next/headers'
-// import { extractIpAndGetCountry } from '@/utils/geoip'
 import { sendEvent } from '@/utils/posthog/posthog'
+import authConfig from '@/auth.config'
 
-// Функция для получения геоданных из заголовков Vercel
 async function getGeoDataFromHeaders(
   requestHeaders: Headers,
 ): Promise<string | null> {
   try {
-    // Проверяем, находимся ли мы в продакшн-окружении
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? ''
     const isProduction = !siteUrl.includes('localhost')
 
-    // Получаем IP пользователя
-    const userIp =
-      requestHeaders.get('x-forwarded-for')?.split(',')[0] ??
-      requestHeaders.get('x-real-ip') ??
-      null
-
     if (isProduction) {
-      // В продакшн используем заголовки Vercel
       const country = requestHeaders.get('x-vercel-ip-country') ?? 'Unknown'
       const region = requestHeaders.get('x-vercel-ip-country-region') ?? ''
       const city = requestHeaders.get('x-vercel-ip-city') ?? ''
-
-      console.log('Vercel Geo Headers:', { country, region, city, userIp })
 
       return JSON.stringify({
         country,
@@ -38,8 +26,6 @@ async function getGeoDataFromHeaders(
         city,
       })
     } else {
-      // В локальной среде возвращаем упрощенные данные
-      console.log('Local development - no geo data available')
       return JSON.stringify({
         country: 'Local',
         countryCode: 'LOCAL',
@@ -51,39 +37,41 @@ async function getGeoDataFromHeaders(
   }
 }
 
-export const authOptions: NextAuthOptions = {
+export const { auth, handlers, signIn, signOut } = NextAuth({
+  ...authConfig,
   providers: [
-    GoogleProvider({
-      clientId: process.env.CLIENT_ID!,
-      clientSecret: process.env.CLIENT_SECRET!,
-    }),
-    CredentialsProvider({
+    ...authConfig.providers,
+    Credentials({
       name: 'credentials',
       credentials: {
         email: { label: 'Email', type: 'email' },
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
+        const rawEmail = credentials?.email as string | undefined
+        const email = rawEmail?.trim?.()?.toLowerCase()
+        const password = credentials?.password as string | undefined
+
+        if (!email || !password) {
           return null
         }
-
-        const email = credentials.email.trim().toLowerCase()
 
         const { data: user, error } = await supabaseAdmin
           .from('users')
-          .select('id, email, full_name, avatar_url, password_hash, auth_id, created_at')
+          .select(
+            'id, email, full_name, avatar_url, password_hash, auth_id, created_at',
+          )
           .eq('email', email)
           .single()
 
-        if (error || !user?.password_hash) {
+        const passwordHash = user?.password_hash
+        if (error ?? (!passwordHash || typeof passwordHash !== 'string')) {
           return null
         }
 
-        const isValid = await (bcrypt.compare as (s: string, h: string) => Promise<boolean>)(
-          credentials.password,
-          user.password_hash,
-        )
+        const isValid = await (
+          bcrypt.compare as (s: string, h: string) => Promise<boolean>
+        )(password, passwordHash)
 
         if (!isValid) {
           return null
@@ -101,6 +89,7 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
+    ...authConfig.callbacks,
     async signIn({ user, account }) {
       try {
         if (account?.provider === 'credentials') {
@@ -111,12 +100,8 @@ export const authOptions: NextAuthOptions = {
           throw new Error('No email provided by authentication provider')
         }
 
-        console.log('signIn callback:', { user })
-
-        // Get user headers for IP and geolocation
         const requestHeaders = await headers()
 
-        // Check for existing user in Supabase
         const { data: existingUser, error } = await supabaseAdmin
           .from('users')
           .select('*')
@@ -125,8 +110,6 @@ export const authOptions: NextAuthOptions = {
 
         if (error && error.code !== 'PGRST116') {
           console.error('Error checking user:', error)
-
-          // Track error with sendEvent utility
           sendEvent(
             'auth_error',
             { userId: user.id ?? 'unknown' },
@@ -137,15 +120,12 @@ export const authOptions: NextAuthOptions = {
               email: user.email,
             },
           )
-
           return false
         }
 
         if (existingUser) {
-          // Update auth_id for existing user if needed
           if (!existingUser.auth_id) {
             try {
-              // Get country info only when updating auth_id
               const geoData = await getGeoDataFromHeaders(requestHeaders)
               const userIp =
                 requestHeaders.get('x-forwarded-for')?.split(',')[0] ??
@@ -162,9 +142,6 @@ export const authOptions: NextAuthOptions = {
                 .eq('id', existingUser.id)
 
               if (updateError) {
-                console.error('Error updating auth_id:', updateError)
-
-                // Track error but don't fail authentication
                 sendEvent(
                   'auth_warning',
                   { userId: user.id ?? existingUser.id },
@@ -174,15 +151,10 @@ export const authOptions: NextAuthOptions = {
                     email: user.email,
                   },
                 )
-
-                // Continue despite update error - don't throw exception
               }
             } catch (error) {
               const geoError =
                 error instanceof Error ? error : new Error(String(error))
-              console.error('Error updating user with geo data:', geoError)
-
-              // Track this error but don't fail authentication
               sendEvent(
                 'auth_warning',
                 { userId: user.id ?? existingUser.id },
@@ -192,25 +164,18 @@ export const authOptions: NextAuthOptions = {
                   email: user.email,
                 },
               )
-              // Continue auth process despite geo error
             }
           }
 
-          // Add Supabase user data to the user object
           user.supabaseUserId = existingUser.id
           user.created_at = existingUser.created_at
         } else {
-          /*
-           * Повторная проверка, чтобы избежать гонки данных
-           * Используем RLS-безопасный запрос с count
-           */
           const { count, error: countError } = await supabaseAdmin
             .from('users')
             .select('*', { count: 'exact', head: true })
             .eq('email', user.email)
 
           if (countError) {
-            console.error('Error double-checking user existence:', countError)
             sendEvent(
               'auth_warning',
               { userId: user.id ?? 'unknown' },
@@ -223,11 +188,7 @@ export const authOptions: NextAuthOptions = {
             )
           }
 
-          // Если пользователь был создан между первой и второй проверкой
           if (count && count > 0) {
-            console.log('User was created between checks, fetching data')
-
-            // Получаем данные пользователя, который уже существует
             const { data: justCreatedUser, error: fetchError } =
               await supabaseAdmin
                 .from('users')
@@ -235,19 +196,15 @@ export const authOptions: NextAuthOptions = {
                 .eq('email', user.email)
                 .single()
 
-            if (fetchError) {
-              console.error('Error fetching just-created user:', fetchError)
+            if (fetchError ?? !justCreatedUser) {
               return false
             }
 
-            if (justCreatedUser) {
-              user.supabaseUserId = justCreatedUser.id
-              user.created_at = justCreatedUser.created_at
-              return true
-            }
+            user.supabaseUserId = justCreatedUser.id
+            user.created_at = justCreatedUser.created_at
+            return true
           }
 
-          // Create new user in Supabase - get country info for new users
           try {
             const geoData = await getGeoDataFromHeaders(requestHeaders)
             const userIp =
@@ -257,10 +214,6 @@ export const authOptions: NextAuthOptions = {
 
             const newUserId = uuidv4()
 
-            /*
-             * Проверяем еще раз перед вставкой, затем выполняем вставку
-             * используя метод upsert для обеспечения уникальности
-             */
             const { data: newUser, error: insertError } = await supabaseAdmin
               .from('users')
               .upsert(
@@ -281,18 +234,14 @@ export const authOptions: NextAuthOptions = {
 
             if (insertError) {
               throw new Error(`Failed to create user: ${insertError.message}`)
-            } else if (newUser) {
-              console.log('New user created:', newUser)
-              // Add created user data
+            }
+            if (newUser) {
               user.supabaseUserId = newUser.id
               user.created_at = newUser.created_at
             }
           } catch (error) {
             const createUserError =
               error instanceof Error ? error : new Error(String(error))
-            console.error('Error creating new user:', createUserError)
-
-            // Track error with sendEvent utility
             sendEvent(
               'auth_error',
               { userId: user.id ?? 'unknown' },
@@ -302,7 +251,6 @@ export const authOptions: NextAuthOptions = {
                 email: user.email,
               },
             )
-
             return false
           }
         }
@@ -311,9 +259,6 @@ export const authOptions: NextAuthOptions = {
       } catch (error) {
         const generalError =
           error instanceof Error ? error : new Error(String(error))
-        console.error('Authentication error:', generalError)
-
-        // Track all other unhandled errors
         sendEvent(
           'auth_error',
           { userId: user?.id ?? 'unknown' },
@@ -323,28 +268,23 @@ export const authOptions: NextAuthOptions = {
             email: user?.email ?? 'unknown',
           },
         )
-
         return false
       }
     },
     async jwt({ token, user, account }) {
-      // Add Supabase user data only on first authorization
       if (user && account) {
         token.supabaseUserId = user.supabaseUserId
         token.created_at = user.created_at
       }
 
-      // Обновляем время последнего обновления токена
       if (!token.lastRefresh) {
         token.lastRefresh = Date.now()
       }
 
-      // Проверяем, нужно ли обновить токен (каждые 50 минут)
-      const shouldRefresh = Date.now() - token.lastRefresh > 50 * 60 * 1000
-
+      const shouldRefresh =
+        Date.now() - (token.lastRefresh as number) > 50 * 60 * 1000
       if (shouldRefresh) {
         token.lastRefresh = Date.now()
-        // Это заставит NextAuth обновить сессию
       }
 
       return token
@@ -353,22 +293,17 @@ export const authOptions: NextAuthOptions = {
       if (session?.user && token.sub) {
         session.user.id = token.sub
 
-        // Add additional data from token to session
         if (token.supabaseUserId) {
-          session.user.supabaseUserId = token.supabaseUserId
+          session.user.supabaseUserId = token.supabaseUserId as string
+        }
+
+        // Expose lastRefresh for middleware token age check
+        if (token.lastRefresh) {
+          ;(session as { lastRefresh?: number }).lastRefresh =
+            token.lastRefresh as number
         }
       }
       return session
     },
   },
-  session: {
-    strategy: 'jwt' as const,
-    maxAge: 30 * 24 * 60 * 60, // 30 days
-    updateAge: 24 * 60 * 60, // обновляем каждые 24 часа
-  },
-  secret: process.env.NEXTAUTH_SECRET,
-  pages: {
-    signIn: '/', // Use root page for sign in
-    error: '/', // Redirect on error
-  },
-}
+})

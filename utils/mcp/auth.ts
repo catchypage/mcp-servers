@@ -21,14 +21,18 @@ export function getWwwAuthenticateHeader(
   resourceUrl: string,
   error?: string,
   errorDescription?: string,
-  req?: NextRequest
+  req?: NextRequest,
 ): string {
   const baseUrl = req ? getBaseUrlFromRequest(req) : getBaseUrl()
   const resourcePath = `${resourceUrl}/.well-known/oauth-protected-resource`
   const parts = ['Bearer', `resource_metadata="${baseUrl}${resourcePath}"`]
 
-  if (error) parts.push(`error="${error}"`)
-  if (errorDescription) parts.push(`error_description="${errorDescription}"`)
+  if (error) {
+    parts.push(`error="${error}"`)
+  }
+  if (errorDescription) {
+    parts.push(`error_description="${errorDescription}"`)
+  }
 
   return parts.join(', ')
 }
@@ -39,7 +43,7 @@ export function getWwwAuthenticateHeader(
  */
 export async function verifyMcpToken(
   req: NextRequest,
-  resourceUrl: string
+  resourceUrl: string,
 ): Promise<McpAuthResult> {
   const authHeader = req.headers.get('Authorization')
 
@@ -47,7 +51,9 @@ export async function verifyMcpToken(
     return {
       authenticated: false,
       error: 'invalid_token',
-      errorDescription: authHeader ? 'Invalid authorization format' : 'No authorization header',
+      errorDescription: authHeader
+        ? 'Invalid authorization format'
+        : 'No authorization header',
     }
   }
 

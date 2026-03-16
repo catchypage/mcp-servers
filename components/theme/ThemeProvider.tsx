@@ -18,11 +18,15 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     setMounted(true)
     const saved = localStorage.getItem('mcp-theme') as Theme | null
-    if (saved === 'light' || saved === 'dark') setTheme(saved)
+    if (saved === 'light' || saved === 'dark') {
+      setTheme(saved)
+    }
   }, [])
 
   useEffect(() => {
-    if (!mounted) return
+    if (!mounted) {
+      return
+    }
     document.documentElement.setAttribute('data-theme', theme)
     localStorage.setItem('mcp-theme', theme)
   }, [theme, mounted])

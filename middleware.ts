@@ -1,13 +1,16 @@
-import { NextResponse, NextRequest } from 'next/server'
-import { getToken } from 'next-auth/jwt'
+import { NextResponse } from 'next/server'
+import NextAuth from 'next-auth'
+import authConfig from '@/auth.config'
 
-export async function middleware(req: NextRequest) {
-  const token = await getToken({ req })
+const { auth } = NextAuth(authConfig)
+
+export default auth((req) => {
+  const session = req.auth
   const originalPath = req.nextUrl.pathname
 
   const response = NextResponse.next()
 
-  // Пропускаем публичные роуты
+  // Skip public routes
   if (
     originalPath.startsWith('/api/auth') ||
     originalPath === '/' ||
@@ -21,14 +24,14 @@ export async function middleware(req: NextRequest) {
     return response
   }
 
-  // Проверяем истекшие токены для защищенных роутов
+  // Check token expiry for protected API routes
   if (
     originalPath.startsWith('/api/uploadTextFile') ||
     originalPath.startsWith('/api/add-user-domain') ||
     originalPath.startsWith('/api/removeFile') ||
     originalPath.startsWith('/api/uploadSvgFile')
   ) {
-    if (!token) {
+    if (!session?.user) {
       return new Response(
         JSON.stringify({ success: false, error: 'access denied - no token' }),
         {
@@ -38,10 +41,11 @@ export async function middleware(req: NextRequest) {
       )
     }
 
-    // Проверяем, не истек ли токен
-    const tokenAge = token.lastRefresh ? Date.now() - token.lastRefresh : 0
+    const sessionWithRefresh = session as { lastRefresh?: number }
+    const tokenAge = sessionWithRefresh.lastRefresh
+      ? Date.now() - sessionWithRefresh.lastRefresh
+      : 0
     if (tokenAge > 60 * 60 * 1000) {
-      // больше 1 часа
       return new Response(
         JSON.stringify({
           success: false,
@@ -56,19 +60,19 @@ export async function middleware(req: NextRequest) {
     }
   }
 
-  // Для защищенных страниц перенаправляем на главную если нет токена
+  // Redirect to home for protected pages if no session
   if (
     originalPath.startsWith('/dashboard') ||
     originalPath.startsWith('/account') ||
     originalPath.startsWith('/generate')
   ) {
-    if (!token) {
+    if (!session?.user) {
       return NextResponse.redirect(new URL('/', req.url))
     }
   }
 
   return response
-}
+})
 
 export const config = {
   matcher: [

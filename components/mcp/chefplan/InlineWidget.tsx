@@ -17,10 +17,19 @@ interface InlineWidgetProps {
   onOrderIngredients: () => void
 }
 
-export default function InlineWidget({ plan, onOpenFullPlan, onOrderIngredients }: InlineWidgetProps) {
-  const { household, constraints, budget_summary, nutrition_summary, days } = plan
+export default function InlineWidget({
+  plan,
+  onOpenFullPlan,
+  onOrderIngredients,
+}: InlineWidgetProps) {
+  const { household, constraints, budget_summary, nutrition_summary, days } =
+    plan
 
-  const dietLabel = constraints.diet.length > 0 ? constraints.diet[0].charAt(0).toUpperCase() + constraints.diet[0].slice(1) : 'Balanced'
+  const dietLabel =
+    constraints.diet.length > 0
+      ? constraints.diet[0].charAt(0).toUpperCase() +
+        constraints.diet[0].slice(1)
+      : 'Balanced'
 
   return (
     <div className="cp-inline-widget">
@@ -53,8 +62,7 @@ export default function InlineWidget({ plan, onOpenFullPlan, onOrderIngredients 
         </span>
         <span className="cp-context-divider">·</span>
         <span className="cp-context-item">
-          <CalendarIcon size={14} />
-          7 days
+          <CalendarIcon size={14} />7 days
         </span>
       </div>
 
@@ -73,21 +81,27 @@ export default function InlineWidget({ plan, onOpenFullPlan, onOrderIngredients 
         <div className="cp-metric">
           <DollarIcon size={18} className="cp-icon-orange" />
           <div className="cp-metric-content">
-            <span className="cp-metric-value">${budget_summary.estimated_total.toFixed(2)}</span>
+            <span className="cp-metric-value">
+              ${budget_summary.estimated_total.toFixed(2)}
+            </span>
             <span className="cp-metric-label">Est. total</span>
           </div>
         </div>
         <div className="cp-metric">
           <FlameIcon size={18} className="cp-icon-orange" />
           <div className="cp-metric-content">
-            <span className="cp-metric-value">{nutrition_summary.avg_calories_per_day}</span>
+            <span className="cp-metric-value">
+              {nutrition_summary.avg_calories_per_day}
+            </span>
             <span className="cp-metric-label">kcal/day</span>
           </div>
         </div>
         <div className="cp-metric">
           <ProteinIcon size={18} className="cp-icon-green" />
           <div className="cp-metric-content">
-            <span className="cp-metric-value">{nutrition_summary.avg_protein_g}g</span>
+            <span className="cp-metric-value">
+              {nutrition_summary.avg_protein_g}g
+            </span>
             <span className="cp-metric-label">protein/day</span>
           </div>
         </div>
@@ -114,7 +128,10 @@ export default function InlineWidget({ plan, onOpenFullPlan, onOrderIngredients 
           <ExpandIcon size={18} />
           Open full plan
         </button>
-        <button className="cp-btn cp-btn-secondary" onClick={onOrderIngredients}>
+        <button
+          className="cp-btn cp-btn-secondary"
+          onClick={onOrderIngredients}
+        >
           <CartIcon size={18} />
           Order ingredients
         </button>

@@ -1,10 +1,9 @@
 import { NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth/next'
-import { authOptions } from '@/utils/auth/auth-options'
+import { auth } from '@/auth'
 
 export async function GET() {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await auth()
 
     if (!session) {
       return NextResponse.json(
@@ -37,8 +36,8 @@ export async function GET() {
 
 export async function POST() {
   try {
-    // Этот endpoint может использоваться для принудительного обновления сессии
-    const session = await getServerSession(authOptions)
+    // This endpoint can be used for forced session refresh
+    const session = await auth()
 
     if (!session) {
       return NextResponse.json(

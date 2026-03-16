@@ -10,7 +10,7 @@ function initWidget() {
     root.render(
       <React.StrictMode>
         <ResumeWidget />
-      </React.StrictMode>
+      </React.StrictMode>,
     )
   } else {
     console.error('Resume widget root element not found')

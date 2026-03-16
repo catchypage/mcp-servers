@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server'
-import { getToken } from 'next-auth/jwt'
+import { auth } from '@/auth'
 import { supabaseAdmin } from '@/utils/supabase/admin'
 import { SupabaseUser } from '@/utils/types'
 
@@ -8,20 +8,17 @@ type VerifyUserResult =
   | { user: SupabaseUser }
 
 export async function verifyUser(req: NextRequest): Promise<VerifyUserResult> {
-  const token = await getToken({ req })
+  const session = await auth()
 
-  if (!token?.sub) {
+  if (!session?.user?.id) {
     return { error: { message: 'Unauthorized', status: 401 } }
   }
-  console.log('🔍 Verifying user with token:', token.sub)
 
   const { data: user, error } = await supabaseAdmin
     .from('users')
     .select('*')
-    .eq('auth_id', token.sub)
+    .eq('auth_id', session.user.id)
     .single()
-
-  //console.log('🔍 User data:', user)
 
   if (error ?? !user) {
     return { error: { message: 'User not found', status: 404 } }

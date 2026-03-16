@@ -1,5 +1,9 @@
 import { useState } from 'react'
-import type { MealPlan, Meal, DayPlan, RecipeDetails, ShoppingSection } from '@/utils/mcp/apps/chefplan/types'
+import type {
+  MealPlan,
+  Meal,
+  RecipeDetails,
+} from '@/utils/mcp/apps/chefplan/types'
 import {
   ChefHatIcon,
   CalendarIcon,
@@ -33,7 +37,10 @@ interface FullscreenWidgetProps {
   onSelectMeal: (planId: string, mealId: string) => void
 }
 
-const MEAL_ICONS: Record<string, React.ComponentType<{ size?: number; className?: string }>> = {
+const MEAL_ICONS: Record<
+  string,
+  React.ComponentType<{ size?: number; className?: string }>
+> = {
   breakfast: SunriseIcon,
   lunch: SunIcon,
   dinner: MoonIcon,
@@ -49,9 +56,13 @@ export default function FullscreenWidget({
   onOrderIngredients,
   onSelectMeal,
 }: FullscreenWidgetProps) {
-  const [selectedDay, setSelectedDay] = useState<string>(plan.days[0]?.day || 'Mon')
+  const [selectedDay, setSelectedDay] = useState<string>(
+    plan.days[0]?.day || 'Mon',
+  )
   const [selectedMealId, setSelectedMealId] = useState<string | null>(null)
-  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
+  const [expandedSections, setExpandedSections] = useState<
+    Record<string, boolean>
+  >({
     Produce: true,
     Proteins: true,
     Dairy: false,
@@ -59,7 +70,8 @@ export default function FullscreenWidget({
     Frozen: false,
   })
 
-  const currentDay = plan.days.find((d) => d.day === selectedDay) || plan.days[0]
+  const currentDay =
+    plan.days.find((d) => d.day === selectedDay) || plan.days[0]
 
   const handleMealClick = (meal: Meal) => {
     setSelectedMealId(meal.meal_id)
@@ -73,16 +85,16 @@ export default function FullscreenWidget({
   const getTagColor = (tag: string) => {
     const colors: Record<string, string> = {
       'high-protein': 'cp-tag-green',
-      'quick': 'cp-tag-orange',
-      'budget': 'cp-tag-blue',
-      'healthy': 'cp-tag-green',
-      'vegan': 'cp-tag-emerald',
-      'vegetarian': 'cp-tag-emerald',
+      quick: 'cp-tag-orange',
+      budget: 'cp-tag-blue',
+      healthy: 'cp-tag-green',
+      vegan: 'cp-tag-emerald',
+      vegetarian: 'cp-tag-emerald',
       'kid-friendly': 'cp-tag-purple',
-      'keto': 'cp-tag-amber',
+      keto: 'cp-tag-amber',
       'low-carb': 'cp-tag-amber',
       'meal-prep': 'cp-tag-blue',
-      'popular': 'cp-tag-pink',
+      popular: 'cp-tag-pink',
     }
     return colors[tag] || 'cp-tag-gray'
   }
@@ -96,7 +108,9 @@ export default function FullscreenWidget({
           <div>
             <h1 className="cp-fs-title">Weekly meal plan</h1>
             <p className="cp-fs-subtitle">
-              Mar 16–22 · Family of {plan.household.size} · {plan.constraints.diet[0] || 'Balanced'} · &lt;${plan.constraints.budget_target}
+              Mar 16–22 · Family of {plan.household.size} ·{' '}
+              {plan.constraints.diet[0] || 'Balanced'} · &lt;$
+              {plan.constraints.budget_target}
             </p>
           </div>
         </div>
@@ -109,22 +123,30 @@ export default function FullscreenWidget({
       <div className="cp-fs-metrics">
         <div className="cp-fs-metric">
           <DollarIcon size={20} className="cp-icon-orange" />
-          <span className="cp-fs-metric-value">${plan.budget_summary.estimated_total.toFixed(2)}</span>
+          <span className="cp-fs-metric-value">
+            ${plan.budget_summary.estimated_total.toFixed(2)}
+          </span>
           <span className="cp-fs-metric-label">Budget</span>
         </div>
         <div className="cp-fs-metric">
           <FlameIcon size={20} className="cp-icon-orange" />
-          <span className="cp-fs-metric-value">{plan.nutrition_summary.avg_calories_per_day}</span>
+          <span className="cp-fs-metric-value">
+            {plan.nutrition_summary.avg_calories_per_day}
+          </span>
           <span className="cp-fs-metric-label">Avg/day</span>
         </div>
         <div className="cp-fs-metric">
           <ProteinIcon size={20} className="cp-icon-green" />
-          <span className="cp-fs-metric-value">{plan.nutrition_summary.avg_protein_g}g</span>
+          <span className="cp-fs-metric-value">
+            {plan.nutrition_summary.avg_protein_g}g
+          </span>
           <span className="cp-fs-metric-label">Protein</span>
         </div>
         <div className="cp-fs-metric">
           <LeafIcon size={20} className="cp-icon-green" />
-          <span className="cp-fs-metric-value">{plan.nutrition_summary.avg_carbs_g}g</span>
+          <span className="cp-fs-metric-value">
+            {plan.nutrition_summary.avg_carbs_g}g
+          </span>
           <span className="cp-fs-metric-label">Carbs</span>
         </div>
       </div>
@@ -139,7 +161,9 @@ export default function FullscreenWidget({
           {plan.days.map((day) => (
             <button
               key={day.day}
-              className={`cp-week-tab ${selectedDay === day.day ? 'active' : ''}`}
+              className={`cp-week-tab ${
+                selectedDay === day.day ? 'active' : ''
+              }`}
               onClick={() => setSelectedDay(day.day)}
             >
               {day.day}
@@ -152,7 +176,8 @@ export default function FullscreenWidget({
           <div className="cp-day-header">
             <span className="cp-day-label">{currentDay.day}</span>
             <span className="cp-day-stats">
-              {currentDay.totals.calories} kcal · {currentDay.totals.protein_g}g protein
+              {currentDay.totals.calories} kcal · {currentDay.totals.protein_g}g
+              protein
             </span>
           </div>
 
@@ -173,9 +198,15 @@ export default function FullscreenWidget({
                   <span className="cp-meal-type">{meal.type}</span>
                   <span className="cp-meal-title">{meal.title}</span>
                   <div className="cp-meal-meta">
-                    <span><ClockIcon size={12} /> {meal.prep_minutes} min</span>
-                    <span><FlameIcon size={12} /> {meal.calories} kcal</span>
-                    <span><DollarIcon size={12} /> ${meal.estimated_cost.toFixed(2)}</span>
+                    <span>
+                      <ClockIcon size={12} /> {meal.prep_minutes} min
+                    </span>
+                    <span>
+                      <FlameIcon size={12} /> {meal.calories} kcal
+                    </span>
+                    <span>
+                      <DollarIcon size={12} /> ${meal.estimated_cost.toFixed(2)}
+                    </span>
                   </div>
                 </div>
                 <button
@@ -229,9 +260,16 @@ export default function FullscreenWidget({
             </div>
 
             <div className="cp-recipe-nutrition">
-              <span><ProteinIcon size={14} /> Protein {selectedRecipe.macros.protein_g}g</span>
-              <span><LeafIcon size={14} /> Carbs {selectedRecipe.macros.carbs_g}g</span>
-              <span><ZapIcon size={14} /> Fat {selectedRecipe.macros.fat_g}g</span>
+              <span>
+                <ProteinIcon size={14} /> Protein{' '}
+                {selectedRecipe.macros.protein_g}g
+              </span>
+              <span>
+                <LeafIcon size={14} /> Carbs {selectedRecipe.macros.carbs_g}g
+              </span>
+              <span>
+                <ZapIcon size={14} /> Fat {selectedRecipe.macros.fat_g}g
+              </span>
             </div>
 
             <div className="cp-recipe-ingredients">
@@ -240,7 +278,9 @@ export default function FullscreenWidget({
                 {selectedRecipe.ingredients.map((ing, i) => (
                   <li key={i}>
                     {ing.amount} {ing.name}
-                    {ing.notes && <span className="cp-ing-note"> ({ing.notes})</span>}
+                    {ing.notes && (
+                      <span className="cp-ing-note"> ({ing.notes})</span>
+                    )}
                   </li>
                 ))}
               </ul>
@@ -256,7 +296,10 @@ export default function FullscreenWidget({
             </div>
 
             <div className="cp-recipe-actions">
-              <button className="cp-btn cp-btn-outline" onClick={() => onSwapMeal(selectedRecipe.meal_id)}>
+              <button
+                className="cp-btn cp-btn-outline"
+                onClick={() => onSwapMeal(selectedRecipe.meal_id)}
+              >
                 <SwapIcon size={16} />
                 Replace this meal
               </button>
@@ -288,7 +331,9 @@ export default function FullscreenWidget({
                 onClick={() => toggleSection(section.section)}
               >
                 <span>{section.section}</span>
-                <span className="cp-shop-count">{section.items.length} items</span>
+                <span className="cp-shop-count">
+                  {section.items.length} items
+                </span>
                 {expandedSections[section.section] ? (
                   <ChevronUpIcon size={18} />
                 ) : (
@@ -300,9 +345,7 @@ export default function FullscreenWidget({
                 <div className="cp-shop-items">
                   {section.items.map((item, i) => (
                     <div key={i} className="cp-shop-item">
-                      <span className="cp-shop-item-name">
-                        {item.name}
-                      </span>
+                      <span className="cp-shop-item-name">{item.name}</span>
                       <span className="cp-shop-item-qty">
                         {item.quantity} {item.unit}
                       </span>
@@ -326,7 +369,10 @@ export default function FullscreenWidget({
           <RefreshIcon size={18} />
           Rebuild week
         </button>
-        <button className="cp-btn cp-btn-primary" onClick={() => onOrderIngredients('instacart')}>
+        <button
+          className="cp-btn cp-btn-primary"
+          onClick={() => onOrderIngredients('instacart')}
+        >
           <CartIcon size={18} />
           Order with Instacart
           <ExternalLinkIcon size={14} />

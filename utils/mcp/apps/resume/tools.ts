@@ -3,7 +3,8 @@ import type { McpAppConfig, McpToolDefinition } from '@/utils/mcp/core/registry'
 const createResumeTool: McpToolDefinition = {
   name: 'create_resume',
   title: 'Create Resume',
-  description: 'Create a new resume based on job title, experience, and skills.',
+  description:
+    'Create a new resume based on job title, experience, and skills.',
   inputSchema: {
     type: 'object',
     properties: {
@@ -73,20 +74,24 @@ export const resumeInternalTools: McpToolDefinition[] = [getUserInfoTool]
 export type ToolHandler = (
   app: McpAppConfig,
   args: Record<string, unknown>,
-  userId: string
+  userId: string,
 ) => Promise<Record<string, unknown>>
 
 async function handleCreateResume(
   _app: McpAppConfig,
   args: Record<string, unknown>,
-  _userId: string
+  _userId: string,
 ): Promise<Record<string, unknown>> {
   const jobTitle = String(args.job_title ?? '')
   const experience = String(args.experience ?? '')
   const skills = Array.isArray(args.skills) ? args.skills.map(String) : []
 
   if (!jobTitle.trim()) {
-    return { success: false, error: 'job_title is required', message: 'Job title is required' }
+    return {
+      success: false,
+      error: 'job_title is required',
+      message: 'Job title is required',
+    }
   }
 
   return {
@@ -104,22 +109,29 @@ async function handleCreateResume(
 async function handleImproveResume(
   _app: McpAppConfig,
   args: Record<string, unknown>,
-  _userId: string
+  _userId: string,
 ): Promise<Record<string, unknown>> {
   const resumeText = String(args.resume_text ?? '')
   const feedback = String(args.feedback ?? '')
 
   if (!resumeText.trim()) {
-    return { success: false, error: 'resume_text is required', message: 'Resume text is required' }
+    return {
+      success: false,
+      error: 'resume_text is required',
+      message: 'Resume text is required',
+    }
   }
 
   return {
     success: true,
     message: 'Resume improved',
     resume: {
-      original: resumeText.slice(0, 200) + (resumeText.length > 200 ? '...' : ''),
+      original:
+        resumeText.slice(0, 200) + (resumeText.length > 200 ? '...' : ''),
       feedback: feedback || 'General improvements applied',
-      improved: resumeText + (feedback ? `\n\n[Improvements based on: ${feedback}]` : ''),
+      improved:
+        resumeText +
+        (feedback ? `\n\n[Improvements based on: ${feedback}]` : ''),
     },
   }
 }
@@ -127,7 +139,7 @@ async function handleImproveResume(
 async function handleGetUserInfo(
   _app: McpAppConfig,
   _args: Record<string, unknown>,
-  userId: string
+  userId: string,
 ): Promise<Record<string, unknown>> {
   const { supabaseAdmin } = await import('@/utils/supabase/supabase-admin')
   const { data: user } = await supabaseAdmin

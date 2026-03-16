@@ -34,7 +34,10 @@ export interface McpAppConfig {
 }
 
 import { resumeTools, resumeInternalTools } from '@/utils/mcp/apps/resume/tools'
-import { chefplanTools, chefplanInternalTools } from '@/utils/mcp/apps/chefplan/tools'
+import {
+  chefplanTools,
+  chefplanInternalTools,
+} from '@/utils/mcp/apps/chefplan/tools'
 
 export const MCP_APPS: Record<string, McpAppConfig> = {
   resume: {
@@ -57,7 +60,8 @@ export const MCP_APPS: Record<string, McpAppConfig> = {
   chefplan: {
     id: 'chefplan',
     name: 'ChefPlan Meal Planner',
-    description: 'AI-powered weekly meal planning with nutrition tracking, shopping lists, and grocery ordering',
+    description:
+      'AI-powered weekly meal planning with nutrition tracking, shopping lists, and grocery ordering',
     version: '1.0.0',
     tools: chefplanTools,
     internalTools: chefplanInternalTools,

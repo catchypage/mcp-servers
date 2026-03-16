@@ -34,8 +34,14 @@ async function handleUserInfo(req: NextRequest) {
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return NextResponse.json(
-        { error: 'invalid_token', error_description: 'Missing or invalid authorization header' },
-        { status: 401, headers: { ...corsHeaders, 'WWW-Authenticate': 'Bearer' } }
+        {
+          error: 'invalid_token',
+          error_description: 'Missing or invalid authorization header',
+        },
+        {
+          status: 401,
+          headers: { ...corsHeaders, 'WWW-Authenticate': 'Bearer' },
+        },
       )
     }
 
@@ -51,7 +57,7 @@ async function handleUserInfo(req: NextRequest) {
     if (!userId) {
       return NextResponse.json(
         { error: 'invalid_token', error_description: 'Token missing user ID' },
-        { status: 401, headers: corsHeaders }
+        { status: 401, headers: corsHeaders },
       )
     }
 
@@ -64,7 +70,7 @@ async function handleUserInfo(req: NextRequest) {
     if (userError || !user) {
       return NextResponse.json(
         { error: 'invalid_token', error_description: 'User not found' },
-        { status: 401, headers: corsHeaders }
+        { status: 401, headers: corsHeaders },
       )
     }
 
@@ -87,8 +93,11 @@ async function handleUserInfo(req: NextRequest) {
   } catch (error) {
     console.error('UserInfo error:', error)
     return NextResponse.json(
-      { error: 'invalid_token', error_description: 'Token verification failed' },
-      { status: 401, headers: corsHeaders }
+      {
+        error: 'invalid_token',
+        error_description: 'Token verification failed',
+      },
+      { status: 401, headers: corsHeaders },
     )
   }
 }

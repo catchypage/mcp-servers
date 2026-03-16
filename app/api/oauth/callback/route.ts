@@ -1,12 +1,14 @@
 import { supabaseAdmin } from '@/utils/supabase/supabase-admin'
 import type { Database } from '@/types_db'
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
+import { auth } from '@/auth'
 import { SignJWT } from 'jose'
 import { nanoid } from 'nanoid'
-import { authOptions } from '@/utils/auth/auth-options'
+import { getBaseUrl } from '@/utils/mcp/getBaseUrl'
 
-const JWT_SECRET = new TextEncoder().encode(process.env.NEXTAUTH_SECRET)
+const JWT_SECRET = new TextEncoder().encode(
+  process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET,
+)
 
 export async function GET(req: NextRequest) {
   const url = new URL(req.url)
@@ -26,25 +28,20 @@ export async function GET(req: NextRequest) {
     state,
   })
 
-  // Get server session via NextAuth
-  const session = await getServerSession(authOptions)
+  const session = await auth()
+  const baseUrl = getBaseUrl(req.headers.get('host') ?? undefined)
+
   console.log(
     'session in oauth callback:',
     session?.user?.email ?? 'no session',
   )
 
   if (!session?.user) {
-    const response = NextResponse.redirect(
-      `${process.env.NEXTAUTH_URL}/oauth?error=no_session`,
-    )
-    return response
+    return NextResponse.redirect(`${baseUrl}/oauth?error=no_session`)
   }
 
   if (!redirect_uri) {
-    const response = NextResponse.redirect(
-      `${process.env.NEXTAUTH_URL}/oauth?error=invalid_params`,
-    )
-    return response
+    return NextResponse.redirect(`${baseUrl}/oauth?error=invalid_params`)
   }
 
   // Get user data from Supabase
@@ -61,10 +58,7 @@ export async function GET(req: NextRequest) {
   console.log('userData:', userData)
 
   if (userError) {
-    const response = NextResponse.redirect(
-      `${process.env.NEXTAUTH_URL}/oauth?error=user_not_found`,
-    )
-    return response
+    return NextResponse.redirect(`${baseUrl}/oauth?error=user_not_found`)
   }
 
   // Generate authorization code
@@ -82,7 +76,7 @@ export async function GET(req: NextRequest) {
     .setIssuedAt()
     .setExpirationTime('10d')
     .setJti(nanoid())
-    .setIssuer(process.env.NEXTAUTH_URL ?? req.nextUrl.origin)
+    .setIssuer(baseUrl)
     .setAudience('gpt-plugin')
     .sign(JWT_SECRET)
 
@@ -97,7 +91,7 @@ export async function GET(req: NextRequest) {
     .setIssuedAt()
     .setExpirationTime('30d')
     .setJti(nanoid())
-    .setIssuer(process.env.NEXTAUTH_URL ?? req.nextUrl.origin)
+    .setIssuer(baseUrl)
     .setAudience('gpt-plugin')
     .sign(JWT_SECRET)
 
@@ -115,10 +109,7 @@ export async function GET(req: NextRequest) {
 
   if (tokenError) {
     console.error('Error storing tokens:', tokenError)
-    const response = NextResponse.redirect(
-      `${process.env.NEXTAUTH_URL}/oauth?error=token_storage_failed`,
-    )
-    return response
+    return NextResponse.redirect(`${baseUrl}/oauth?error=token_storage_failed`)
   }
 
   try {

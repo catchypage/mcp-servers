@@ -55,10 +55,12 @@ const Auth = ({
             color: 'var(--company-button-primary-text)',
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = 'var(--company-button-primary-hover)'
+            e.currentTarget.style.backgroundColor =
+              'var(--company-button-primary-hover)'
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = 'var(--company-button-primary-bg)'
+            e.currentTarget.style.backgroundColor =
+              'var(--company-button-primary-bg)'
           }}
         >
           Sign in
@@ -72,11 +74,14 @@ const Auth = ({
             backgroundColor: 'var(--company-button-secondary-bg)',
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = 'var(--company-button-secondary-hover-bg)'
-            e.currentTarget.style.color = 'var(--company-button-secondary-hover-text)'
+            e.currentTarget.style.backgroundColor =
+              'var(--company-button-secondary-hover-bg)'
+            e.currentTarget.style.color =
+              'var(--company-button-secondary-hover-text)'
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = 'var(--company-button-secondary-bg)'
+            e.currentTarget.style.backgroundColor =
+              'var(--company-button-secondary-bg)'
             e.currentTarget.style.color = 'var(--company-button-secondary-text)'
           }}
         >

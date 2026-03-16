@@ -62,8 +62,14 @@ export default function RegisterModal({ isOpen, onClose }: RegisterModalProps) {
       })
 
       if (result?.error) {
-        setError(isSignUp ? 'Account created. Please sign in.' : 'Invalid email or password')
-        if (isSignUp) setIsSignUp(false)
+        setError(
+          isSignUp
+            ? 'Account created. Please sign in.'
+            : 'Invalid email or password',
+        )
+        if (isSignUp) {
+          setIsSignUp(false)
+        }
         return
       }
 
@@ -144,11 +150,16 @@ export default function RegisterModal({ isOpen, onClose }: RegisterModalProps) {
             <span className="w-full border-t border-white/20" />
           </div>
           <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-[var(--bg-primary)] px-2 text-[var(--text-secondary)]">or</span>
+            <span className="bg-[var(--bg-primary)] px-2 text-[var(--text-secondary)]">
+              or
+            </span>
           </div>
         </div>
 
-        <form onSubmit={handleCredentialsSubmit} className="flex flex-col gap-4">
+        <form
+          onSubmit={(e) => void handleCredentialsSubmit(e)}
+          className="flex flex-col gap-4"
+        >
           {isSignUp && (
             <input
               type="text"
@@ -193,7 +204,9 @@ export default function RegisterModal({ isOpen, onClose }: RegisterModalProps) {
           }}
           className="text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
         >
-          {isSignUp ? 'Already have an account? Sign In' : "Don't have an account? Sign Up"}
+          {isSignUp
+            ? 'Already have an account? Sign In'
+            : "Don't have an account? Sign Up"}
         </button>
       </div>
     </Modal>

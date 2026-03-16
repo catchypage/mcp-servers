@@ -16,7 +16,8 @@ const corsHeaders = {
 /**
  * MCP route without appId - uses domain mapping.
  * resume.example.com/api/mcp → appId=resume
- * Requires MCP_DOMAIN_MAP env: resume.example.com:resume,humanize.example.com:humanize
+ * Requires MCP_DOMAIN_MAP env:
+ * resume.example.com:resume,humanize.example.com:humanize
  */
 function getAppId(req: NextRequest): string | null {
   const host = req.headers.get('host') ?? req.headers.get('x-forwarded-host')
@@ -37,7 +38,7 @@ export async function GET(req: NextRequest) {
         hint: 'Add MCP_DOMAIN_MAP env: yourdomain.com:appId',
         host: req.headers.get('host'),
       },
-      { status: 404, headers: corsHeaders }
+      { status: 404, headers: corsHeaders },
     )
   }
 
@@ -45,7 +46,7 @@ export async function GET(req: NextRequest) {
   if (!app) {
     return NextResponse.json(
       { error: 'App not found', appId },
-      { status: 404, headers: corsHeaders }
+      { status: 404, headers: corsHeaders },
     )
   }
 
@@ -61,7 +62,7 @@ export async function GET(req: NextRequest) {
         widget: `/api/mcp/${appId}/widget`,
       },
     },
-    { headers: corsHeaders }
+    { headers: corsHeaders },
   )
 }
 
@@ -75,7 +76,7 @@ export async function POST(req: NextRequest) {
         id: null,
         error: { code: -32600, message: 'Domain not mapped for MCP' },
       },
-      { status: 404, headers: corsHeaders }
+      { status: 404, headers: corsHeaders },
     )
   }
 
@@ -87,7 +88,7 @@ export async function POST(req: NextRequest) {
         id: null,
         error: { code: -32600, message: 'App not found' },
       },
-      { status: 404, headers: corsHeaders }
+      { status: 404, headers: corsHeaders },
     )
   }
 

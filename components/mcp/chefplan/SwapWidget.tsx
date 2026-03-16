@@ -22,7 +22,12 @@ interface SwapWidgetProps {
   onClose: () => void
 }
 
-export default function SwapWidget({ currentMeal, candidates, onReplace, onClose }: SwapWidgetProps) {
+export default function SwapWidget({
+  currentMeal,
+  candidates,
+  onReplace,
+  onClose,
+}: SwapWidgetProps) {
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
 
@@ -37,21 +42,33 @@ export default function SwapWidget({ currentMeal, candidates, onReplace, onClose
   }
 
   const getTagIcon = (tag: string) => {
-    const icons: Record<string, React.ComponentType<{ size?: number; className?: string }>> = {
+    const icons: Record<
+      string,
+      React.ComponentType<{ size?: number; className?: string }>
+    > = {
       'high-protein': ProteinIcon,
-      'quick': ZapIcon,
-      'budget': DollarIcon,
-      'healthy': HeartIcon,
-      'vegan': LeafIcon,
-      'vegetarian': LeafIcon,
+      quick: ZapIcon,
+      budget: DollarIcon,
+      healthy: HeartIcon,
+      vegan: LeafIcon,
+      vegetarian: LeafIcon,
     }
     return icons[tag] || StarIcon
   }
 
   const getPrimaryTag = (tags: string[]): string | null => {
-    const priority = ['high-protein', 'quick', 'budget', 'healthy', 'vegan', 'vegetarian']
+    const priority = [
+      'high-protein',
+      'quick',
+      'budget',
+      'healthy',
+      'vegan',
+      'vegetarian',
+    ]
     for (const p of priority) {
-      if (tags.includes(p)) return p
+      if (tags.includes(p)) {
+        return p
+      }
     }
     return tags[0] || null
   }
@@ -59,11 +76,11 @@ export default function SwapWidget({ currentMeal, candidates, onReplace, onClose
   const getTagStyle = (tag: string) => {
     const styles: Record<string, string> = {
       'high-protein': 'cp-badge-green',
-      'quick': 'cp-badge-orange',
-      'budget': 'cp-badge-blue',
-      'healthy': 'cp-badge-emerald',
-      'vegan': 'cp-badge-emerald',
-      'vegetarian': 'cp-badge-emerald',
+      quick: 'cp-badge-orange',
+      budget: 'cp-badge-blue',
+      healthy: 'cp-badge-emerald',
+      vegan: 'cp-badge-emerald',
+      vegetarian: 'cp-badge-emerald',
       'kid-friendly': 'cp-badge-purple',
     }
     return styles[tag] || 'cp-badge-gray'
@@ -127,14 +144,16 @@ export default function SwapWidget({ currentMeal, candidates, onReplace, onClose
                   {candidate.calories} kcal
                 </span>
                 <span className="cp-card-stat">
-                  <DollarIcon size={14} />
-                  ${candidate.estimated_cost.toFixed(2)}
+                  <DollarIcon size={14} />${candidate.estimated_cost.toFixed(2)}
                 </span>
               </div>
 
               {/* Macros */}
               <div className="cp-card-macros">
-                <span><ProteinIcon size={12} /> {candidate.macros.protein_g}g protein</span>
+                <span>
+                  <ProteinIcon size={12} /> {candidate.macros.protein_g}g
+                  protein
+                </span>
               </div>
 
               {/* Primary Badge */}
