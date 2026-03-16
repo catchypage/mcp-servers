@@ -1,4 +1,4 @@
-# Empty-base
+# Empty-base1
 
 A modern web application template built with Next.js, featuring integrated payment processing, database management, and authentication.
 
