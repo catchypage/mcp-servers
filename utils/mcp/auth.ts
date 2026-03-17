@@ -60,13 +60,40 @@ export async function verifyMcpToken(
   const token = authHeader.substring(7)
   const baseUrl = getBaseUrlFromRequest(req)
   const expectedAudience = `${baseUrl}${resourceUrl}`
+  // Also accept tokens issued for the base MCP resource (e.g., /api/mcp)
+  // This handles cases where ChatGPT doesn't pass the resource parameter
+  const baseMcpAudience = `${baseUrl}/api/mcp`
 
   try {
     const JWT_SECRET = new TextEncoder().encode(process.env.NEXTAUTH_SECRET)
-    const { payload } = await jwtVerify(token, JWT_SECRET, {
-      issuer: baseUrl,
-      audience: expectedAudience,
-    })
+    let payload
+    try {
+      // First try exact audience match
+      const result = await jwtVerify(token, JWT_SECRET, {
+        issuer: baseUrl,
+        audience: expectedAudience,
+      })
+      payload = result.payload
+    } catch (audError) {
+      // If audience mismatch, try base MCP audience
+      // This allows tokens issued for /api/mcp to work with /api/mcp/{appId}
+      if (
+        audError instanceof Error &&
+        audError.message.includes('audience')
+      ) {
+        // Only allow fallback if the resourceUrl is a sub-path of /api/mcp
+        if (!resourceUrl.startsWith('/api/mcp')) {
+          throw audError
+        }
+        const result = await jwtVerify(token, JWT_SECRET, {
+          issuer: baseUrl,
+          audience: baseMcpAudience,
+        })
+        payload = result.payload
+      } else {
+        throw audError
+      }
+    }
 
     if (payload.authType !== 'mcp_oauth') {
       return {
