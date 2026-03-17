@@ -799,7 +799,6 @@ export default function ChefPlanWidget() {
       {mode === 'inline' && (
         <InlineWidget
           plan={plan}
-          onOpenFullPlan={handleOpenFullPlan}
           onOrderIngredients={() => void handleOrderIngredients()}
         />
       )}

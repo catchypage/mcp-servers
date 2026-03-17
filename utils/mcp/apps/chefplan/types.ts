@@ -15,6 +15,9 @@ export interface Meal {
   macros: Macros
   tags: string[]
   image_url?: string
+  // API source tracking
+  source?: 'spoonacular' | 'mealdb' | 'fallback'
+  source_id?: string
 }
 
 export interface DayPlan {
@@ -34,6 +37,12 @@ export interface ShoppingItem {
   quantity: number
   unit: string
   estimated_cost?: number
+  nutrition_per_unit?: {
+    calories: number
+    protein: number
+    carbs: number
+    fat: number
+  }
 }
 
 export interface ShoppingSection {
@@ -81,6 +90,8 @@ export interface MealPlan {
   days: DayPlan[]
   shopping_list: ShoppingSection[]
   order_options: OrderOption[]
+  // Data source tracking
+  data_source?: 'api' | 'fallback'
 }
 
 export interface RecipeDetails {
@@ -105,6 +116,7 @@ export interface RecipeDetails {
     alternative: string
     notes?: string
   }[]
+  source?: 'spoonacular' | 'mealdb' | 'fallback'
 }
 
 export interface SwapCandidate {

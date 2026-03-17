@@ -6,20 +6,17 @@ import {
   FlameIcon,
   ProteinIcon,
   CartIcon,
-  ExpandIcon,
   UsersIcon,
   LeafIcon,
 } from './Icons'
 
 interface InlineWidgetProps {
   plan: MealPlan
-  onOpenFullPlan: () => void
   onOrderIngredients: () => void
 }
 
 export default function InlineWidget({
   plan,
-  onOpenFullPlan,
   onOrderIngredients,
 }: InlineWidgetProps) {
   const { household, constraints, budget_summary, nutrition_summary, days } =
@@ -122,12 +119,8 @@ export default function InlineWidget({
         )}
       </div>
 
-      {/* CTAs - Max 2 */}
+      {/* CTA */}
       <div className="cp-inline-actions">
-        <button className="cp-btn cp-btn-primary" onClick={onOpenFullPlan}>
-          <ExpandIcon size={18} />
-          Open full plan
-        </button>
         <button
           className="cp-btn cp-btn-secondary"
           onClick={onOrderIngredients}
@@ -146,10 +139,29 @@ export default function InlineWidget({
           border-radius: 20px;
           padding: 24px;
           max-width: 480px;
+          max-height: 500px;
+          overflow-y: auto;
           box-shadow:
             0 4px 24px rgba(0, 0, 0, 0.06),
             0 1px 2px rgba(0, 0, 0, 0.04);
           font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+
+        .cp-inline-widget::-webkit-scrollbar {
+          width: 6px;
+        }
+
+        .cp-inline-widget::-webkit-scrollbar-track {
+          background: transparent;
+        }
+
+        .cp-inline-widget::-webkit-scrollbar-thumb {
+          background: rgba(0, 0, 0, 0.15);
+          border-radius: 3px;
+        }
+
+        .cp-inline-widget::-webkit-scrollbar-thumb:hover {
+          background: rgba(0, 0, 0, 0.25);
         }
 
         .cp-inline-header {

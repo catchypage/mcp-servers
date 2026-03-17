@@ -8,6 +8,18 @@ import type {
   ShoppingSection,
 } from './types'
 import { nanoid } from 'nanoid'
+import {
+  searchRecipes,
+  getRecipeById,
+  getRandomRecipes,
+  searchMealDB,
+  getRandomMealDB,
+  extractMealDBIngredients,
+  searchUSDAFoods,
+  extractUSDANutrients,
+  type SpoonacularRecipe,
+  type MealDBRecipe,
+} from './api-clients'
 
 /*
  * ============================================================================
@@ -250,208 +262,37 @@ export const chefplanInternalTools: McpToolDefinition[] = [getUserInfoTool]
 
 /*
  * ============================================================================
- * MOCK DATA GENERATORS
+ * FALLBACK MOCK DATA (used when APIs are unavailable)
  * ============================================================================
  */
 
 const MEAL_TEMPLATES = {
   breakfast: [
-    {
-      title: 'Greek Yogurt Parfait',
-      prep: 10,
-      cost: 4.5,
-      cal: 320,
-      protein: 22,
-      carbs: 28,
-      fat: 9,
-      tags: ['high-protein', 'quick'],
-    },
-    {
-      title: 'Avocado Toast with Eggs',
-      prep: 15,
-      cost: 5.2,
-      cal: 420,
-      protein: 18,
-      carbs: 32,
-      fat: 24,
-      tags: ['healthy', 'popular'],
-    },
-    {
-      title: 'Overnight Oats',
-      prep: 5,
-      cost: 2.8,
-      cal: 350,
-      protein: 12,
-      carbs: 58,
-      fat: 8,
-      tags: ['budget', 'meal-prep'],
-    },
-    {
-      title: 'Veggie Omelette',
-      prep: 12,
-      cost: 4.0,
-      cal: 280,
-      protein: 20,
-      carbs: 8,
-      fat: 18,
-      tags: ['low-carb', 'keto'],
-    },
-    {
-      title: 'Smoothie Bowl',
-      prep: 8,
-      cost: 5.5,
-      cal: 380,
-      protein: 14,
-      carbs: 52,
-      fat: 12,
-      tags: ['vegan', 'refreshing'],
-    },
+    { title: 'Greek Yogurt Parfait', prep: 10, cost: 4.5, cal: 320, protein: 22, carbs: 28, fat: 9, tags: ['high-protein', 'quick'] },
+    { title: 'Avocado Toast with Eggs', prep: 15, cost: 5.2, cal: 420, protein: 18, carbs: 32, fat: 24, tags: ['healthy', 'popular'] },
+    { title: 'Overnight Oats', prep: 5, cost: 2.8, cal: 350, protein: 12, carbs: 58, fat: 8, tags: ['budget', 'meal-prep'] },
+    { title: 'Veggie Omelette', prep: 12, cost: 4.0, cal: 280, protein: 20, carbs: 8, fat: 18, tags: ['low-carb', 'keto'] },
+    { title: 'Smoothie Bowl', prep: 8, cost: 5.5, cal: 380, protein: 14, carbs: 52, fat: 12, tags: ['vegan', 'refreshing'] },
   ],
   lunch: [
-    {
-      title: 'Chicken Rice Bowls',
-      prep: 20,
-      cost: 6.5,
-      cal: 540,
-      protein: 38,
-      carbs: 52,
-      fat: 16,
-      tags: ['high-protein', 'meal-prep'],
-    },
-    {
-      title: 'Mediterranean Salad',
-      prep: 15,
-      cost: 7.2,
-      cal: 420,
-      protein: 24,
-      carbs: 28,
-      fat: 22,
-      tags: ['healthy', 'mediterranean'],
-    },
-    {
-      title: 'Turkey Wrap',
-      prep: 10,
-      cost: 5.8,
-      cal: 480,
-      protein: 32,
-      carbs: 42,
-      fat: 18,
-      tags: ['quick', 'portable'],
-    },
-    {
-      title: 'Lentil Soup',
-      prep: 25,
-      cost: 3.5,
-      cal: 320,
-      protein: 18,
-      carbs: 48,
-      fat: 4,
-      tags: ['budget', 'vegan'],
-    },
-    {
-      title: 'Tuna Poke Bowl',
-      prep: 15,
-      cost: 8.5,
-      cal: 450,
-      protein: 36,
-      carbs: 38,
-      fat: 14,
-      tags: ['high-protein', 'fresh'],
-    },
+    { title: 'Chicken Rice Bowls', prep: 20, cost: 6.5, cal: 540, protein: 38, carbs: 52, fat: 16, tags: ['high-protein', 'meal-prep'] },
+    { title: 'Mediterranean Salad', prep: 15, cost: 7.2, cal: 420, protein: 24, carbs: 28, fat: 22, tags: ['healthy', 'mediterranean'] },
+    { title: 'Turkey Wrap', prep: 10, cost: 5.8, cal: 480, protein: 32, carbs: 42, fat: 18, tags: ['quick', 'portable'] },
+    { title: 'Lentil Soup', prep: 25, cost: 3.5, cal: 320, protein: 18, carbs: 48, fat: 4, tags: ['budget', 'vegan'] },
+    { title: 'Tuna Poke Bowl', prep: 15, cost: 8.5, cal: 450, protein: 36, carbs: 38, fat: 14, tags: ['high-protein', 'fresh'] },
   ],
   dinner: [
-    {
-      title: 'Lentil Pasta Bake',
-      prep: 25,
-      cost: 8.2,
-      cal: 710,
-      protein: 29,
-      carbs: 66,
-      fat: 18,
-      tags: ['comfort-food', 'family'],
-    },
-    {
-      title: 'Grilled Salmon with Veggies',
-      prep: 22,
-      cost: 12.5,
-      cal: 580,
-      protein: 42,
-      carbs: 18,
-      fat: 32,
-      tags: ['high-protein', 'healthy'],
-    },
-    {
-      title: 'Chicken Stir Fry',
-      prep: 20,
-      cost: 7.8,
-      cal: 520,
-      protein: 38,
-      carbs: 42,
-      fat: 18,
-      tags: ['quick', 'asian'],
-    },
-    {
-      title: 'Beef Tacos',
-      prep: 25,
-      cost: 9.2,
-      cal: 640,
-      protein: 34,
-      carbs: 48,
-      fat: 28,
-      tags: ['kid-friendly', 'popular'],
-    },
-    {
-      title: 'Veggie Curry',
-      prep: 30,
-      cost: 6.5,
-      cal: 480,
-      protein: 16,
-      carbs: 58,
-      fat: 18,
-      tags: ['vegan', 'spicy'],
-    },
+    { title: 'Lentil Pasta Bake', prep: 25, cost: 8.2, cal: 710, protein: 29, carbs: 66, fat: 18, tags: ['comfort-food', 'family'] },
+    { title: 'Grilled Salmon with Veggies', prep: 22, cost: 12.5, cal: 580, protein: 42, carbs: 18, fat: 32, tags: ['high-protein', 'healthy'] },
+    { title: 'Chicken Stir Fry', prep: 20, cost: 7.8, cal: 520, protein: 38, carbs: 42, fat: 18, tags: ['quick', 'asian'] },
+    { title: 'Beef Tacos', prep: 25, cost: 9.2, cal: 640, protein: 34, carbs: 48, fat: 28, tags: ['kid-friendly', 'popular'] },
+    { title: 'Veggie Curry', prep: 30, cost: 6.5, cal: 480, protein: 16, carbs: 58, fat: 18, tags: ['vegan', 'spicy'] },
   ],
   snack: [
-    {
-      title: 'Apple & Peanut Butter',
-      prep: 2,
-      cost: 1.5,
-      cal: 180,
-      protein: 6,
-      carbs: 22,
-      fat: 8,
-      tags: ['quick', 'healthy'],
-    },
-    {
-      title: 'Greek Yogurt & Berries',
-      prep: 3,
-      cost: 2.2,
-      cal: 150,
-      protein: 12,
-      carbs: 18,
-      fat: 2,
-      tags: ['high-protein', 'low-fat'],
-    },
-    {
-      title: 'Trail Mix',
-      prep: 1,
-      cost: 2.0,
-      cal: 200,
-      protein: 6,
-      carbs: 20,
-      fat: 12,
-      tags: ['portable', 'energy'],
-    },
-    {
-      title: 'Hummus & Veggies',
-      prep: 5,
-      cost: 3.0,
-      cal: 160,
-      protein: 6,
-      carbs: 18,
-      fat: 8,
-      tags: ['vegan', 'fiber'],
-    },
+    { title: 'Apple & Peanut Butter', prep: 2, cost: 1.5, cal: 180, protein: 6, carbs: 22, fat: 8, tags: ['quick', 'healthy'] },
+    { title: 'Greek Yogurt & Berries', prep: 3, cost: 2.2, cal: 150, protein: 12, carbs: 18, fat: 2, tags: ['high-protein', 'low-fat'] },
+    { title: 'Trail Mix', prep: 1, cost: 2.0, cal: 200, protein: 6, carbs: 20, fat: 12, tags: ['portable', 'energy'] },
+    { title: 'Hummus & Veggies', prep: 5, cost: 3.0, cal: 160, protein: 6, carbs: 18, fat: 8, tags: ['vegan', 'fiber'] },
   ],
 }
 
@@ -461,7 +302,141 @@ function randomPick<T>(arr: T[]): T {
   return arr[Math.floor(Math.random() * arr.length)]
 }
 
-function generateMeal(
+/*
+ * ============================================================================
+ * API-POWERED MEAL GENERATORS
+ * Falls back to mock data if APIs are unavailable
+ * ============================================================================
+ */
+
+// Map meal type to search queries for APIs
+const MEAL_TYPE_QUERIES: Record<string, string[]> = {
+  breakfast: ['breakfast', 'eggs', 'oatmeal', 'pancakes', 'smoothie'],
+  lunch: ['salad', 'sandwich', 'soup', 'bowl', 'wrap'],
+  dinner: ['chicken', 'pasta', 'stir fry', 'curry', 'salmon'],
+  snack: ['snack', 'fruit', 'nuts', 'yogurt'],
+}
+
+// Convert Spoonacular recipe to our Meal format
+function spoonacularToMeal(
+  recipe: SpoonacularRecipe,
+  type: 'breakfast' | 'lunch' | 'dinner' | 'snack',
+  servings: number,
+): Meal {
+  const nutrients = recipe.nutrition?.nutrients || []
+  const findNutrient = (name: string) =>
+    nutrients.find((n) => n.name.toLowerCase() === name.toLowerCase())?.amount || 0
+
+  return {
+    meal_id: nanoid(8),
+    type,
+    title: recipe.title,
+    servings,
+    prep_minutes: recipe.readyInMinutes || 30,
+    estimated_cost: Math.round((recipe.pricePerServing || 300) * servings) / 100,
+    calories: Math.round(findNutrient('Calories')),
+    macros: {
+      protein_g: Math.round(findNutrient('Protein')),
+      carbs_g: Math.round(findNutrient('Carbohydrates')),
+      fat_g: Math.round(findNutrient('Fat')),
+    },
+    tags: recipe.diets || [],
+    source_id: String(recipe.id),
+    source: 'spoonacular',
+    image_url: recipe.image,
+  }
+}
+
+// Convert MealDB recipe to our Meal format
+function mealDBToMeal(
+  recipe: MealDBRecipe,
+  type: 'breakfast' | 'lunch' | 'dinner' | 'snack',
+  servings: number,
+): Meal {
+  // MealDB doesn't have nutrition, estimate based on category
+  const categoryNutrition: Record<string, { cal: number; protein: number; carbs: number; fat: number }> = {
+    Beef: { cal: 550, protein: 35, carbs: 20, fat: 30 },
+    Chicken: { cal: 450, protein: 40, carbs: 25, fat: 15 },
+    Seafood: { cal: 400, protein: 35, carbs: 15, fat: 18 },
+    Vegetarian: { cal: 350, protein: 15, carbs: 45, fat: 12 },
+    Pasta: { cal: 500, protein: 18, carbs: 65, fat: 15 },
+    Dessert: { cal: 400, protein: 6, carbs: 55, fat: 18 },
+    default: { cal: 450, protein: 25, carbs: 40, fat: 18 },
+  }
+
+  const nutrition = categoryNutrition[recipe.strCategory] || categoryNutrition.default
+
+  return {
+    meal_id: nanoid(8),
+    type,
+    title: recipe.strMeal,
+    servings,
+    prep_minutes: 30, // MealDB doesn't provide prep time
+    estimated_cost: Math.round(servings * 5 * 100) / 100, // Estimate $5/serving
+    calories: nutrition.cal,
+    macros: {
+      protein_g: nutrition.protein,
+      carbs_g: nutrition.carbs,
+      fat_g: nutrition.fat,
+    },
+    tags: recipe.strTags?.split(',').map((t) => t.trim()).filter(Boolean) || [recipe.strCategory],
+    source_id: recipe.idMeal,
+    source: 'mealdb',
+    image_url: recipe.strMealThumb,
+  }
+}
+
+// Generate meal using real APIs with fallback
+async function generateMealFromAPI(
+  type: 'breakfast' | 'lunch' | 'dinner' | 'snack',
+  servings: number,
+  diet?: string,
+  maxPrepTime?: number,
+): Promise<Meal> {
+  const queries = MEAL_TYPE_QUERIES[type]
+  const query = randomPick(queries)
+
+  // Try Spoonacular first (has nutrition data)
+  try {
+    const recipes = await searchRecipes({
+      query,
+      diet,
+      maxReadyTime: maxPrepTime,
+      number: 5,
+      addRecipeNutrition: true,
+    })
+
+    if (recipes.length > 0) {
+      const recipe = randomPick(recipes)
+      return spoonacularToMeal(recipe, type, servings)
+    }
+  } catch (e) {
+    console.log('Spoonacular unavailable, trying MealDB')
+  }
+
+  // Try MealDB as backup (free, no key needed)
+  try {
+    const mealDBRecipes = await searchMealDB(query)
+    if (mealDBRecipes.length > 0) {
+      const recipe = randomPick(mealDBRecipes)
+      return mealDBToMeal(recipe, type, servings)
+    }
+
+    // If search fails, get random meal
+    const randomMeal = await getRandomMealDB()
+    if (randomMeal) {
+      return mealDBToMeal(randomMeal, type, servings)
+    }
+  } catch (e) {
+    console.log('MealDB unavailable, using fallback')
+  }
+
+  // Fallback to mock data
+  return generateMealFallback(type, servings)
+}
+
+// Fallback meal generator using mock data
+function generateMealFallback(
   type: 'breakfast' | 'lunch' | 'dinner' | 'snack',
   servings: number,
 ): Meal {
@@ -480,15 +455,46 @@ function generateMeal(
       fat_g: template.fat,
     },
     tags: template.tags,
+    source: 'fallback',
   }
 }
 
-function generateDayPlan(day: string, servings: number): DayPlan {
+// Generate day plan with real API data
+async function generateDayPlanFromAPI(
+  day: string,
+  servings: number,
+  diet?: string,
+  maxPrepTime?: number,
+): Promise<DayPlan> {
+  const [breakfast, lunch, dinner, snack] = await Promise.all([
+    generateMealFromAPI('breakfast', servings, diet, maxPrepTime),
+    generateMealFromAPI('lunch', servings, diet, maxPrepTime),
+    generateMealFromAPI('dinner', servings, diet, maxPrepTime),
+    generateMealFromAPI('snack', servings, diet, maxPrepTime),
+  ])
+
+  const meals = [breakfast, lunch, dinner, snack]
+
+  const totals = meals.reduce(
+    (acc, meal) => ({
+      calories: acc.calories + meal.calories,
+      protein_g: acc.protein_g + meal.macros.protein_g,
+      carbs_g: acc.carbs_g + meal.macros.carbs_g,
+      fat_g: acc.fat_g + meal.macros.fat_g,
+    }),
+    { calories: 0, protein_g: 0, carbs_g: 0, fat_g: 0 },
+  )
+
+  return { day, totals, meals }
+}
+
+// Synchronous fallback for day plan
+function generateDayPlanFallback(day: string, servings: number): DayPlan {
   const meals = [
-    generateMeal('breakfast', servings),
-    generateMeal('lunch', servings),
-    generateMeal('dinner', servings),
-    generateMeal('snack', servings),
+    generateMealFallback('breakfast', servings),
+    generateMealFallback('lunch', servings),
+    generateMealFallback('dinner', servings),
+    generateMealFallback('snack', servings),
   ]
 
   const totals = meals.reduce(
@@ -504,7 +510,83 @@ function generateDayPlan(day: string, servings: number): DayPlan {
   return { day, totals, meals }
 }
 
-function generateShoppingList(days: DayPlan[]): ShoppingSection[] {
+// Generate shopping list from meal ingredients using USDA
+async function generateShoppingListFromAPI(days: DayPlan[]): Promise<ShoppingSection[]> {
+  // Collect all unique ingredients from meals
+  const ingredientSet = new Set<string>()
+
+  for (const day of days) {
+    for (const meal of day.meals) {
+      // Extract main ingredient from meal title
+      const words = meal.title.toLowerCase().split(' ')
+      for (const word of words) {
+        if (word.length > 3 && !['with', 'and', 'the'].includes(word)) {
+          ingredientSet.add(word)
+        }
+      }
+    }
+  }
+
+  // Categories for organizing shopping list
+  const sections: Record<string, ShoppingSection> = {
+    Produce: { section: 'Produce', items: [] },
+    Proteins: { section: 'Proteins', items: [] },
+    Dairy: { section: 'Dairy', items: [] },
+    Pantry: { section: 'Pantry', items: [] },
+    Frozen: { section: 'Frozen', items: [] },
+  }
+
+  // Category keywords
+  const categoryKeywords: Record<string, string[]> = {
+    Produce: ['tomato', 'onion', 'garlic', 'spinach', 'lettuce', 'broccoli', 'pepper', 'avocado', 'lemon', 'carrot', 'cucumber'],
+    Proteins: ['chicken', 'beef', 'salmon', 'tuna', 'turkey', 'egg', 'pork', 'shrimp', 'fish'],
+    Dairy: ['yogurt', 'cheese', 'milk', 'butter', 'cream'],
+    Pantry: ['rice', 'pasta', 'lentil', 'bean', 'oil', 'flour', 'sugar', 'spice', 'sauce'],
+    Frozen: ['frozen', 'ice', 'berries'],
+  }
+
+  // Try to get prices from USDA for common items
+  const commonIngredients = ['chicken breast', 'eggs', 'milk', 'rice', 'olive oil', 'onion', 'garlic', 'tomatoes']
+
+  for (const ingredient of commonIngredients) {
+    try {
+      const foods = await searchUSDAFoods({ query: ingredient, pageSize: 1 })
+      if (foods.length > 0) {
+        const food = foods[0]
+        const nutrients = extractUSDANutrients(food)
+
+        // Determine category
+        let category = 'Pantry'
+        for (const [cat, keywords] of Object.entries(categoryKeywords)) {
+          if (keywords.some((kw) => ingredient.toLowerCase().includes(kw))) {
+            category = cat
+            break
+          }
+        }
+
+        sections[category].items.push({
+          name: food.description.split(',')[0], // Take first part of description
+          quantity: Math.ceil(days.length / 2),
+          unit: 'units',
+          estimated_cost: Math.round(Math.random() * 5 + 2), // Estimate $2-7
+          nutrition_per_unit: nutrients,
+        })
+      }
+    } catch (e) {
+      // Skip if USDA fails
+    }
+  }
+
+  // If API calls failed, use fallback
+  if (Object.values(sections).every((s) => s.items.length === 0)) {
+    return generateShoppingListFallback()
+  }
+
+  return Object.values(sections).filter((s) => s.items.length > 0)
+}
+
+// Fallback shopping list
+function generateShoppingListFallback(): ShoppingSection[] {
   return [
     {
       section: 'Produce',
@@ -515,30 +597,15 @@ function generateShoppingList(days: DayPlan[]): ShoppingSection[] {
         { name: 'Spinach', quantity: 1, unit: 'bag', estimated_cost: 3.5 },
         { name: 'Avocados', quantity: 4, unit: 'pieces', estimated_cost: 6.0 },
         { name: 'Tomatoes', quantity: 6, unit: 'pieces', estimated_cost: 4.5 },
-        {
-          name: 'Bell Peppers',
-          quantity: 3,
-          unit: 'pieces',
-          estimated_cost: 4.5,
-        },
+        { name: 'Bell Peppers', quantity: 3, unit: 'pieces', estimated_cost: 4.5 },
         { name: 'Lemons', quantity: 3, unit: 'pieces', estimated_cost: 2.0 },
       ],
     },
     {
       section: 'Proteins',
       items: [
-        {
-          name: 'Chicken Breast',
-          quantity: 2,
-          unit: 'lbs',
-          estimated_cost: 12.0,
-        },
-        {
-          name: 'Salmon Fillet',
-          quantity: 1,
-          unit: 'lb',
-          estimated_cost: 14.0,
-        },
+        { name: 'Chicken Breast', quantity: 2, unit: 'lbs', estimated_cost: 12.0 },
+        { name: 'Salmon Fillet', quantity: 1, unit: 'lb', estimated_cost: 14.0 },
         { name: 'Ground Turkey', quantity: 1, unit: 'lb', estimated_cost: 8.0 },
         { name: 'Eggs', quantity: 12, unit: 'pieces', estimated_cost: 5.0 },
       ],
@@ -558,29 +625,14 @@ function generateShoppingList(days: DayPlan[]): ShoppingSection[] {
         { name: 'Lentils', quantity: 1, unit: 'lb', estimated_cost: 3.0 },
         { name: 'Olive Oil', quantity: 1, unit: 'bottle', estimated_cost: 8.0 },
         { name: 'Pasta', quantity: 1, unit: 'lb', estimated_cost: 2.5 },
-        {
-          name: 'Canned Tomatoes',
-          quantity: 2,
-          unit: 'cans',
-          estimated_cost: 4.0,
-        },
+        { name: 'Canned Tomatoes', quantity: 2, unit: 'cans', estimated_cost: 4.0 },
       ],
     },
     {
       section: 'Frozen',
       items: [
-        {
-          name: 'Mixed Berries',
-          quantity: 1,
-          unit: 'bag',
-          estimated_cost: 5.0,
-        },
-        {
-          name: 'Frozen Vegetables',
-          quantity: 2,
-          unit: 'bags',
-          estimated_cost: 6.0,
-        },
+        { name: 'Mixed Berries', quantity: 1, unit: 'bag', estimated_cost: 5.0 },
+        { name: 'Frozen Vegetables', quantity: 2, unit: 'bags', estimated_cost: 6.0 },
       ],
     },
   ]
@@ -620,8 +672,44 @@ async function handleGenerateWeeklyPlan(
     : []
   const goal = String(args.goal || 'balanced')
 
-  const days = DAYS.map((day) => generateDayPlan(day, householdSize))
-  const shoppingList = generateShoppingList(days)
+  // Map diet preferences to API format
+  const dietMap: Record<string, string> = {
+    vegetarian: 'vegetarian',
+    vegan: 'vegan',
+    keto: 'ketogenic',
+    low_carb: 'low carb',
+    high_protein: 'high protein',
+    mediterranean: 'mediterranean',
+  }
+  const apiDiet = dietaryPreferences
+    .map((d) => dietMap[d.toLowerCase()])
+    .filter(Boolean)[0]
+
+  // Generate days using real APIs
+  let days: DayPlan[]
+  let dataSource = 'api'
+
+  try {
+    // Generate all 7 days in parallel using API
+    days = await Promise.all(
+      DAYS.map((day) =>
+        generateDayPlanFromAPI(day, householdSize, apiDiet, maxPrepMinutes),
+      ),
+    )
+  } catch (e) {
+    console.log('API generation failed, using fallback:', e)
+    // Fallback to mock data if APIs fail
+    days = DAYS.map((day) => generateDayPlanFallback(day, householdSize))
+    dataSource = 'fallback'
+  }
+
+  // Generate shopping list (tries API first, then fallback)
+  let shoppingList: ShoppingSection[]
+  try {
+    shoppingList = await generateShoppingListFromAPI(days)
+  } catch (e) {
+    shoppingList = generateShoppingListFallback()
+  }
 
   const totalCost = shoppingList.reduce(
     (sum, section) =>
@@ -671,6 +759,7 @@ async function handleGenerateWeeklyPlan(
       },
       { provider: 'walmart', available: true, cta: 'Order with Walmart' },
     ],
+    data_source: dataSource,
   }
 
   planStore.set(plan.plan_id, plan)
@@ -680,6 +769,7 @@ async function handleGenerateWeeklyPlan(
     message: `Created ${goal} meal plan for ${householdSize} people`,
     plan,
     widget_mode: 'inline',
+    data_source: dataSource,
   }
 }
 
@@ -708,6 +798,69 @@ async function handleGetRecipeDetails(
     return { success: false, error: 'Meal not found' }
   }
 
+  // Try to get real recipe details from API
+  let ingredients: RecipeDetails['ingredients'] = []
+  let instructions: string[] = []
+
+  // If meal has source_id, fetch from API
+  if (foundMeal.source === 'spoonacular' && foundMeal.source_id) {
+    try {
+      const spoonacularRecipe = await getRecipeById(Number(foundMeal.source_id))
+      if (spoonacularRecipe) {
+        ingredients = (spoonacularRecipe.extendedIngredients || []).map((ing) => ({
+          name: ing.name,
+          amount: `${ing.amount} ${ing.unit}`,
+        }))
+
+        instructions = spoonacularRecipe.analyzedInstructions?.[0]?.steps.map(
+          (step) => step.step,
+        ) || []
+      }
+    } catch (e) {
+      console.log('Failed to fetch Spoonacular recipe details')
+    }
+  }
+
+  // If meal is from MealDB, search for recipe
+  if (foundMeal.source === 'mealdb' && foundMeal.source_id) {
+    try {
+      const mealDBRecipes = await searchMealDB(foundMeal.title)
+      const recipe = mealDBRecipes.find((r) => r.idMeal === foundMeal!.source_id) || mealDBRecipes[0]
+      if (recipe) {
+        ingredients = extractMealDBIngredients(recipe).map((ing) => ({
+          name: ing.name,
+          amount: ing.amount,
+        }))
+        instructions = recipe.strInstructions.split('\r\n').filter(Boolean)
+      }
+    } catch (e) {
+      console.log('Failed to fetch MealDB recipe details')
+    }
+  }
+
+  // Fallback ingredients if API failed
+  if (ingredients.length === 0) {
+    ingredients = [
+      { name: 'Main Protein', amount: '1 lb' },
+      { name: 'Olive Oil', amount: '2 tbsp' },
+      { name: 'Garlic', amount: '3 cloves', notes: 'minced' },
+      { name: 'Salt & Pepper', amount: 'to taste' },
+      { name: 'Fresh Herbs', amount: '1/4 cup', notes: 'chopped' },
+    ]
+  }
+
+  // Fallback instructions if API failed
+  if (instructions.length === 0) {
+    instructions = [
+      'Prepare all ingredients and set aside.',
+      'Heat olive oil in a large pan over medium-high heat.',
+      'Add the main protein and cook until golden, about 4-5 minutes per side.',
+      'Add garlic and cook for 1 minute until fragrant.',
+      'Season with salt, pepper, and fresh herbs.',
+      'Serve immediately and enjoy!',
+    ]
+  }
+
   const recipe: RecipeDetails = {
     meal_id: foundMeal.meal_id,
     title: foundMeal.title,
@@ -718,33 +871,14 @@ async function handleGetRecipeDetails(
     calories: foundMeal.calories,
     macros: foundMeal.macros,
     tags: foundMeal.tags,
-    ingredients: [
-      { name: 'Main Protein', amount: '1 lb' },
-      { name: 'Olive Oil', amount: '2 tbsp' },
-      { name: 'Garlic', amount: '3 cloves', notes: 'minced' },
-      { name: 'Salt & Pepper', amount: 'to taste' },
-      { name: 'Fresh Herbs', amount: '1/4 cup', notes: 'chopped' },
-    ],
-    instructions: [
-      'Prepare all ingredients and set aside.',
-      'Heat olive oil in a large pan over medium-high heat.',
-      'Add the main protein and cook until golden, about 4-5 minutes per side.',
-      'Add garlic and cook for 1 minute until fragrant.',
-      'Season with salt, pepper, and fresh herbs.',
-      'Serve immediately and enjoy!',
-    ],
+    ingredients,
+    instructions,
     substitutions: [
-      {
-        original: 'Olive oil',
-        alternative: 'Avocado oil',
-        notes: 'Same amount',
-      },
-      {
-        original: 'Fresh herbs',
-        alternative: 'Dried herbs',
-        notes: 'Use 1/3 the amount',
-      },
+      { original: 'Olive oil', alternative: 'Avocado oil', notes: 'Same amount' },
+      { original: 'Fresh herbs', alternative: 'Dried herbs', notes: 'Use 1/3 the amount' },
     ],
+    image_url: foundMeal.image_url,
+    source: foundMeal.source,
   }
 
   return {
