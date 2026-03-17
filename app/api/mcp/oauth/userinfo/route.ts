@@ -47,7 +47,9 @@ async function handleUserInfo(req: NextRequest) {
 
     const token = authHeader.substring(7)
     const baseUrl = getBaseUrlFromRequest(req)
-    const JWT_SECRET = new TextEncoder().encode(process.env.NEXTAUTH_SECRET)
+    const JWT_SECRET = new TextEncoder().encode(
+      process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET,
+    )
 
     const { payload } = await jwtVerify(token, JWT_SECRET, {
       issuer: baseUrl,

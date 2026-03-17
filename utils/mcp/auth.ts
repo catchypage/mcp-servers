@@ -65,7 +65,9 @@ export async function verifyMcpToken(
   const baseMcpAudience = `${baseUrl}/api/mcp`
 
   try {
-    const JWT_SECRET = new TextEncoder().encode(process.env.NEXTAUTH_SECRET)
+    const JWT_SECRET = new TextEncoder().encode(
+      process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET,
+    )
     let payload
     try {
       // First try exact audience match

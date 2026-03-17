@@ -7,7 +7,9 @@ import { nanoid } from 'nanoid'
 type GrantType = 'authorization_code' | 'refresh_token'
 
 // JWT secret should be configured in .env
-const JWT_SECRET = new TextEncoder().encode(process.env.NEXTAUTH_SECRET)
+const JWT_SECRET = new TextEncoder().encode(
+  process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET,
+)
 
 // Row typings for Supabase queries
 interface OneTimeTokenRow {
