@@ -142,7 +142,7 @@ export async function handleMcpRequest(
               _meta: {
                 ui: {
                   widget: {
-                    mimeType: 'text/html+skybridge',
+                    mimeType: 'text/html;profile=mcp-app',
                     content: widgetHtml,
                     _meta: {
                       'openai/widgetDomain': baseUrl,
@@ -188,7 +188,7 @@ export async function handleMcpRequest(
           uri: `${baseUrl}${resourceUrl}/widget`,
           name: `${app.name} Widget`,
           description: app.description ?? '',
-          mimeType: 'text/html+skybridge',
+          mimeType: 'text/html;profile=mcp-app',
         })
       }
       return NextResponse.json(
@@ -220,7 +220,7 @@ export async function handleMcpRequest(
             contents: [
               {
                 uri: uri ?? expectedUri,
-                mimeType: 'text/html+skybridge',
+                mimeType: 'text/html;profile=mcp-app',
                 text: widgetHtml,
                 _meta: {
                   'openai/widgetDomain': baseUrl,

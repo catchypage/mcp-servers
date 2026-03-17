@@ -62,6 +62,9 @@ const generateWeeklyPlanTool: McpToolDefinition = {
     idempotentHint: false,
   },
   securitySchemes: [{ type: 'oauth2', scopes: ['user:read'] }],
+  _meta: {
+    'openai/outputTemplate': 'ui://chefplan/meal-plan-widget',
+  },
 }
 
 const getRecipeDetailsTool: McpToolDefinition = {
@@ -84,6 +87,9 @@ const getRecipeDetailsTool: McpToolDefinition = {
     idempotentHint: true,
   },
   securitySchemes: [{ type: 'oauth2', scopes: ['user:read'] }],
+  _meta: {
+    'openai/outputTemplate': 'ui://chefplan/meal-plan-widget',
+  },
 }
 
 const swapMealTool: McpToolDefinition = {
@@ -117,6 +123,9 @@ const swapMealTool: McpToolDefinition = {
     idempotentHint: false,
   },
   securitySchemes: [{ type: 'oauth2', scopes: ['user:read'] }],
+  _meta: {
+    'openai/outputTemplate': 'ui://chefplan/meal-plan-widget',
+  },
 }
 
 const updatePlanConstraintsTool: McpToolDefinition = {
@@ -149,6 +158,9 @@ const updatePlanConstraintsTool: McpToolDefinition = {
     idempotentHint: false,
   },
   securitySchemes: [{ type: 'oauth2', scopes: ['user:read'] }],
+  _meta: {
+    'openai/outputTemplate': 'ui://chefplan/meal-plan-widget',
+  },
 }
 
 const buildShoppingListTool: McpToolDefinition = {
@@ -170,6 +182,9 @@ const buildShoppingListTool: McpToolDefinition = {
     idempotentHint: true,
   },
   securitySchemes: [{ type: 'oauth2', scopes: ['user:read'] }],
+  _meta: {
+    'openai/outputTemplate': 'ui://chefplan/meal-plan-widget',
+  },
 }
 
 const createOrderLinkTool: McpToolDefinition = {
@@ -195,6 +210,9 @@ const createOrderLinkTool: McpToolDefinition = {
     idempotentHint: true,
   },
   securitySchemes: [{ type: 'oauth2', scopes: ['user:read'] }],
+  _meta: {
+    'openai/outputTemplate': 'ui://chefplan/meal-plan-widget',
+  },
 }
 
 const getUserInfoTool: McpToolDefinition = {
