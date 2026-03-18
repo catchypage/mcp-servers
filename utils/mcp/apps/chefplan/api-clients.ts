@@ -423,16 +423,42 @@ export async function getRandomMealDB(): Promise<MealDBRecipe | null> {
   }
 }
 
+export async function getMealDBById(id: string): Promise<MealDBRecipe | null> {
+  try {
+    const response = await fetch(`${MEALDB_BASE_URL}/lookup.php?i=${id}`)
+    if (!response.ok) return null
+    const data = await response.json()
+    return data.meals?.[0] || null
+  } catch (error) {
+    console.error('MealDB API error:', error)
+    return null
+  }
+}
+
 export async function getMealDBByCategory(
   category: string,
 ): Promise<MealDBRecipe[]> {
   try {
+    // Filter by category returns only basic info (idMeal, strMeal, strMealThumb)
     const response = await fetch(
       `${MEALDB_BASE_URL}/filter.php?c=${encodeURIComponent(category)}`,
     )
     if (!response.ok) return []
     const data = await response.json()
-    return data.meals || []
+    const basicMeals = data.meals || []
+
+    // Get full details for up to 5 random meals
+    if (basicMeals.length === 0) return []
+
+    const selectedMeals = basicMeals
+      .sort(() => Math.random() - 0.5)
+      .slice(0, 5)
+
+    const fullMeals = await Promise.all(
+      selectedMeals.map((m: { idMeal: string }) => getMealDBById(m.idMeal)),
+    )
+
+    return fullMeals.filter((m): m is MealDBRecipe => m !== null)
   } catch (error) {
     console.error('MealDB API error:', error)
     return []
