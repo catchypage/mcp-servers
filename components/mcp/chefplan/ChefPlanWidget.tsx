@@ -41,9 +41,49 @@ export default function ChefPlanWidget() {
   } | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [initTimeout, setInitTimeout] = useState(false)
 
   // Initialize from tool result - multiple sources
   useEffect(() => {
+    // Helper to extract plan from various data formats
+    const extractPlan = (data: unknown): MealPlan | null => {
+      if (!data || typeof data !== 'object') return null
+      const obj = data as Record<string, unknown>
+
+      // Direct plan object
+      if (obj.plan_id && obj.days) {
+        return obj as unknown as MealPlan
+      }
+      // Nested plan property
+      if (obj.plan && typeof obj.plan === 'object') {
+        const plan = obj.plan as Record<string, unknown>
+        if (plan.plan_id && plan.days) {
+          return plan as unknown as MealPlan
+        }
+      }
+      // structuredContent wrapper (MCP Apps format)
+      if (obj.structuredContent && typeof obj.structuredContent === 'object') {
+        return extractPlan(obj.structuredContent)
+      }
+      // content wrapper
+      if (obj.content && typeof obj.content === 'object') {
+        return extractPlan(obj.content)
+      }
+      // payload wrapper (mcp:init format)
+      if (obj.payload && typeof obj.payload === 'object') {
+        return extractPlan(obj.payload)
+      }
+      // result wrapper
+      if (obj.result && typeof obj.result === 'object') {
+        return extractPlan(obj.result)
+      }
+      // data wrapper (some hosts use this)
+      if (obj.data && typeof obj.data === 'object') {
+        return extractPlan(obj.data)
+      }
+      return null
+    }
+
     // 1. Try __chefplan_init (server-side injection)
     const initData = (
       window as unknown as { __chefplan_init?: { plan?: MealPlan } }
@@ -52,17 +92,21 @@ export default function ChefPlanWidget() {
       setPlan(initData.plan)
       return
     }
+    // Also try extractPlan on initData in case format differs
+    if (initData) {
+      const extracted = extractPlan(initData)
+      if (extracted) {
+        setPlan(extracted)
+        return
+      }
+    }
 
     // 2. Listen for postMessage from ChatGPT parent (MCP Apps)
     const handleMessage = (event: MessageEvent) => {
       const data = event.data
-      // ChatGPT sends structuredContent with plan data
-      if (data?.structuredContent?.plan) {
-        setPlan(data.structuredContent.plan as MealPlan)
-      } else if (data?.plan) {
-        setPlan(data.plan as MealPlan)
-      } else if (data?.type === 'mcp:init' && data?.payload?.plan) {
-        setPlan(data.payload.plan as MealPlan)
+      const plan = extractPlan(data)
+      if (plan) {
+        setPlan(plan)
       }
     }
 
@@ -73,7 +117,15 @@ export default function ChefPlanWidget() {
       window.parent.postMessage({ type: 'mcp:ready', app: 'chefplan' }, '*')
     }
 
-    return () => window.removeEventListener('message', handleMessage)
+    // 4. Set timeout to show helpful error if data not received
+    const timeout = setTimeout(() => {
+      setInitTimeout(true)
+    }, 8000)
+
+    return () => {
+      window.removeEventListener('message', handleMessage)
+      clearTimeout(timeout)
+    }
   }, [])
 
   const callTool = useCallback(
@@ -226,8 +278,20 @@ export default function ChefPlanWidget() {
   if (!plan) {
     return (
       <div className="cp-loading">
-        <div className="cp-spinner" />
-        <p>Loading meal plan...</p>
+        {!initTimeout ? (
+          <>
+            <div className="cp-spinner" />
+            <p>Loading meal plan...</p>
+          </>
+        ) : (
+          <>
+            <p className="cp-timeout-title">Unable to load meal plan</p>
+            <p className="cp-timeout-hint">
+              The widget did not receive plan data from the host application.
+              Please try refreshing or generating a new meal plan.
+            </p>
+          </>
+        )}
         <style>{`
           .cp-loading {
             display: flex;
@@ -237,6 +301,8 @@ export default function ChefPlanWidget() {
             min-height: 300px;
             font-family: 'Inter', system-ui, sans-serif;
             color: #6b7280;
+            text-align: center;
+            padding: 24px;
           }
           .cp-spinner {
             width: 40px;
@@ -246,6 +312,17 @@ export default function ChefPlanWidget() {
             border-radius: 50%;
             animation: spin 1s linear infinite;
             margin-bottom: 16px;
+          }
+          .cp-timeout-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+          }
+          .cp-timeout-hint {
+            font-size: 14px;
+            color: #6b7280;
+            max-width: 300px;
           }
           @keyframes spin {
             to { transform: rotate(360deg); }
