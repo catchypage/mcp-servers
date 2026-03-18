@@ -21,6 +21,16 @@ interface OpenAIBridge {
     [key: string]: unknown
   }>
   updateModelContext?: (context: Record<string, unknown>) => void
+  // Method to get the initial tool result that triggered the widget
+  getToolResult?: () => Promise<{
+    structuredContent?: Record<string, unknown>
+    [key: string]: unknown
+  }>
+  // Some versions expose toolResult directly
+  toolResult?: {
+    structuredContent?: Record<string, unknown>
+    [key: string]: unknown
+  }
 }
 
 declare global {
@@ -117,7 +127,35 @@ export default function ChefPlanWidget() {
       }
     }
 
-    // 3. Listen for postMessage from ChatGPT parent (MCP Apps)
+    // 3. Try window.openai bridge (ChatGPT MCP Apps)
+    const tryOpenAIBridge = async () => {
+      // Try direct toolResult property
+      if (window.openai?.toolResult) {
+        const plan = extractPlan(window.openai.toolResult)
+        if (plan) {
+          setPlan(plan)
+          return true
+        }
+      }
+      // Try getToolResult method
+      if (window.openai?.getToolResult) {
+        try {
+          const result = await window.openai.getToolResult()
+          const plan = extractPlan(result)
+          if (plan) {
+            setPlan(plan)
+            return true
+          }
+        } catch (e) {
+          console.error('[ChefPlan] getToolResult failed:', e)
+        }
+      }
+      return false
+    }
+
+    tryOpenAIBridge()
+
+    // 4. Listen for postMessage from ChatGPT parent (MCP Apps)
     const handleMessage = (event: MessageEvent) => {
       const data = event.data
       const plan = extractPlan(data)
@@ -128,12 +166,12 @@ export default function ChefPlanWidget() {
 
     window.addEventListener('message', handleMessage)
 
-    // 4. Request initial data from parent
+    // 5. Request initial data from parent
     if (window.parent !== window) {
       window.parent.postMessage({ type: 'mcp:ready', app: 'chefplan' }, '*')
     }
 
-    // 5. Set timeout to show helpful error if data not received
+    // 6. Set timeout to show helpful error if data not received
     const timeout = setTimeout(() => {
       setInitTimeout(true)
     }, 8000)
