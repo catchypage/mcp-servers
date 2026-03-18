@@ -2,8 +2,9 @@ import type { MealPlan } from './types'
 
 export function chefplanWidgetHTML(baseUrl: string, plan?: MealPlan): string {
   const bundleUrl = `${baseUrl}/mcp/chefplan.bundle.js`
-  const initScript = plan
-    ? `<script>window.__chefplan_init = { plan: ${JSON.stringify(plan)} };</script>`
+  // Encode plan data as base64 to safely embed in data attribute (avoids CSP issues with inline scripts)
+  const planDataAttr = plan
+    ? ` data-plan="${Buffer.from(JSON.stringify(plan)).toString('base64')}"`
     : ''
   return `<!DOCTYPE html>
 <html lang="en">
@@ -94,8 +95,7 @@ export function chefplanWidgetHTML(baseUrl: string, plan?: MealPlan): string {
   </style>
 </head>
 <body>
-  <div id="chefplan-widget-root"></div>
-  ${initScript}
+  <div id="chefplan-widget-root"${planDataAttr}></div>
   <script type="module" src="${bundleUrl}"></script>
 </body>
 </html>`

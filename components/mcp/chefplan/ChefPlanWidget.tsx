@@ -84,7 +84,23 @@ export default function ChefPlanWidget() {
       return null
     }
 
-    // 1. Try __chefplan_init (server-side injection)
+    // 1. Try data-plan attribute on root element (base64 encoded, CSP-safe)
+    const rootElement = document.getElementById('chefplan-widget-root')
+    const planDataAttr = rootElement?.getAttribute('data-plan')
+    if (planDataAttr) {
+      try {
+        const decoded = atob(planDataAttr)
+        const planData = JSON.parse(decoded) as MealPlan
+        if (planData?.plan_id && planData?.days) {
+          setPlan(planData)
+          return
+        }
+      } catch (e) {
+        console.error('[ChefPlan] Failed to parse data-plan attribute:', e)
+      }
+    }
+
+    // 2. Try __chefplan_init (legacy server-side injection)
     const initData = (
       window as unknown as { __chefplan_init?: { plan?: MealPlan } }
     ).__chefplan_init
@@ -101,7 +117,7 @@ export default function ChefPlanWidget() {
       }
     }
 
-    // 2. Listen for postMessage from ChatGPT parent (MCP Apps)
+    // 3. Listen for postMessage from ChatGPT parent (MCP Apps)
     const handleMessage = (event: MessageEvent) => {
       const data = event.data
       const plan = extractPlan(data)
@@ -112,12 +128,12 @@ export default function ChefPlanWidget() {
 
     window.addEventListener('message', handleMessage)
 
-    // 3. Request initial data from parent
+    // 4. Request initial data from parent
     if (window.parent !== window) {
       window.parent.postMessage({ type: 'mcp:ready', app: 'chefplan' }, '*')
     }
 
-    // 4. Set timeout to show helpful error if data not received
+    // 5. Set timeout to show helpful error if data not received
     const timeout = setTimeout(() => {
       setInitTimeout(true)
     }, 8000)
