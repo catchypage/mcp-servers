@@ -263,39 +263,9 @@ export const chefplanInternalTools: McpToolDefinition[] = [getUserInfoTool]
 
 /*
  * ============================================================================
- * FALLBACK MOCK DATA (used when APIs are unavailable)
+ * CONSTANTS
  * ============================================================================
  */
-
-const MEAL_TEMPLATES = {
-  breakfast: [
-    { title: 'Greek Yogurt Parfait', prep: 10, cost: 4.5, cal: 320, protein: 22, carbs: 28, fat: 9, tags: ['high-protein', 'quick'] },
-    { title: 'Avocado Toast with Eggs', prep: 15, cost: 5.2, cal: 420, protein: 18, carbs: 32, fat: 24, tags: ['healthy', 'popular'] },
-    { title: 'Overnight Oats', prep: 5, cost: 2.8, cal: 350, protein: 12, carbs: 58, fat: 8, tags: ['budget', 'meal-prep'] },
-    { title: 'Veggie Omelette', prep: 12, cost: 4.0, cal: 280, protein: 20, carbs: 8, fat: 18, tags: ['low-carb', 'keto'] },
-    { title: 'Smoothie Bowl', prep: 8, cost: 5.5, cal: 380, protein: 14, carbs: 52, fat: 12, tags: ['vegan', 'refreshing'] },
-  ],
-  lunch: [
-    { title: 'Chicken Rice Bowls', prep: 20, cost: 6.5, cal: 540, protein: 38, carbs: 52, fat: 16, tags: ['high-protein', 'meal-prep'] },
-    { title: 'Mediterranean Salad', prep: 15, cost: 7.2, cal: 420, protein: 24, carbs: 28, fat: 22, tags: ['healthy', 'mediterranean'] },
-    { title: 'Turkey Wrap', prep: 10, cost: 5.8, cal: 480, protein: 32, carbs: 42, fat: 18, tags: ['quick', 'portable'] },
-    { title: 'Lentil Soup', prep: 25, cost: 3.5, cal: 320, protein: 18, carbs: 48, fat: 4, tags: ['budget', 'vegan'] },
-    { title: 'Tuna Poke Bowl', prep: 15, cost: 8.5, cal: 450, protein: 36, carbs: 38, fat: 14, tags: ['high-protein', 'fresh'] },
-  ],
-  dinner: [
-    { title: 'Lentil Pasta Bake', prep: 25, cost: 8.2, cal: 710, protein: 29, carbs: 66, fat: 18, tags: ['comfort-food', 'family'] },
-    { title: 'Grilled Salmon with Veggies', prep: 22, cost: 12.5, cal: 580, protein: 42, carbs: 18, fat: 32, tags: ['high-protein', 'healthy'] },
-    { title: 'Chicken Stir Fry', prep: 20, cost: 7.8, cal: 520, protein: 38, carbs: 42, fat: 18, tags: ['quick', 'asian'] },
-    { title: 'Beef Tacos', prep: 25, cost: 9.2, cal: 640, protein: 34, carbs: 48, fat: 28, tags: ['kid-friendly', 'popular'] },
-    { title: 'Veggie Curry', prep: 30, cost: 6.5, cal: 480, protein: 16, carbs: 58, fat: 18, tags: ['vegan', 'spicy'] },
-  ],
-  snack: [
-    { title: 'Apple & Peanut Butter', prep: 2, cost: 1.5, cal: 180, protein: 6, carbs: 22, fat: 8, tags: ['quick', 'healthy'] },
-    { title: 'Greek Yogurt & Berries', prep: 3, cost: 2.2, cal: 150, protein: 12, carbs: 18, fat: 2, tags: ['high-protein', 'low-fat'] },
-    { title: 'Trail Mix', prep: 1, cost: 2.0, cal: 200, protein: 6, carbs: 20, fat: 12, tags: ['portable', 'energy'] },
-    { title: 'Hummus & Veggies', prep: 5, cost: 3.0, cal: 160, protein: 6, carbs: 18, fat: 8, tags: ['vegan', 'fiber'] },
-  ],
-}
 
 const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 
@@ -465,26 +435,35 @@ async function generateMealFromAPI(
   return generateMealFallback(type, servings)
 }
 
-// Fallback meal generator using mock data
+// Fallback meal generator - generates generic meal based on type
+// Only used when all APIs fail
 function generateMealFallback(
   type: 'breakfast' | 'lunch' | 'dinner' | 'snack',
   servings: number,
 ): Meal {
-  const template = randomPick(MEAL_TEMPLATES[type])
+  // Generic nutritional estimates by meal type
+  const defaults = {
+    breakfast: { prep: 15, cost: 4, cal: 350, protein: 15, carbs: 40, fat: 12 },
+    lunch: { prep: 20, cost: 7, cal: 500, protein: 30, carbs: 45, fat: 18 },
+    dinner: { prep: 30, cost: 10, cal: 600, protein: 35, carbs: 50, fat: 22 },
+    snack: { prep: 5, cost: 2, cal: 180, protein: 8, carbs: 20, fat: 8 },
+  }
+  const d = defaults[type]
+
   return {
     meal_id: nanoid(8),
     type,
-    title: template.title,
+    title: `${type.charAt(0).toUpperCase() + type.slice(1)} Meal`,
     servings,
-    prep_minutes: template.prep,
-    estimated_cost: Math.round(template.cost * servings * 100) / 100,
-    calories: template.cal,
+    prep_minutes: d.prep,
+    estimated_cost: Math.round(d.cost * servings * 100) / 100,
+    calories: d.cal,
     macros: {
-      protein_g: template.protein,
-      carbs_g: template.carbs,
-      fat_g: template.fat,
+      protein_g: d.protein,
+      carbs_g: d.carbs,
+      fat_g: d.fat,
     },
-    tags: template.tags,
+    tags: [type],
     source: 'fallback',
   }
 }
@@ -928,9 +907,6 @@ async function handleSwapMeal(
   const planId = String(args.plan_id || '')
   const mealId = String(args.meal_id || '')
   const replaceWith = args.replace_with ? String(args.replace_with) : undefined
-  const constraints = Array.isArray(args.constraints)
-    ? args.constraints.map(String)
-    : []
 
   const plan = planStore.get(planId)
   if (!plan) {
@@ -955,26 +931,59 @@ async function handleSwapMeal(
     return { success: false, error: 'Meal not found' }
   }
 
-  const mealType = foundMeal.type
-  const templates = MEAL_TEMPLATES[mealType]
+  const mealType = foundMeal.type as 'breakfast' | 'lunch' | 'dinner' | 'snack'
 
-  const candidates: SwapCandidate[] = templates
-    .filter((t) => t.title !== foundMeal.title)
-    .slice(0, 4)
-    .map((t, i) => ({
-      meal_id: `swap_${nanoid(6)}`,
-      title: t.title,
-      prep_minutes: t.prep,
-      calories: t.cal,
-      estimated_cost: Math.round(t.cost * foundMeal.servings * 100) / 100,
-      macros: { protein_g: t.protein, carbs_g: t.carbs, fat_g: t.fat },
-      tags: t.tags,
-      match_score: 0.9 - i * 0.1,
-    }))
+  // Get candidates from API cache or fetch new ones
+  const queries = MEAL_TYPE_QUERIES[mealType]
+  let candidateMeals: Meal[] = []
+
+  // Try to get from cache first
+  for (const query of queries) {
+    const cached = recipeCache.get(query)
+    if (cached && cached.length > 0) {
+      // Convert cached recipes to meals
+      for (const recipe of cached) {
+        if (recipe.strMeal !== foundMeal.title && candidateMeals.length < 4) {
+          candidateMeals.push(mealDBToMeal(recipe, mealType, foundMeal.servings))
+        }
+      }
+    }
+    if (candidateMeals.length >= 4) break
+  }
+
+  // If not enough from cache, fetch from API
+  if (candidateMeals.length < 4) {
+    try {
+      const query = randomPick(queries)
+      const recipes = await searchMealDB(query)
+      for (const recipe of recipes) {
+        if (recipe.strMeal !== foundMeal.title && candidateMeals.length < 4) {
+          candidateMeals.push(mealDBToMeal(recipe, mealType, foundMeal.servings))
+        }
+      }
+    } catch (e) {
+      console.log('[ChefPlan] Error fetching swap candidates:', e)
+    }
+  }
+
+  const candidates: SwapCandidate[] = candidateMeals.map((meal, i) => ({
+    meal_id: meal.meal_id,
+    title: meal.title,
+    prep_minutes: meal.prep_minutes,
+    calories: meal.calories,
+    estimated_cost: meal.estimated_cost,
+    macros: meal.macros,
+    tags: meal.tags,
+    match_score: 0.95 - i * 0.05,
+    image_url: meal.image_url,
+  }))
 
   if (replaceWith) {
-    const newMealData =
-      candidates.find((c) => c.meal_id === replaceWith) || candidates[0]
+    const newMealData = candidates.find((c) => c.meal_id === replaceWith)
+    if (!newMealData) {
+      return { success: false, error: 'Replacement meal not found' }
+    }
+
     const newMeal: Meal = {
       meal_id: nanoid(8),
       type: mealType,
@@ -985,6 +994,8 @@ async function handleSwapMeal(
       calories: newMealData.calories,
       macros: newMealData.macros,
       tags: newMealData.tags,
+      image_url: newMealData.image_url,
+      source: 'mealdb',
     }
 
     plan.days[dayIndex].meals[mealIndex] = newMeal

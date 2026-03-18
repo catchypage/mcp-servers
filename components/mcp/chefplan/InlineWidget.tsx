@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import type { MealPlan } from '@/utils/mcp/apps/chefplan/types'
 import {
   ChefHatIcon,
@@ -8,25 +9,44 @@ import {
   CartIcon,
   UsersIcon,
   LeafIcon,
+  ClockIcon,
+  ExpandIcon,
+  SunriseIcon,
+  SunIcon,
+  MoonIcon,
+  CookieIcon,
 } from './Icons'
 
 interface InlineWidgetProps {
   plan: MealPlan
   onOrderIngredients: () => void
+  onOpenFullPlan: () => void
+}
+
+const MEAL_ICONS: Record<
+  string,
+  React.ComponentType<{ size?: number; className?: string }>
+> = {
+  breakfast: SunriseIcon,
+  lunch: SunIcon,
+  dinner: MoonIcon,
+  snack: CookieIcon,
 }
 
 export default function InlineWidget({
   plan,
   onOrderIngredients,
+  onOpenFullPlan,
 }: InlineWidgetProps) {
-  const { household, constraints, budget_summary, nutrition_summary, days } =
-    plan
+  const { household, constraints, budget_summary, nutrition_summary, days } = plan
+  const [selectedDay, setSelectedDay] = useState(0)
 
   const dietLabel =
     constraints.diet.length > 0
-      ? constraints.diet[0].charAt(0).toUpperCase() +
-        constraints.diet[0].slice(1)
+      ? constraints.diet[0].charAt(0).toUpperCase() + constraints.diet[0].slice(1)
       : 'Balanced'
+
+  const currentDay = days[selectedDay]
 
   return (
     <div className="cp-inline-widget">
@@ -36,6 +56,10 @@ export default function InlineWidget({
           <ChefHatIcon size={28} className="cp-icon-green" />
           <span className="cp-inline-brand">ChefPlan</span>
         </div>
+        <button className="cp-expand-btn" onClick={onOpenFullPlan}>
+          <ExpandIcon size={18} />
+          Open Full
+        </button>
       </div>
 
       {/* Title */}
@@ -61,16 +85,6 @@ export default function InlineWidget({
         <span className="cp-context-item">
           <CalendarIcon size={14} />7 days
         </span>
-      </div>
-
-      {/* Weekly Overview */}
-      <div className="cp-inline-week">
-        {days.map((day) => (
-          <div key={day.day} className="cp-day-card">
-            <span className="cp-day-name">{day.day}</span>
-            <span className="cp-day-meals">{day.meals.length}</span>
-          </div>
-        ))}
       </div>
 
       {/* Summary Metrics */}
@@ -104,46 +118,85 @@ export default function InlineWidget({
         </div>
       </div>
 
-      {/* Daily Summary */}
-      <div className="cp-inline-daily">
-        {days.slice(0, 3).map((day) => (
-          <div key={day.day} className="cp-daily-row">
-            <span className="cp-daily-day">{day.day}:</span>
-            <span className="cp-daily-meals">
-              {day.meals.map((m) => m.title).join(' / ')}
-            </span>
-          </div>
+      {/* Day Tabs */}
+      <div className="cp-day-tabs">
+        {days.map((day, index) => (
+          <button
+            key={day.day}
+            className={`cp-day-tab ${selectedDay === index ? 'active' : ''}`}
+            onClick={() => setSelectedDay(index)}
+          >
+            {day.day}
+          </button>
         ))}
-        {days.length > 3 && (
-          <div className="cp-daily-more">+ {days.length - 3} more days</div>
-        )}
       </div>
 
-      {/* CTA */}
+      {/* Current Day Meals */}
+      <div className="cp-meals-grid">
+        {currentDay.meals.map((meal) => {
+          const MealIcon = MEAL_ICONS[meal.type] || SunIcon
+          return (
+            <div key={meal.meal_id} className="cp-meal-card">
+              {meal.image_url ? (
+                <div className="cp-meal-image">
+                  <img src={meal.image_url} alt={meal.title} />
+                  <span className="cp-meal-type-badge">{meal.type}</span>
+                </div>
+              ) : (
+                <div className="cp-meal-placeholder">
+                  <MealIcon size={24} />
+                  <span className="cp-meal-type-badge">{meal.type}</span>
+                </div>
+              )}
+              <div className="cp-meal-info">
+                <span className="cp-meal-title">{meal.title}</span>
+                <div className="cp-meal-meta">
+                  <span><ClockIcon size={12} /> {meal.prep_minutes}m</span>
+                  <span><FlameIcon size={12} /> {meal.calories}</span>
+                  <span><DollarIcon size={12} /> ${meal.estimated_cost.toFixed(0)}</span>
+                </div>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+
+      {/* Day Stats */}
+      <div className="cp-day-stats">
+        <span>{currentDay.totals.calories} kcal</span>
+        <span>·</span>
+        <span>{currentDay.totals.protein_g}g protein</span>
+        <span>·</span>
+        <span>{currentDay.totals.carbs_g}g carbs</span>
+        <span>·</span>
+        <span>{currentDay.totals.fat_g}g fat</span>
+      </div>
+
+      {/* CTA Buttons */}
       <div className="cp-inline-actions">
-        <button
-          className="cp-btn cp-btn-secondary"
-          onClick={onOrderIngredients}
-        >
+        <button className="cp-btn cp-btn-primary" onClick={onOpenFullPlan}>
+          <ExpandIcon size={18} />
+          View Full Plan
+        </button>
+        <button className="cp-btn cp-btn-secondary" onClick={onOrderIngredients}>
           <CartIcon size={18} />
-          Order ingredients
+          Order Ingredients
         </button>
       </div>
 
       <style>{`
         .cp-inline-widget {
-          background: rgba(255, 255, 255, 0.85);
+          background: rgba(255, 255, 255, 0.92);
           backdrop-filter: blur(16px);
           -webkit-backdrop-filter: blur(16px);
-          border: 1px solid rgba(255, 255, 255, 0.5);
+          border: 1px solid rgba(0, 0, 0, 0.08);
           border-radius: 20px;
           padding: 24px;
           width: 100%;
-          max-width: 100%;
-          max-height: 600px;
+          max-height: 800px;
           overflow-y: auto;
           box-shadow:
-            0 4px 24px rgba(0, 0, 0, 0.06),
+            0 4px 24px rgba(0, 0, 0, 0.08),
             0 1px 2px rgba(0, 0, 0, 0.04);
           font-family: 'Inter', system-ui, -apple-system, sans-serif;
           box-sizing: border-box;
@@ -189,16 +242,31 @@ export default function InlineWidget({
           background-clip: text;
         }
 
-        .cp-icon-green {
+        .cp-expand-btn {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          padding: 8px 14px;
+          border-radius: 10px;
+          border: 1px solid rgba(34, 197, 94, 0.3);
+          background: rgba(34, 197, 94, 0.1);
           color: #16a34a;
+          font-size: 13px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.2s;
         }
 
-        .cp-icon-orange {
-          color: #f97316;
+        .cp-expand-btn:hover {
+          background: rgba(34, 197, 94, 0.2);
+          border-color: #16a34a;
         }
+
+        .cp-icon-green { color: #16a34a; }
+        .cp-icon-orange { color: #f97316; }
 
         .cp-inline-title {
-          font-size: 22px;
+          font-size: 24px;
           font-weight: 700;
           color: #111827;
           margin: 0 0 8px 0;
@@ -224,59 +292,14 @@ export default function InlineWidget({
           color: #d1d5db;
         }
 
-        .cp-inline-week {
-          display: flex;
-          gap: 8px;
-          margin-bottom: 20px;
-        }
-
-        .cp-day-card {
-          flex: 1;
-          background: rgba(255, 255, 255, 0.9);
-          border: 1px solid rgba(34, 197, 94, 0.2);
-          border-radius: 12px;
-          padding: 10px 6px;
-          text-align: center;
-          transition: all 0.2s ease;
-        }
-
-        .cp-day-card:hover {
-          border-color: rgba(34, 197, 94, 0.5);
-          transform: translateY(-2px);
-          box-shadow: 0 4px 12px rgba(34, 197, 94, 0.15);
-        }
-
-        .cp-day-name {
-          display: block;
-          font-size: 11px;
-          font-weight: 600;
-          color: #374151;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-        }
-
-        .cp-day-meals {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          width: 24px;
-          height: 24px;
-          background: linear-gradient(135deg, #22c55e, #16a34a);
-          color: white;
-          border-radius: 50%;
-          font-size: 12px;
-          font-weight: 600;
-          margin: 6px auto 0;
-        }
-
         .cp-inline-metrics {
           display: flex;
-          gap: 12px;
+          gap: 16px;
           padding: 16px;
-          background: rgba(255, 255, 255, 0.7);
+          background: linear-gradient(135deg, rgba(240, 253, 244, 0.8), rgba(255, 255, 255, 0.8));
           border-radius: 14px;
-          margin-bottom: 16px;
-          border: 1px solid rgba(0, 0, 0, 0.04);
+          margin-bottom: 20px;
+          border: 1px solid rgba(34, 197, 94, 0.15);
         }
 
         .cp-metric {
@@ -292,7 +315,7 @@ export default function InlineWidget({
         }
 
         .cp-metric-value {
-          font-size: 16px;
+          font-size: 18px;
           font-weight: 700;
           color: #111827;
         }
@@ -302,39 +325,141 @@ export default function InlineWidget({
           color: #6b7280;
         }
 
-        .cp-inline-daily {
-          margin-bottom: 20px;
-        }
-
-        .cp-daily-row {
+        .cp-day-tabs {
           display: flex;
-          gap: 8px;
-          padding: 8px 0;
-          border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+          gap: 6px;
+          margin-bottom: 16px;
+          overflow-x: auto;
+          padding-bottom: 4px;
+        }
+
+        .cp-day-tab {
+          flex: 1;
+          min-width: 44px;
+          padding: 10px 8px;
+          border-radius: 10px;
+          border: 1px solid rgba(0, 0, 0, 0.08);
+          background: rgba(255, 255, 255, 0.8);
           font-size: 13px;
-        }
-
-        .cp-daily-row:last-child {
-          border-bottom: none;
-        }
-
-        .cp-daily-day {
           font-weight: 600;
-          color: #374151;
-          min-width: 36px;
+          color: #6b7280;
+          cursor: pointer;
+          transition: all 0.2s;
+          text-align: center;
         }
 
-        .cp-daily-meals {
-          color: #6b7280;
+        .cp-day-tab:hover {
+          border-color: rgba(34, 197, 94, 0.3);
+          color: #16a34a;
+        }
+
+        .cp-day-tab.active {
+          background: linear-gradient(135deg, #22c55e, #16a34a);
+          color: white;
+          border-color: transparent;
+          box-shadow: 0 2px 8px rgba(34, 197, 94, 0.3);
+        }
+
+        .cp-meals-grid {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 12px;
+          margin-bottom: 16px;
+        }
+
+        .cp-meal-card {
+          background: rgba(255, 255, 255, 0.9);
+          border-radius: 14px;
+          overflow: hidden;
+          border: 1px solid rgba(0, 0, 0, 0.06);
+          transition: all 0.2s;
+        }
+
+        .cp-meal-card:hover {
+          border-color: rgba(34, 197, 94, 0.3);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+          transform: translateY(-2px);
+        }
+
+        .cp-meal-image {
+          position: relative;
+          width: 100%;
+          height: 100px;
+          overflow: hidden;
+        }
+
+        .cp-meal-image img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+
+        .cp-meal-placeholder {
+          position: relative;
+          width: 100%;
+          height: 100px;
+          background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #16a34a;
+        }
+
+        .cp-meal-type-badge {
+          position: absolute;
+          top: 8px;
+          left: 8px;
+          padding: 4px 8px;
+          background: rgba(0, 0, 0, 0.6);
+          backdrop-filter: blur(4px);
+          color: white;
+          font-size: 10px;
+          font-weight: 600;
+          text-transform: uppercase;
+          border-radius: 6px;
+        }
+
+        .cp-meal-info {
+          padding: 12px;
+        }
+
+        .cp-meal-title {
+          display: block;
+          font-size: 13px;
+          font-weight: 600;
+          color: #111827;
+          margin-bottom: 6px;
+          line-height: 1.3;
           overflow: hidden;
           text-overflow: ellipsis;
-          white-space: nowrap;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
         }
 
-        .cp-daily-more {
+        .cp-meal-meta {
+          display: flex;
+          gap: 8px;
+          font-size: 11px;
+          color: #6b7280;
+        }
+
+        .cp-meal-meta span {
+          display: flex;
+          align-items: center;
+          gap: 3px;
+        }
+
+        .cp-day-stats {
+          display: flex;
+          justify-content: center;
+          gap: 8px;
           font-size: 12px;
-          color: #9ca3af;
-          padding-top: 8px;
+          color: #6b7280;
+          padding: 12px;
+          background: rgba(0, 0, 0, 0.02);
+          border-radius: 10px;
+          margin-bottom: 20px;
         }
 
         .cp-inline-actions {
@@ -379,6 +504,24 @@ export default function InlineWidget({
           background: white;
           border-color: #f97316;
           color: #f97316;
+        }
+
+        @media (max-width: 480px) {
+          .cp-meals-grid {
+            grid-template-columns: 1fr;
+          }
+
+          .cp-inline-actions {
+            flex-direction: column;
+          }
+
+          .cp-inline-metrics {
+            flex-wrap: wrap;
+          }
+
+          .cp-metric {
+            flex: 1 1 45%;
+          }
         }
       `}</style>
     </div>
