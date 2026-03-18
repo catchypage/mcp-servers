@@ -191,9 +191,15 @@ export default function FullscreenWidget({
                 className={`cp-meal-card ${isSelected ? 'selected' : ''}`}
                 onClick={() => handleMealClick(meal)}
               >
-                <div className="cp-meal-icon">
-                  <MealIcon size={20} />
-                </div>
+                {meal.image_url ? (
+                  <div className="cp-meal-image">
+                    <img src={meal.image_url} alt={meal.title} />
+                  </div>
+                ) : (
+                  <div className="cp-meal-icon">
+                    <MealIcon size={20} />
+                  </div>
+                )}
                 <div className="cp-meal-content">
                   <span className="cp-meal-type">{meal.type}</span>
                   <span className="cp-meal-title">{meal.title}</span>
@@ -208,6 +214,9 @@ export default function FullscreenWidget({
                       <DollarIcon size={12} /> ${meal.estimated_cost.toFixed(2)}
                     </span>
                   </div>
+                  {meal.source && meal.source !== 'fallback' && (
+                    <span className="cp-meal-source">via {meal.source}</span>
+                  )}
                 </div>
                 <button
                   className="cp-swap-btn"
@@ -233,6 +242,11 @@ export default function FullscreenWidget({
             Selected Meal Details
           </h2>
           <div className="cp-recipe-card">
+            {selectedRecipe.image_url && (
+              <div className="cp-recipe-image">
+                <img src={selectedRecipe.image_url} alt={selectedRecipe.title} />
+              </div>
+            )}
             <div className="cp-recipe-header">
               <h3 className="cp-recipe-title">{selectedRecipe.title}</h3>
               <div className="cp-recipe-tags">
@@ -241,6 +255,9 @@ export default function FullscreenWidget({
                     {tag.replace('-', ' ')}
                   </span>
                 ))}
+                {selectedRecipe.source && selectedRecipe.source !== 'fallback' && (
+                  <span className="cp-tag cp-tag-gray">via {selectedRecipe.source}</span>
+                )}
               </div>
             </div>
 
@@ -381,10 +398,29 @@ export default function FullscreenWidget({
 
       <style>{`
         .cp-fullscreen {
-          min-height: 100vh;
+          height: 100vh;
+          max-height: 100vh;
+          overflow-y: auto;
           background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 50%, #fff7ed 100%);
           padding-bottom: 100px;
           font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+
+        .cp-fullscreen::-webkit-scrollbar {
+          width: 8px;
+        }
+
+        .cp-fullscreen::-webkit-scrollbar-track {
+          background: rgba(0, 0, 0, 0.05);
+        }
+
+        .cp-fullscreen::-webkit-scrollbar-thumb {
+          background: rgba(0, 0, 0, 0.2);
+          border-radius: 4px;
+        }
+
+        .cp-fullscreen::-webkit-scrollbar-thumb:hover {
+          background: rgba(0, 0, 0, 0.3);
         }
 
         .cp-fs-header {
@@ -578,6 +614,30 @@ export default function FullscreenWidget({
           background: linear-gradient(135deg, #f0fdf4, #dcfce7);
           border-radius: 12px;
           color: #16a34a;
+          flex-shrink: 0;
+        }
+
+        .cp-meal-image {
+          width: 64px;
+          height: 64px;
+          border-radius: 12px;
+          overflow: hidden;
+          flex-shrink: 0;
+        }
+
+        .cp-meal-image img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+
+        .cp-meal-source {
+          display: inline-block;
+          font-size: 10px;
+          color: #9ca3af;
+          text-transform: uppercase;
+          letter-spacing: 0.3px;
+          margin-top: 4px;
         }
 
         .cp-meal-content {
@@ -643,6 +703,20 @@ export default function FullscreenWidget({
           border-radius: 16px;
           padding: 24px;
           border: 1px solid rgba(34, 197, 94, 0.15);
+        }
+
+        .cp-recipe-image {
+          width: 100%;
+          height: 200px;
+          border-radius: 12px;
+          overflow: hidden;
+          margin-bottom: 16px;
+        }
+
+        .cp-recipe-image img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
         }
 
         .cp-recipe-header {

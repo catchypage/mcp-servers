@@ -14,6 +14,7 @@ import {
   getRandomRecipes,
   searchMealDB,
   getRandomMealDB,
+  getMealDBByCategory,
   extractMealDBIngredients,
   searchUSDAFoods,
   extractUSDANutrients,
@@ -310,11 +311,12 @@ function randomPick<T>(arr: T[]): T {
  */
 
 // Map meal type to search queries for APIs
+// MealDB categories: Beef, Chicken, Dessert, Lamb, Miscellaneous, Pasta, Pork, Seafood, Side, Starter, Vegan, Vegetarian, Breakfast, Goat
 const MEAL_TYPE_QUERIES: Record<string, string[]> = {
-  breakfast: ['breakfast', 'eggs', 'oatmeal', 'pancakes', 'smoothie'],
-  lunch: ['salad', 'sandwich', 'soup', 'bowl', 'wrap'],
-  dinner: ['chicken', 'pasta', 'stir fry', 'curry', 'salmon'],
-  snack: ['snack', 'fruit', 'nuts', 'yogurt'],
+  breakfast: ['Breakfast', 'Egg', 'Pancake', 'Omelette', 'Toast'],
+  lunch: ['Chicken', 'Salad', 'Soup', 'Sandwich', 'Starter'],
+  dinner: ['Beef', 'Pasta', 'Seafood', 'Lamb', 'Pork', 'Chicken'],
+  snack: ['Dessert', 'Side', 'Starter'],
 }
 
 // Convert Spoonacular recipe to our Meal format
@@ -396,42 +398,58 @@ async function generateMealFromAPI(
   const queries = MEAL_TYPE_QUERIES[type]
   const query = randomPick(queries)
 
-  // Try Spoonacular first (has nutrition data)
-  try {
-    const recipes = await searchRecipes({
-      query,
-      diet,
-      maxReadyTime: maxPrepTime,
-      number: 5,
-      addRecipeNutrition: true,
-    })
+  // Check if Spoonacular API key is available
+  const hasSpoonacularKey = !!process.env.SPOONACULAR_API_KEY
 
-    if (recipes.length > 0) {
-      const recipe = randomPick(recipes)
-      return spoonacularToMeal(recipe, type, servings)
+  // Try Spoonacular first if API key exists (has nutrition data)
+  if (hasSpoonacularKey) {
+    try {
+      const recipes = await searchRecipes({
+        query,
+        diet,
+        maxReadyTime: maxPrepTime,
+        number: 5,
+        addRecipeNutrition: true,
+      })
+
+      if (recipes.length > 0) {
+        const recipe = randomPick(recipes)
+        console.log(`[ChefPlan] Got recipe from Spoonacular: ${recipe.title}`)
+        return spoonacularToMeal(recipe, type, servings)
+      }
+    } catch (e) {
+      console.log('[ChefPlan] Spoonacular error, trying MealDB:', e)
     }
-  } catch (e) {
-    console.log('Spoonacular unavailable, trying MealDB')
   }
 
-  // Try MealDB as backup (free, no key needed)
+  // Try MealDB (completely FREE, no key needed - always works!)
   try {
-    const mealDBRecipes = await searchMealDB(query)
+    // First try searching by query
+    let mealDBRecipes = await searchMealDB(query)
+
+    // If search fails, try getting by category (more reliable)
+    if (mealDBRecipes.length === 0) {
+      mealDBRecipes = await getMealDBByCategory(query)
+    }
+
     if (mealDBRecipes.length > 0) {
       const recipe = randomPick(mealDBRecipes)
+      console.log(`[ChefPlan] Got recipe from MealDB: ${recipe.strMeal}`)
       return mealDBToMeal(recipe, type, servings)
     }
 
-    // If search fails, get random meal
+    // If both fail, get random meal
     const randomMeal = await getRandomMealDB()
     if (randomMeal) {
+      console.log(`[ChefPlan] Got random recipe from MealDB: ${randomMeal.strMeal}`)
       return mealDBToMeal(randomMeal, type, servings)
     }
   } catch (e) {
-    console.log('MealDB unavailable, using fallback')
+    console.log('[ChefPlan] MealDB error, using fallback:', e)
   }
 
   // Fallback to mock data
+  console.log('[ChefPlan] Using fallback data')
   return generateMealFallback(type, servings)
 }
 
