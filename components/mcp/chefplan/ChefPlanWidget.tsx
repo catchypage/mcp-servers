@@ -42,14 +42,38 @@ export default function ChefPlanWidget() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // Initialize from tool result
+  // Initialize from tool result - multiple sources
   useEffect(() => {
+    // 1. Try __chefplan_init (server-side injection)
     const initData = (
       window as unknown as { __chefplan_init?: { plan?: MealPlan } }
     ).__chefplan_init
     if (initData?.plan) {
       setPlan(initData.plan)
+      return
     }
+
+    // 2. Listen for postMessage from ChatGPT parent (MCP Apps)
+    const handleMessage = (event: MessageEvent) => {
+      const data = event.data
+      // ChatGPT sends structuredContent with plan data
+      if (data?.structuredContent?.plan) {
+        setPlan(data.structuredContent.plan as MealPlan)
+      } else if (data?.plan) {
+        setPlan(data.plan as MealPlan)
+      } else if (data?.type === 'mcp:init' && data?.payload?.plan) {
+        setPlan(data.payload.plan as MealPlan)
+      }
+    }
+
+    window.addEventListener('message', handleMessage)
+
+    // 3. Request initial data from parent
+    if (window.parent !== window) {
+      window.parent.postMessage({ type: 'mcp:ready', app: 'chefplan' }, '*')
+    }
+
+    return () => window.removeEventListener('message', handleMessage)
   }, [])
 
   const callTool = useCallback(
