@@ -388,7 +388,35 @@ function mealDBToMeal(
   }
 }
 
+// Cache for pre-fetched recipes to minimize API calls
+const recipeCache = new Map<string, MealDBRecipe[]>()
+
+// Pre-fetch recipes for all meal types in batch (1 request per type instead of 28)
+async function prefetchMealDBRecipes(): Promise<void> {
+  const allQueries = new Set<string>()
+  for (const queries of Object.values(MEAL_TYPE_QUERIES)) {
+    queries.forEach(q => allQueries.add(q))
+  }
+
+  // Fetch all unique queries in parallel (max ~10 requests total)
+  const fetchPromises = Array.from(allQueries).map(async (query) => {
+    if (recipeCache.has(query)) return
+    try {
+      const recipes = await searchMealDB(query)
+      if (recipes.length > 0) {
+        recipeCache.set(query, recipes)
+      }
+    } catch (e) {
+      console.log(`[ChefPlan] Failed to prefetch ${query}:`, e)
+    }
+  })
+
+  await Promise.all(fetchPromises)
+  console.log(`[ChefPlan] Prefetched ${recipeCache.size} recipe categories`)
+}
+
 // Generate meal using real APIs with fallback
+// Priority: Cached MealDB -> MealDB API -> Spoonacular (paid/limited) -> fallback
 async function generateMealFromAPI(
   type: 'breakfast' | 'lunch' | 'dinner' | 'snack',
   servings: number,
@@ -398,57 +426,41 @@ async function generateMealFromAPI(
   const queries = MEAL_TYPE_QUERIES[type]
   const query = randomPick(queries)
 
-  // Check if Spoonacular API key is available
-  const hasSpoonacularKey = !!process.env.SPOONACULAR_API_KEY
-
-  // Try Spoonacular first if API key exists (has nutrition data)
-  if (hasSpoonacularKey) {
-    try {
-      const recipes = await searchRecipes({
-        query,
-        diet,
-        maxReadyTime: maxPrepTime,
-        number: 5,
-        addRecipeNutrition: true,
-      })
-
-      if (recipes.length > 0) {
-        const recipe = randomPick(recipes)
-        console.log(`[ChefPlan] Got recipe from Spoonacular: ${recipe.title}`)
-        return spoonacularToMeal(recipe, type, servings)
-      }
-    } catch (e) {
-      console.log('[ChefPlan] Spoonacular error, trying MealDB:', e)
-    }
+  // Try cached recipes first (no API call)
+  const cachedRecipes = recipeCache.get(query)
+  if (cachedRecipes && cachedRecipes.length > 0) {
+    const recipe = randomPick(cachedRecipes)
+    console.log(`[ChefPlan] Got recipe from cache: ${recipe.strMeal}`)
+    return mealDBToMeal(recipe, type, servings)
   }
 
-  // Try MealDB (completely FREE, no key needed - always works!)
+  // Try MealDB API (completely FREE, no key needed)
   try {
-    // First try searching by query
     let mealDBRecipes = await searchMealDB(query)
 
-    // If search fails, try getting by category (more reliable)
     if (mealDBRecipes.length === 0) {
       mealDBRecipes = await getMealDBByCategory(query)
     }
 
     if (mealDBRecipes.length > 0) {
+      // Cache for future use
+      recipeCache.set(query, mealDBRecipes)
       const recipe = randomPick(mealDBRecipes)
       console.log(`[ChefPlan] Got recipe from MealDB: ${recipe.strMeal}`)
       return mealDBToMeal(recipe, type, servings)
     }
 
-    // If both fail, get random meal
+    // If search/category fail, get random meal
     const randomMeal = await getRandomMealDB()
     if (randomMeal) {
       console.log(`[ChefPlan] Got random recipe from MealDB: ${randomMeal.strMeal}`)
       return mealDBToMeal(randomMeal, type, servings)
     }
   } catch (e) {
-    console.log('[ChefPlan] MealDB error, using fallback:', e)
+    console.log('[ChefPlan] MealDB error:', e)
   }
 
-  // Fallback to mock data
+  // Final fallback to mock data (NO Spoonacular to save quota)
   console.log('[ChefPlan] Using fallback data')
   return generateMealFallback(type, servings)
 }
@@ -702,6 +714,9 @@ async function handleGenerateWeeklyPlan(
   const apiDiet = dietaryPreferences
     .map((d) => dietMap[d.toLowerCase()])
     .filter(Boolean)[0]
+
+  // Pre-fetch all recipes in batch to minimize API calls
+  await prefetchMealDBRecipes()
 
   // Generate days using real APIs
   let days: DayPlan[]

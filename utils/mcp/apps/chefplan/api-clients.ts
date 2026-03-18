@@ -366,6 +366,10 @@ export async function getOpenFoodFactsProduct(
 
 const MEALDB_BASE_URL = 'https://www.themealdb.com/api/json/v1/1'
 
+// Simple in-memory cache for MealDB recipes (lasts for session)
+const mealDBCache = new Map<string, { data: MealDBRecipe[]; timestamp: number }>()
+const CACHE_TTL = 1000 * 60 * 30 // 30 minutes
+
 export interface MealDBRecipe {
   idMeal: string
   strMeal: string
@@ -398,13 +402,21 @@ export interface MealDBRecipe {
 }
 
 export async function searchMealDB(query: string): Promise<MealDBRecipe[]> {
+  const cacheKey = `search:${query.toLowerCase()}`
+  const cached = mealDBCache.get(cacheKey)
+  if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+    return cached.data
+  }
+
   try {
     const response = await fetch(
       `${MEALDB_BASE_URL}/search.php?s=${encodeURIComponent(query)}`,
     )
     if (!response.ok) return []
     const data = await response.json()
-    return data.meals || []
+    const meals = data.meals || []
+    mealDBCache.set(cacheKey, { data: meals, timestamp: Date.now() })
+    return meals
   } catch (error) {
     console.error('MealDB API error:', error)
     return []
@@ -438,6 +450,12 @@ export async function getMealDBById(id: string): Promise<MealDBRecipe | null> {
 export async function getMealDBByCategory(
   category: string,
 ): Promise<MealDBRecipe[]> {
+  const cacheKey = `category:${category.toLowerCase()}`
+  const cached = mealDBCache.get(cacheKey)
+  if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+    return cached.data
+  }
+
   try {
     // Filter by category returns only basic info (idMeal, strMeal, strMealThumb)
     const response = await fetch(
@@ -447,18 +465,23 @@ export async function getMealDBByCategory(
     const data = await response.json()
     const basicMeals = data.meals || []
 
-    // Get full details for up to 5 random meals
     if (basicMeals.length === 0) return []
 
-    const selectedMeals = basicMeals
-      .sort(() => Math.random() - 0.5)
-      .slice(0, 5)
+    // Only get full details for 1 random meal to minimize API calls
+    const randomMeal = basicMeals[Math.floor(Math.random() * basicMeals.length)]
+    const fullMeal = await getMealDBById(randomMeal.idMeal)
 
-    const fullMeals = await Promise.all(
-      selectedMeals.map((m: { idMeal: string }) => getMealDBById(m.idMeal)),
-    )
+    const meals = fullMeal ? [fullMeal] : []
+    mealDBCache.set(cacheKey, { data: basicMeals.map((m: { idMeal: string; strMeal: string; strMealThumb: string }) => ({
+      ...m,
+      strCategory: category,
+      strArea: '',
+      strInstructions: '',
+      strTags: null,
+      strYoutube: '',
+    })) as MealDBRecipe[], timestamp: Date.now() })
 
-    return fullMeals.filter((m): m is MealDBRecipe => m !== null)
+    return meals
   } catch (error) {
     console.error('MealDB API error:', error)
     return []
