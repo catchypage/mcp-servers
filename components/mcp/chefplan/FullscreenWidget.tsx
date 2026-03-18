@@ -242,11 +242,6 @@ export default function FullscreenWidget({
             Selected Meal Details
           </h2>
           <div className="cp-recipe-card">
-            {selectedRecipe.image_url && (
-              <div className="cp-recipe-image">
-                <img src={selectedRecipe.image_url} alt={selectedRecipe.title} />
-              </div>
-            )}
             <div className="cp-recipe-header">
               <h3 className="cp-recipe-title">{selectedRecipe.title}</h3>
               <div className="cp-recipe-tags">
@@ -398,12 +393,16 @@ export default function FullscreenWidget({
 
       <style>{`
         .cp-fullscreen {
-          height: 100vh;
-          max-height: 100vh;
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
           overflow-y: auto;
           background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 50%, #fff7ed 100%);
           padding-bottom: 100px;
           font-family: 'Inter', system-ui, -apple-system, sans-serif;
+          z-index: 50;
         }
 
         .cp-fullscreen::-webkit-scrollbar {
