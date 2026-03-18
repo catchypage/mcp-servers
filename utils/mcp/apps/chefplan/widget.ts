@@ -1,14 +1,16 @@
-export function chefplanWidgetHTML(baseUrl: string): string {
+import type { MealPlan } from './types'
+
+export function chefplanWidgetHTML(baseUrl: string, plan?: MealPlan): string {
   const bundleUrl = `${baseUrl}/mcp/chefplan.bundle.js`
+  const initScript = plan
+    ? `<script>window.__chefplan_init = { plan: ${JSON.stringify(plan)} };</script>`
+    : ''
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ChefPlan - Meal Planner</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -44,7 +46,7 @@ export function chefplanWidgetHTML(baseUrl: string): string {
     }
 
     body {
-      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       background: linear-gradient(135deg, var(--cp-green-50) 0%, var(--cp-white) 50%, var(--cp-orange-50) 100%);
       color: var(--cp-gray-800);
       min-height: 100vh;
@@ -93,6 +95,7 @@ export function chefplanWidgetHTML(baseUrl: string): string {
 </head>
 <body>
   <div id="chefplan-widget-root"></div>
+  ${initScript}
   <script type="module" src="${bundleUrl}"></script>
 </body>
 </html>`

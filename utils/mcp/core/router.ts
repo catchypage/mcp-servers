@@ -126,7 +126,7 @@ export async function handleMcpRequest(
       try {
         const result = await handler(app, args ?? {}, authResult.user!.id)
         const baseUrl = getBaseUrlFromRequest(req)
-        const widgetHtml = getWidgetHtml(app, baseUrl)
+        const widgetHtml = getWidgetHtml(app, baseUrl, result)
 
         return NextResponse.json(
           {

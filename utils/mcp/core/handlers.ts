@@ -27,13 +27,20 @@ export function getToolHandlers(appId: string): HandlersMap | null {
 
 import { resumeWidgetHTML } from '@/utils/mcp/apps/resume/widget'
 import { chefplanWidgetHTML } from '@/utils/mcp/apps/chefplan/widget'
+import type { MealPlan } from '@/utils/mcp/apps/chefplan/types'
 
-export function getWidgetHtml(app: McpAppConfig, baseUrl: string): string {
+export function getWidgetHtml(
+  app: McpAppConfig,
+  baseUrl: string,
+  toolResult?: Record<string, unknown>,
+): string {
   if (app.id === 'resume') {
     return resumeWidgetHTML(baseUrl)
   }
   if (app.id === 'chefplan') {
-    return chefplanWidgetHTML(baseUrl)
+    // Pass plan data if available in tool result
+    const plan = toolResult?.plan as MealPlan | undefined
+    return chefplanWidgetHTML(baseUrl, plan)
   }
   return `<!DOCTYPE html><html><body><p>Widget for ${app.name}</p></body></html>`
 }
