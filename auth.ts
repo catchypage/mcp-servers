@@ -77,8 +77,18 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
           return null
         }
 
+        // Backfill auth_id for legacy users (one-time UPDATE on first login)
+        let authId = user.auth_id
+        if (!authId) {
+          authId = `credentials_${user.id}`
+          await supabaseAdmin
+            .from('users')
+            .update({ auth_id: authId })
+            .eq('id', user.id)
+        }
+
         return {
-          id: user.auth_id ?? user.id,
+          id: authId,
           email: user.email,
           name: user.full_name,
           image: user.avatar_url,

@@ -34,6 +34,7 @@ export default function AccountPage() {
                 src={session.user.image}
                 alt=""
                 className="w-16 h-16 rounded-full"
+                referrerPolicy="no-referrer"
               />
             ) : (
               <div className="w-16 h-16 rounded-full company-bg-tertiary flex items-center justify-center text-2xl font-bold company-text-primary">

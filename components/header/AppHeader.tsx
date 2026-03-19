@@ -73,6 +73,7 @@ export default function AppHeader() {
                       src={session.user.image}
                       alt=""
                       className="w-4 h-4 rounded-full"
+                      referrerPolicy="no-referrer"
                     />
                   ) : (
                     <span className="w-4 h-4 rounded-full company-bg-secondary flex items-center justify-center text-xs font-medium company-text-primary">
