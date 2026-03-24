@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { supabaseAdmin } from '@/utils/supabase/supabase-admin'
 import { nanoid } from 'nanoid'
-import { getBaseUrl } from '@/utils/mcp/getBaseUrl'
+import { getBaseUrlFromRequest } from '@/utils/mcp/getBaseUrl'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -25,7 +25,7 @@ export async function GET(req: NextRequest) {
   }
 
   const session = await auth()
-  const baseUrl = getBaseUrl(req.headers.get('host') ?? undefined)
+  const baseUrl = getBaseUrlFromRequest(req)
 
   if (!session?.user) {
     return NextResponse.redirect(

@@ -4,8 +4,13 @@ export const SITE_NAME = 'Pyxl'
 export const SITE_DOMAIN =
   process.env.NEXT_PUBLIC_SITE_URL ?? 'https://pyxl.pro'
 
-// Tunnel URL for local dev (ChatGPT needs public URL for OAuth)
-export const TUNNEL_URL = process.env.TUNNEL_URL ?? ''
+/*
+ * Default Pinggy tunnel for local MCP + ChatGPT (override with TUNNEL_URL env)
+ * Same default as authorization-app
+ */
+export const DEFAULT_TUNNEL_URL = 'https://resume.a.pinggy.online'
+
+export const TUNNEL_URL = process.env.TUNNEL_URL ?? DEFAULT_TUNNEL_URL
 
 /*
  * ORIGIN теперь всегда равен SITE_DOMAIN,

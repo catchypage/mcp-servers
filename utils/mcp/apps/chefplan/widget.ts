@@ -1,7 +1,9 @@
+import { mcpPublicAssetUrl } from '@/utils/mcp/core/mcp-asset-url'
 import type { MealPlan } from './types'
 
 export function chefplanWidgetHTML(baseUrl: string, plan?: MealPlan): string {
-  const bundleUrl = `${baseUrl}/mcp/chefplan.bundle.js`
+  const stylesUrl = mcpPublicAssetUrl(baseUrl, '/mcp/chefplan-styles.css')
+  const bundleUrl = mcpPublicAssetUrl(baseUrl, '/mcp/chefplan.bundle.js')
   // Encode plan data as base64 to safely embed in data attribute (avoids CSP issues with inline scripts)
   const planDataAttr = plan
     ? ` data-plan="${Buffer.from(JSON.stringify(plan)).toString('base64')}"`
@@ -12,6 +14,7 @@ export function chefplanWidgetHTML(baseUrl: string, plan?: MealPlan): string {
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ChefPlan - Meal Planner</title>
+  <link rel="stylesheet" href="${stylesUrl}" />
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 

@@ -3,14 +3,17 @@
  * All APIs used here are FREE (with rate limits)
  *
  * APIs:
- * 1. Spoonacular - Recipes, meal planning, nutrition (free tier: 150 requests/day)
- * 2. USDA FoodData Central - Official US nutrition database (completely free)
- * 3. Open Food Facts - Product data, prices (completely free, open source)
+ * 1. Spoonacular - Recipes, meal planning, nutrition (free tier: 150
+ * requests/day) 2. USDA FoodData Central - Official US nutrition database
+ * (completely free) 3. Open Food Facts - Product data, prices (completely
+ * free, open source)
  */
 
-// =============================================================================
-// TYPES
-// =============================================================================
+/*
+ * =============================================================================
+ * TYPES
+ * =============================================================================
+ */
 
 export interface SpoonacularRecipe {
   id: number
@@ -20,33 +23,33 @@ export interface SpoonacularRecipe {
   image: string
   imageType: string
   nutrition?: {
-    nutrients: Array<{
+    nutrients: {
       name: string
       amount: number
       unit: string
-    }>
+    }[]
   }
   pricePerServing?: number
   diets?: string[]
   cuisines?: string[]
   dishTypes?: string[]
-  extendedIngredients?: Array<{
+  extendedIngredients?: {
     id: number
     name: string
     amount: number
     unit: string
     original: string
-  }>
-  analyzedInstructions?: Array<{
-    steps: Array<{
+  }[]
+  analyzedInstructions?: {
+    steps: {
       number: number
       step: string
-    }>
-  }>
+    }[]
+  }[]
 }
 
 export interface SpoonacularMealPlanDay {
-  meals: Array<{
+  meals: {
     id: number
     title: string
     readyInMinutes: number
@@ -54,7 +57,7 @@ export interface SpoonacularMealPlanDay {
     sourceUrl: string
     image: string
     imageType: string
-  }>
+  }[]
   nutrients: {
     calories: number
     protein: number
@@ -68,13 +71,13 @@ export interface USDAFood {
   description: string
   dataType: string
   brandOwner?: string
-  foodNutrients: Array<{
+  foodNutrients: {
     nutrientId: number
     nutrientName: string
     nutrientNumber: string
     unitName: string
     value: number
-  }>
+  }[]
 }
 
 export interface OpenFoodFactsProduct {
@@ -91,10 +94,12 @@ export interface OpenFoodFactsProduct {
   image_url?: string
 }
 
-// =============================================================================
-// SPOONACULAR API CLIENT (Free tier: 150 requests/day)
-// https://spoonacular.com/food-api
-// =============================================================================
+/*
+ * =============================================================================
+ * SPOONACULAR API CLIENT (Free tier: 150 requests/day)
+ * https://spoonacular.com/food-api
+ * =============================================================================
+ */
 
 const SPOONACULAR_BASE_URL = 'https://api.spoonacular.com'
 
@@ -116,7 +121,9 @@ export async function searchRecipes(params: {
   addRecipeNutrition?: boolean
 }): Promise<SpoonacularRecipe[]> {
   const apiKey = getSpoonacularApiKey()
-  if (!apiKey) return []
+  if (!apiKey) {
+    return []
+  }
 
   const searchParams = new URLSearchParams({
     apiKey,
@@ -148,13 +155,17 @@ export async function getRecipeById(
   recipeId: number,
 ): Promise<SpoonacularRecipe | null> {
   const apiKey = getSpoonacularApiKey()
-  if (!apiKey) return null
+  if (!apiKey) {
+    return null
+  }
 
   try {
     const response = await fetch(
       `${SPOONACULAR_BASE_URL}/recipes/${recipeId}/information?apiKey=${apiKey}&includeNutrition=true`,
     )
-    if (!response.ok) return null
+    if (!response.ok) {
+      return null
+    }
     return await response.json()
   } catch (error) {
     console.error('Spoonacular API error:', error)
@@ -169,7 +180,9 @@ export async function generateMealPlan(params: {
   exclude?: string
 }): Promise<SpoonacularMealPlanDay[] | null> {
   const apiKey = getSpoonacularApiKey()
-  if (!apiKey) return null
+  if (!apiKey) {
+    return null
+  }
 
   const searchParams = new URLSearchParams({
     apiKey,
@@ -185,7 +198,9 @@ export async function generateMealPlan(params: {
     const response = await fetch(
       `${SPOONACULAR_BASE_URL}/mealplanner/generate?${searchParams}`,
     )
-    if (!response.ok) return null
+    if (!response.ok) {
+      return null
+    }
     const data = await response.json()
     return params.timeFrame === 'week' ? data.week : [data]
   } catch (error) {
@@ -199,7 +214,9 @@ export async function getRandomRecipes(params: {
   tags?: string
 }): Promise<SpoonacularRecipe[]> {
   const apiKey = getSpoonacularApiKey()
-  if (!apiKey) return []
+  if (!apiKey) {
+    return []
+  }
 
   const searchParams = new URLSearchParams({
     apiKey,
@@ -211,7 +228,9 @@ export async function getRandomRecipes(params: {
     const response = await fetch(
       `${SPOONACULAR_BASE_URL}/recipes/random?${searchParams}`,
     )
-    if (!response.ok) return []
+    if (!response.ok) {
+      return []
+    }
     const data = await response.json()
     return data.recipes || []
   } catch (error) {
@@ -220,16 +239,20 @@ export async function getRandomRecipes(params: {
   }
 }
 
-// =============================================================================
-// USDA FOODDATA CENTRAL API (Completely FREE)
-// https://fdc.nal.usda.gov/api-guide.html
-// =============================================================================
+/*
+ * =============================================================================
+ * USDA FOODDATA CENTRAL API (Completely FREE)
+ * https://fdc.nal.usda.gov/api-guide.html
+ * =============================================================================
+ */
 
 const USDA_BASE_URL = 'https://api.nal.usda.gov/fdc/v1'
 
 function getUSDAApiKey(): string {
-  // USDA provides a demo key for testing: DEMO_KEY
-  // For production, get a free key at https://fdc.nal.usda.gov/api-key-signup.html
+  /*
+   * USDA provides a demo key for testing: DEMO_KEY
+   * For production, get a free key at https://fdc.nal.usda.gov/api-key-signup.html
+   */
   return process.env.USDA_API_KEY || 'DEMO_KEY'
 }
 
@@ -241,16 +264,25 @@ export async function searchUSDAFoods(params: {
   const apiKey = getUSDAApiKey()
 
   try {
-    const response = await fetch(`${USDA_BASE_URL}/foods/search?api_key=${apiKey}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        query: params.query,
-        pageSize: params.pageSize || 10,
-        dataType: params.dataType || ['Survey (FNDDS)', 'Foundation', 'SR Legacy'],
-      }),
-    })
-    if (!response.ok) return []
+    const response = await fetch(
+      `${USDA_BASE_URL}/foods/search?api_key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          query: params.query,
+          pageSize: params.pageSize || 10,
+          dataType: params.dataType || [
+            'Survey (FNDDS)',
+            'Foundation',
+            'SR Legacy',
+          ],
+        }),
+      },
+    )
+    if (!response.ok) {
+      return []
+    }
     const data = await response.json()
     return data.foods || []
   } catch (error) {
@@ -266,7 +298,9 @@ export async function getUSDAFoodById(fdcId: number): Promise<USDAFood | null> {
     const response = await fetch(
       `${USDA_BASE_URL}/food/${fdcId}?api_key=${apiKey}`,
     )
-    if (!response.ok) return null
+    if (!response.ok) {
+      return null
+    }
     return await response.json()
   } catch (error) {
     console.error('USDA API error:', error)
@@ -286,8 +320,7 @@ export function extractUSDANutrients(food: USDAFood): {
   const findNutrient = (names: string[]): number => {
     const nutrient = nutrients.find((n) =>
       names.some(
-        (name) =>
-          n.nutrientName?.toLowerCase().includes(name.toLowerCase()),
+        (name) => n.nutrientName?.toLowerCase().includes(name.toLowerCase()),
       ),
     )
     return nutrient?.value || 0
@@ -301,10 +334,12 @@ export function extractUSDANutrients(food: USDAFood): {
   }
 }
 
-// =============================================================================
-// OPEN FOOD FACTS API (Completely FREE, Open Source)
-// https://world.openfoodfacts.org/data
-// =============================================================================
+/*
+ * =============================================================================
+ * OPEN FOOD FACTS API (Completely FREE, Open Source)
+ * https://world.openfoodfacts.org/data
+ * =============================================================================
+ */
 
 const OPENFOODFACTS_BASE_URL = 'https://world.openfoodfacts.org'
 
@@ -317,7 +352,11 @@ export async function searchOpenFoodFacts(params: {
     search_terms: params.query,
     page_size: String(params.pageSize || 10),
     json: '1',
-    ...(params.categories && { tagtype_0: 'categories', tag_contains_0: 'contains', tag_0: params.categories }),
+    ...(params.categories && {
+      tagtype_0: 'categories',
+      tag_contains_0: 'contains',
+      tag_0: params.categories,
+    }),
   })
 
   try {
@@ -329,7 +368,9 @@ export async function searchOpenFoodFacts(params: {
         },
       },
     )
-    if (!response.ok) return []
+    if (!response.ok) {
+      return []
+    }
     const data = await response.json()
     return data.products || []
   } catch (error) {
@@ -350,7 +391,9 @@ export async function getOpenFoodFactsProduct(
         },
       },
     )
-    if (!response.ok) return null
+    if (!response.ok) {
+      return null
+    }
     const data = await response.json()
     return data.status === 1 ? data.product : null
   } catch (error) {
@@ -359,15 +402,20 @@ export async function getOpenFoodFactsProduct(
   }
 }
 
-// =============================================================================
-// THEMEALDB API (Completely FREE)
-// https://www.themealdb.com/api.php
-// =============================================================================
+/*
+ * =============================================================================
+ * THEMEALDB API (Completely FREE)
+ * https://www.themealdb.com/api.php
+ * =============================================================================
+ */
 
 const MEALDB_BASE_URL = 'https://www.themealdb.com/api/json/v1/1'
 
 // Simple in-memory cache for MealDB recipes (lasts for session)
-const mealDBCache = new Map<string, { data: MealDBRecipe[]; timestamp: number }>()
+const mealDBCache = new Map<
+  string,
+  { data: MealDBRecipe[]; timestamp: number }
+>()
 const CACHE_TTL = 1000 * 60 * 30 // 30 minutes
 
 export interface MealDBRecipe {
@@ -412,7 +460,9 @@ export async function searchMealDB(query: string): Promise<MealDBRecipe[]> {
     const response = await fetch(
       `${MEALDB_BASE_URL}/search.php?s=${encodeURIComponent(query)}`,
     )
-    if (!response.ok) return []
+    if (!response.ok) {
+      return []
+    }
     const data = await response.json()
     const meals = data.meals || []
     mealDBCache.set(cacheKey, { data: meals, timestamp: Date.now() })
@@ -426,7 +476,9 @@ export async function searchMealDB(query: string): Promise<MealDBRecipe[]> {
 export async function getRandomMealDB(): Promise<MealDBRecipe | null> {
   try {
     const response = await fetch(`${MEALDB_BASE_URL}/random.php`)
-    if (!response.ok) return null
+    if (!response.ok) {
+      return null
+    }
     const data = await response.json()
     return data.meals?.[0] || null
   } catch (error) {
@@ -438,7 +490,9 @@ export async function getRandomMealDB(): Promise<MealDBRecipe | null> {
 export async function getMealDBById(id: string): Promise<MealDBRecipe | null> {
   try {
     const response = await fetch(`${MEALDB_BASE_URL}/lookup.php?i=${id}`)
-    if (!response.ok) return null
+    if (!response.ok) {
+      return null
+    }
     const data = await response.json()
     return data.meals?.[0] || null
   } catch (error) {
@@ -457,29 +511,41 @@ export async function getMealDBByCategory(
   }
 
   try {
-    // Filter by category returns only basic info (idMeal, strMeal, strMealThumb)
+    /*
+     * Filter by category returns only basic info (idMeal, strMeal,
+     * strMealThumb)
+     */
     const response = await fetch(
       `${MEALDB_BASE_URL}/filter.php?c=${encodeURIComponent(category)}`,
     )
-    if (!response.ok) return []
+    if (!response.ok) {
+      return []
+    }
     const data = await response.json()
     const basicMeals = data.meals || []
 
-    if (basicMeals.length === 0) return []
+    if (basicMeals.length === 0) {
+      return []
+    }
 
     // Only get full details for 1 random meal to minimize API calls
     const randomMeal = basicMeals[Math.floor(Math.random() * basicMeals.length)]
     const fullMeal = await getMealDBById(randomMeal.idMeal)
 
     const meals = fullMeal ? [fullMeal] : []
-    mealDBCache.set(cacheKey, { data: basicMeals.map((m: { idMeal: string; strMeal: string; strMealThumb: string }) => ({
-      ...m,
-      strCategory: category,
-      strArea: '',
-      strInstructions: '',
-      strTags: null,
-      strYoutube: '',
-    })) as MealDBRecipe[], timestamp: Date.now() })
+    mealDBCache.set(cacheKey, {
+      data: basicMeals.map(
+        (m: { idMeal: string; strMeal: string; strMealThumb: string }) => ({
+          ...m,
+          strCategory: category,
+          strArea: '',
+          strInstructions: '',
+          strTags: null,
+          strYoutube: '',
+        }),
+      ) as MealDBRecipe[],
+      timestamp: Date.now(),
+    })
 
     return meals
   } catch (error) {
@@ -491,9 +557,13 @@ export async function getMealDBByCategory(
 export async function getMealDBCategories(): Promise<string[]> {
   try {
     const response = await fetch(`${MEALDB_BASE_URL}/categories.php`)
-    if (!response.ok) return []
+    if (!response.ok) {
+      return []
+    }
     const data = await response.json()
-    return data.categories?.map((c: { strCategory: string }) => c.strCategory) || []
+    return (
+      data.categories?.map((c: { strCategory: string }) => c.strCategory) || []
+    )
   } catch (error) {
     console.error('MealDB API error:', error)
     return []
@@ -503,8 +573,8 @@ export async function getMealDBCategories(): Promise<string[]> {
 // Helper to extract ingredients from MealDB recipe
 export function extractMealDBIngredients(
   recipe: MealDBRecipe,
-): Array<{ name: string; amount: string }> {
-  const ingredients: Array<{ name: string; amount: string }> = []
+): { name: string; amount: string }[] {
+  const ingredients: { name: string; amount: string }[] = []
 
   for (let i = 1; i <= 20; i++) {
     const ingredient = recipe[`strIngredient${i}` as keyof MealDBRecipe]
@@ -513,7 +583,7 @@ export function extractMealDBIngredients(
     if (ingredient && typeof ingredient === 'string' && ingredient.trim()) {
       ingredients.push({
         name: ingredient.trim(),
-        amount: (measure as string)?.trim() || '',
+        amount: measure?.trim() || '',
       })
     }
   }

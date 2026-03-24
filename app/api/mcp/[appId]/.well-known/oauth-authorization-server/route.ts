@@ -1,12 +1,12 @@
-import { NextResponse } from 'next/server'
-import { getBaseUrl } from '@/utils/mcp/getBaseUrl'
+import { NextRequest, NextResponse } from 'next/server'
+import { getBaseUrlFromRequest } from '@/utils/mcp/getBaseUrl'
 
 /**
  * OAuth Authorization Server Metadata.
  * Shared across all MCP apps - same OAuth endpoints.
  */
-export async function GET() {
-  const baseUrl = getBaseUrl()
+export async function GET(req: NextRequest) {
+  const baseUrl = getBaseUrlFromRequest(req)
 
   const metadata = {
     issuer: baseUrl,

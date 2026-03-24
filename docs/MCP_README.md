@@ -1,5 +1,13 @@
 # MCP Hub
 
+## Lang Coach (`langcoach`)
+
+Тестовый/базовый апп для тренировок английского: один публичный тул `open_lang_coach`, виджет-заглушка, `get_user_info` для аккаунта. **Коннектор:** `https://<домен>/api/mcp/langcoach`.
+
+Шаблон для новых аппов: **[MCP_NEW_APP_SCAFFOLD.md](./MCP_NEW_APP_SCAFFOLD.md)**.
+
+---
+
 ## Что делает Resume app
 
 **Resume** — тестовое MCP-приложение для проверки архитектуры. В ChatGPT доступны инструменты:
@@ -15,7 +23,7 @@
 ## Что ещё нужно сделать
 
 1. **Миграция БД** — выполнить `supabase/migrations/20250312000001_mcp_oauth_tables.sql`
-2. **TUNNEL_URL** — для локального теста с ChatGPT
+2. **`TUNNEL_URL`** — fallback, если запрос идёт на **localhost** (метаданные/редиректы без публичного Host). Когда коннектор открыт по **реальному хосту Pinggy** (`Host` / `X-Forwarded-Host`), issuer и audience JWT берутся **с этого хоста**, чтобы совпадало с URL в ChatGPT. Дефолт туннеля: `utils/constants.ts`. Свой Pinggy — задай `TUNNEL_URL` или просто ходи на приложение по выданному туннелю.
 3. **MCP_DOMAIN_MAP** — для мульти-доменов (см. ниже)
 
 ---
@@ -63,7 +71,7 @@ DOMAIN_MAP={"resume.example.com":"resume","humanize.example.com":"humanize"}
 
 ## Build script
 
-`scripts/build-mcp-clients.cjs` собирает React-виджеты в `public/mcp/*.bundle.js`.
+`scripts/build-mcp-clients.cjs` собирает **esbuild** бандлы в `public/mcp/*.bundle.js` и **Tailwind 3** в **`resume-styles.css`**, **`chefplan-styles.css`**, **`langcoach-styles.css`** (по папке `components/mcp/<app>/`). В `widget.ts` подключаются `<link>` на CSS и `<script>` на JS через **`mcpPublicAssetUrl`** → **`?v=MCP_WIDGET_ASSETS_VERSION`** (`utils/mcp/core/mcp-asset-url.ts`). Бамп версии при изменении JS/CSS виджетов. Дополнительный инлайн `<style>` в шелле виджета — без отдельного `v=`.
 
 **Добавить новый app:**
 

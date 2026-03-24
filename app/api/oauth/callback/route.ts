@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { SignJWT } from 'jose'
 import { nanoid } from 'nanoid'
-import { getBaseUrl } from '@/utils/mcp/getBaseUrl'
+import { getBaseUrlFromRequest } from '@/utils/mcp/getBaseUrl'
 
 const JWT_SECRET = new TextEncoder().encode(
   process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET,
@@ -29,7 +29,7 @@ export async function GET(req: NextRequest) {
   })
 
   const session = await auth()
-  const baseUrl = getBaseUrl(req.headers.get('host') ?? undefined)
+  const baseUrl = getBaseUrlFromRequest(req)
 
   console.log(
     'session in oauth callback:',

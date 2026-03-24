@@ -4,7 +4,7 @@ import { SignJWT } from 'jose'
 import { jwtVerify } from 'jose'
 import { nanoid } from 'nanoid'
 import { createHash } from 'crypto'
-import { getBaseUrl } from '@/utils/mcp/getBaseUrl'
+import { getBaseUrlFromRequest } from '@/utils/mcp/getBaseUrl'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
     const codeVerifier = params.get('code_verifier')
     const refreshToken = params.get('refresh_token')
 
-    const baseUrl = getBaseUrl(req.headers.get('host') ?? undefined)
+    const baseUrl = getBaseUrlFromRequest(req)
 
     if (grantType === 'authorization_code') {
       if (!code || !codeVerifier || !clientId) {

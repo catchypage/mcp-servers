@@ -1,5 +1,5 @@
-import { NextResponse } from 'next/server'
-import { getBaseUrl } from '@/utils/mcp/getBaseUrl'
+import { NextRequest, NextResponse } from 'next/server'
+import { getBaseUrlFromRequest } from '@/utils/mcp/getBaseUrl'
 import { resolveApp } from '@/utils/mcp/core/registry'
 
 /**
@@ -7,11 +7,11 @@ import { resolveApp } from '@/utils/mcp/core/registry'
  * Tells ChatGPT where to find the authorization server for this MCP app.
  */
 export async function GET(
-  _req: Request,
+  req: NextRequest,
   { params }: { params: Promise<{ appId: string }> }
 ) {
   const { appId } = await params
-  const baseUrl = getBaseUrl()
+  const baseUrl = getBaseUrlFromRequest(req)
   const resource = `${baseUrl}/api/mcp/${appId}`
 
   const app = resolveApp(appId)

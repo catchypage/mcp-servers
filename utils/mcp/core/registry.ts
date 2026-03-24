@@ -38,6 +38,10 @@ import {
   chefplanTools,
   chefplanInternalTools,
 } from '@/utils/mcp/apps/chefplan/tools'
+import {
+  langcoachTools,
+  langcoachInternalTools,
+} from '@/utils/mcp/apps/langcoach/tools'
 
 export const MCP_APPS: Record<string, McpAppConfig> = {
   resume: {
@@ -75,6 +79,23 @@ export const MCP_APPS: Record<string, McpAppConfig> = {
       },
     ],
   },
+  langcoach: {
+    id: 'langcoach',
+    name: 'Lang Coach',
+    description: 'English practice drills and coaching (scaffold)',
+    version: '1.0.0',
+    tools: langcoachTools,
+    internalTools: langcoachInternalTools,
+    widget: '/mcp/langcoach.bundle.js',
+    resources: [
+      {
+        uri: '/api/mcp/langcoach/widget',
+        name: 'Lang Coach Widget',
+        description: 'Interactive English practice',
+        mimeType: 'text/html+skybridge',
+      },
+    ],
+  },
 }
 
 export function resolveApp(appId: string): McpAppConfig | null {
@@ -88,4 +109,5 @@ export function resolveApp(appId: string): McpAppConfig | null {
 export const APP_DOMAINS: Record<string, string[]> = {
   resume: ['resume.pyxl.pro', 'resume.example.com'],
   chefplan: ['chefplan.pyxl.pro', 'meals.pyxl.pro', 'chefplan.example.com'],
+  langcoach: ['langcoach.pyxl.pro', 'langcoach.example.com'],
 }
