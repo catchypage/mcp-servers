@@ -4,7 +4,7 @@ const openLangCoachTool: McpToolDefinition = {
   name: 'open_lang_coach',
   title: 'Open Lang Coach',
   description:
-    'Open the Lang Coach English practice app. Placeholder until drills and lessons are implemented.',
+    'Open the Lang Coach English practice workspace. Practice vocabulary and grammar, work through guided drills, track your focus topics, and personalize sessions from your account. Your space for daily English practice, speaking prompts, and structured lessons.',
   inputSchema: {
     type: 'object',
     properties: {
@@ -17,10 +17,10 @@ const openLangCoachTool: McpToolDefinition = {
     required: [],
   },
   annotations: {
-    readOnlyHint: true,
+    readOnlyHint: false,
     destructiveHint: false,
     openWorldHint: true,
-    idempotentHint: true,
+    idempotentHint: false,
   },
   securitySchemes: [{ type: 'oauth2', scopes: ['user:read'] }],
 }

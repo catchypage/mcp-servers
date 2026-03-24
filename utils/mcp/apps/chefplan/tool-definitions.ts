@@ -65,7 +65,7 @@ const getRecipeDetailsTool: McpToolDefinition = {
   annotations: {
     readOnlyHint: true,
     destructiveHint: false,
-    openWorldHint: false,
+    openWorldHint: true,
     idempotentHint: true,
   },
   securitySchemes: [{ type: 'oauth2', scopes: ['user:read'] }],
@@ -151,7 +151,7 @@ const buildShoppingListTool: McpToolDefinition = {
   annotations: {
     readOnlyHint: true,
     destructiveHint: false,
-    openWorldHint: false,
+    openWorldHint: true,
     idempotentHint: true,
   },
   securitySchemes: [{ type: 'oauth2', scopes: ['user:read'] }],
@@ -191,7 +191,7 @@ const getUserInfoTool: McpToolDefinition = {
   annotations: {
     readOnlyHint: true,
     destructiveHint: false,
-    openWorldHint: false,
+    openWorldHint: true,
     idempotentHint: true,
   },
   securitySchemes: [{ type: 'oauth2', scopes: ['user:read'] }],

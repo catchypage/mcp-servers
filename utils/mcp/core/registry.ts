@@ -25,6 +25,12 @@ export interface McpAppConfig {
   tools: McpToolDefinition[]
   internalTools?: McpToolDefinition[]
   widget?: string
+  /**
+   * ChatGPT reads these from tools/list _meta (same pattern as Blocks & Arrows
+   * open_diagram_app). Per-tool _meta overrides when set on the tool.
+   */
+  widgetInvoking?: string
+  widgetInvoked?: string
   resources?: {
     uri: string
     name: string
@@ -49,6 +55,8 @@ export const MCP_APPS: Record<string, McpAppConfig> = {
     name: 'Resume Builder',
     description: 'Create and improve resumes',
     version: '1.0.0',
+    widgetInvoking: 'Opening your resume builder…',
+    widgetInvoked: 'Resume builder ready!',
     tools: resumeTools,
     internalTools: resumeInternalTools,
     widget: '/mcp/resume.bundle.js',
@@ -67,6 +75,8 @@ export const MCP_APPS: Record<string, McpAppConfig> = {
     description:
       'AI-powered weekly meal planning with nutrition tracking, shopping lists, and grocery ordering',
     version: '1.0.0',
+    widgetInvoking: 'Opening ChefPlan…',
+    widgetInvoked: 'Meal planner ready!',
     tools: chefplanTools,
     internalTools: chefplanInternalTools,
     widget: '/mcp/chefplan.bundle.js',
@@ -82,8 +92,11 @@ export const MCP_APPS: Record<string, McpAppConfig> = {
   langcoach: {
     id: 'langcoach',
     name: 'Lang Coach',
-    description: 'English practice drills and coaching (scaffold)',
+    description:
+      'English practice workspace: drills, vocabulary, grammar, and personalized coaching',
     version: '1.0.0',
+    widgetInvoking: 'Opening Lang Coach…',
+    widgetInvoked: 'English practice ready!',
     tools: langcoachTools,
     internalTools: langcoachInternalTools,
     widget: '/mcp/langcoach.bundle.js',

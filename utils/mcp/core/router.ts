@@ -64,9 +64,40 @@ export async function handleMcpRequest(
       )
 
     case 'tools/list': {
+      const baseUrl = getBaseUrlFromRequest(req)
+      const widgetTemplateUrl = `${baseUrl}/api/mcp/${app.id}/widget`
       const allTools = [...app.tools, ...(app.internalTools ?? [])]
+      const tools = allTools.map((tool) => {
+        if (tool._meta?.['openai/hidden'] === true) {
+          return tool
+        }
+        const invoking =
+          (tool._meta?.['openai/toolInvocation/invoking'] as
+            | string
+            | undefined) ??
+          app.widgetInvoking ??
+          `Opening ${tool.title ?? app.name}…`
+        const invoked =
+          (tool._meta?.['openai/toolInvocation/invoked'] as
+            | string
+            | undefined) ??
+          app.widgetInvoked ??
+          'Ready'
+        const outputTemplate =
+          (tool._meta?.['openai/outputTemplate'] as string | undefined) ??
+          widgetTemplateUrl
+        return {
+          ...tool,
+          _meta: {
+            ...tool._meta,
+            'openai/outputTemplate': outputTemplate,
+            'openai/toolInvocation/invoking': invoking,
+            'openai/toolInvocation/invoked': invoked,
+          },
+        }
+      })
       return NextResponse.json(
-        { ...response, result: { tools: allTools } },
+        { ...response, result: { tools } },
         { headers: { 'Content-Type': 'application/json', ...corsHeaders } },
       )
     }
