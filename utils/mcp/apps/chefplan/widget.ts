@@ -4,7 +4,10 @@ import type { MealPlan } from './types'
 export function chefplanWidgetHTML(baseUrl: string, plan?: MealPlan): string {
   const stylesUrl = mcpPublicAssetUrl(baseUrl, '/mcp/chefplan-styles.css')
   const bundleUrl = mcpPublicAssetUrl(baseUrl, '/mcp/chefplan.bundle.js')
-  // Encode plan data as base64 to safely embed in data attribute (avoids CSP issues with inline scripts)
+  /*
+   * Encode plan data as base64 to safely embed in data attribute (avoids CSP
+   * issues with inline scripts)
+   */
   const planDataAttr = plan
     ? ` data-plan="${Buffer.from(JSON.stringify(plan)).toString('base64')}"`
     : ''

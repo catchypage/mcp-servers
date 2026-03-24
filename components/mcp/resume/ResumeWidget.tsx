@@ -2,7 +2,12 @@
 
 import React, { useState, useCallback } from 'react'
 import { RESUME_STYLES, getStyleById, type ResumeStyle } from './styles'
-import { type ResumeData, type Experience, type Education, type ContactInfo } from './types'
+import {
+  type ResumeData,
+  type Experience,
+  type Education,
+  type ContactInfo,
+} from './types'
 import ResumePreview from './ResumePreview'
 import { DownloadIcon } from './icons'
 
@@ -78,11 +83,20 @@ function StyleCard({
       </div>
 
       <h3 className="font-semibold text-white text-sm">{style.name}</h3>
-      <p className="text-xs text-gray-400 mt-1 line-clamp-2">{style.description}</p>
+      <p className="text-xs text-gray-400 mt-1 line-clamp-2">
+        {style.description}
+      </p>
 
       {selected && (
         <div className="absolute top-2 right-2 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3">
+          <svg
+            width="12"
+            height="12"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="white"
+            strokeWidth="3"
+          >
             <polyline points="20 6 9 17 4 12" />
           </svg>
         </div>
@@ -101,21 +115,27 @@ export default function ResumeWidget() {
 
   const selectedStyle = getStyleById(selectedStyleId)
 
-  const updateContact = useCallback((field: keyof ContactInfo, value: string) => {
-    setResumeData((prev) => ({
-      ...prev,
-      contact: { ...prev.contact, [field]: value },
-    }))
-  }, [])
+  const updateContact = useCallback(
+    (field: keyof ContactInfo, value: string) => {
+      setResumeData((prev) => ({
+        ...prev,
+        contact: { ...prev.contact, [field]: value },
+      }))
+    },
+    [],
+  )
 
-  const updateExperience = useCallback((index: number, field: keyof Experience, value: string) => {
-    setResumeData((prev) => ({
-      ...prev,
-      experience: prev.experience.map((exp, i) =>
-        i === index ? { ...exp, [field]: value } : exp
-      ),
-    }))
-  }, [])
+  const updateExperience = useCallback(
+    (index: number, field: keyof Experience, value: string) => {
+      setResumeData((prev) => ({
+        ...prev,
+        experience: prev.experience.map((exp, i) =>
+          i === index ? { ...exp, [field]: value } : exp,
+        ),
+      }))
+    },
+    [],
+  )
 
   const addExperience = useCallback(() => {
     setResumeData((prev) => ({
@@ -131,14 +151,17 @@ export default function ResumeWidget() {
     }))
   }, [])
 
-  const updateEducation = useCallback((index: number, field: keyof Education, value: string) => {
-    setResumeData((prev) => ({
-      ...prev,
-      education: prev.education.map((edu, i) =>
-        i === index ? { ...edu, [field]: value } : edu
-      ),
-    }))
-  }, [])
+  const updateEducation = useCallback(
+    (index: number, field: keyof Education, value: string) => {
+      setResumeData((prev) => ({
+        ...prev,
+        education: prev.education.map((edu, i) =>
+          i === index ? { ...edu, [field]: value } : edu,
+        ),
+      }))
+    },
+    [],
+  )
 
   const addEducation = useCallback(() => {
     setResumeData((prev) => ({
@@ -240,10 +263,7 @@ export default function ResumeWidget() {
           </div>
 
           <div className="flex justify-end">
-            <button
-              onClick={() => setStep('form')}
-              className={primaryBtnClass}
-            >
+            <button onClick={() => setStep('form')} className={primaryBtnClass}>
               Continue with {selectedStyle.name}
             </button>
           </div>
@@ -260,9 +280,14 @@ export default function ResumeWidget() {
           <div className="flex items-center justify-between mb-6">
             <div>
               <h1 className="text-2xl font-bold">Fill Your Resume</h1>
-              <p className="text-gray-400 text-sm">Style: {selectedStyle.name}</p>
+              <p className="text-gray-400 text-sm">
+                Style: {selectedStyle.name}
+              </p>
             </div>
-            <button onClick={() => setStep('style')} className={secondaryBtnClass}>
+            <button
+              onClick={() => setStep('style')}
+              className={secondaryBtnClass}
+            >
               Change Style
             </button>
           </div>
@@ -277,7 +302,10 @@ export default function ResumeWidget() {
                   type="text"
                   value={resumeData.fullName}
                   onChange={(e) =>
-                    setResumeData((prev) => ({ ...prev, fullName: e.target.value }))
+                    setResumeData((prev) => ({
+                      ...prev,
+                      fullName: e.target.value,
+                    }))
                   }
                   placeholder="John Smith"
                   className={inputClass}
@@ -289,7 +317,10 @@ export default function ResumeWidget() {
                   type="text"
                   value={resumeData.jobTitle}
                   onChange={(e) =>
-                    setResumeData((prev) => ({ ...prev, jobTitle: e.target.value }))
+                    setResumeData((prev) => ({
+                      ...prev,
+                      jobTitle: e.target.value,
+                    }))
                   }
                   placeholder="Software Engineer"
                   className={inputClass}
@@ -301,7 +332,10 @@ export default function ResumeWidget() {
               <textarea
                 value={resumeData.summary}
                 onChange={(e) =>
-                  setResumeData((prev) => ({ ...prev, summary: e.target.value }))
+                  setResumeData((prev) => ({
+                    ...prev,
+                    summary: e.target.value,
+                  }))
                 }
                 placeholder="Brief overview of your professional background and goals..."
                 rows={3}
@@ -381,7 +415,9 @@ export default function ResumeWidget() {
                 className="mb-6 p-4 rounded-lg bg-white/5 border border-white/10"
               >
                 <div className="flex justify-between items-start mb-4">
-                  <span className="text-sm text-gray-500">Experience {index + 1}</span>
+                  <span className="text-sm text-gray-500">
+                    Experience {index + 1}
+                  </span>
                   {resumeData.experience.length > 1 && (
                     <button
                       onClick={() => removeExperience(index)}
@@ -397,7 +433,9 @@ export default function ResumeWidget() {
                     <input
                       type="text"
                       value={exp.position}
-                      onChange={(e) => updateExperience(index, 'position', e.target.value)}
+                      onChange={(e) =>
+                        updateExperience(index, 'position', e.target.value)
+                      }
                       placeholder="Senior Developer"
                       className={inputClass}
                     />
@@ -407,7 +445,9 @@ export default function ResumeWidget() {
                     <input
                       type="text"
                       value={exp.company}
-                      onChange={(e) => updateExperience(index, 'company', e.target.value)}
+                      onChange={(e) =>
+                        updateExperience(index, 'company', e.target.value)
+                      }
                       placeholder="Tech Corp Inc."
                       className={inputClass}
                     />
@@ -417,7 +457,9 @@ export default function ResumeWidget() {
                     <input
                       type="text"
                       value={exp.period}
-                      onChange={(e) => updateExperience(index, 'period', e.target.value)}
+                      onChange={(e) =>
+                        updateExperience(index, 'period', e.target.value)
+                      }
                       placeholder="Jan 2020 - Present"
                       className={inputClass}
                     />
@@ -453,7 +495,9 @@ export default function ResumeWidget() {
                 className="mb-6 p-4 rounded-lg bg-white/5 border border-white/10"
               >
                 <div className="flex justify-between items-start mb-4">
-                  <span className="text-sm text-gray-500">Education {index + 1}</span>
+                  <span className="text-sm text-gray-500">
+                    Education {index + 1}
+                  </span>
                   {resumeData.education.length > 1 && (
                     <button
                       onClick={() => removeEducation(index)}
@@ -469,7 +513,9 @@ export default function ResumeWidget() {
                     <input
                       type="text"
                       value={edu.degree}
-                      onChange={(e) => updateEducation(index, 'degree', e.target.value)}
+                      onChange={(e) =>
+                        updateEducation(index, 'degree', e.target.value)
+                      }
                       placeholder="Bachelor of Science in Computer Science"
                       className={inputClass}
                     />
@@ -491,7 +537,9 @@ export default function ResumeWidget() {
                     <input
                       type="text"
                       value={edu.period}
-                      onChange={(e) => updateEducation(index, 'period', e.target.value)}
+                      onChange={(e) =>
+                        updateEducation(index, 'period', e.target.value)
+                      }
                       placeholder="2016 - 2020"
                       className={inputClass}
                     />
@@ -521,7 +569,9 @@ export default function ResumeWidget() {
                 type="text"
                 value={skillInput}
                 onChange={(e) => setSkillInput(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addSkill())}
+                onKeyDown={(e) =>
+                  e.key === 'Enter' && (e.preventDefault(), addSkill())
+                }
                 placeholder="Add a skill..."
                 className={inputClass}
               />
@@ -555,7 +605,9 @@ export default function ResumeWidget() {
                 type="text"
                 value={langInput}
                 onChange={(e) => setLangInput(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addLanguage())}
+                onKeyDown={(e) =>
+                  e.key === 'Enter' && (e.preventDefault(), addLanguage())
+                }
                 placeholder="e.g. English (Native)"
                 className={inputClass}
               />
@@ -619,12 +671,17 @@ export default function ResumeWidget() {
 
           {/* Actions */}
           <div className="flex justify-between">
-            <button onClick={() => setStep('style')} className={secondaryBtnClass}>
+            <button
+              onClick={() => setStep('style')}
+              className={secondaryBtnClass}
+            >
               Back
             </button>
             <button
               onClick={() => setStep('preview')}
-              disabled={!resumeData.fullName.trim() || !resumeData.jobTitle.trim()}
+              disabled={
+                !resumeData.fullName.trim() || !resumeData.jobTitle.trim()
+              }
               className={primaryBtnClass}
             >
               Preview Resume
@@ -646,10 +703,16 @@ export default function ResumeWidget() {
             <p className="text-gray-400 text-sm">{selectedStyle.name}</p>
           </div>
           <div className="flex gap-3">
-            <button onClick={() => setStep('form')} className={secondaryBtnClass}>
+            <button
+              onClick={() => setStep('form')}
+              className={secondaryBtnClass}
+            >
               Edit
             </button>
-            <button onClick={() => setStep('style')} className={secondaryBtnClass}>
+            <button
+              onClick={() => setStep('style')}
+              className={secondaryBtnClass}
+            >
               Change Style
             </button>
             <button onClick={handlePrint} className={primaryBtnClass}>

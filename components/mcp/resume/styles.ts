@@ -34,7 +34,8 @@ export const RESUME_STYLES: ResumeStyle[] = [
   {
     id: 'classic',
     name: 'Classic Professional',
-    description: 'Traditional layout with clean typography, perfect for corporate roles',
+    description:
+      'Traditional layout with clean typography, perfect for corporate roles',
     preview: { bg: '#ffffff', accent: '#1e3a5f', text: '#333333' },
     styles: {
       container: 'bg-white text-gray-800 font-serif',
@@ -44,9 +45,11 @@ export const RESUME_STYLES: ResumeStyle[] = [
       title: 'text-lg text-gray-600 mt-2 italic',
       contact: 'text-sm text-gray-500 mt-3 flex justify-center gap-6',
       section: 'mt-6',
-      sectionTitle: 'text-lg font-bold text-gray-800 uppercase tracking-wider border-b border-gray-300 pb-1 mb-3',
+      sectionTitle:
+        'text-lg font-bold text-gray-800 uppercase tracking-wider border-b border-gray-300 pb-1 mb-3',
       sectionContent: 'text-gray-700 leading-relaxed',
-      skillTag: 'inline-block bg-gray-100 text-gray-700 px-3 py-1 text-sm border border-gray-300',
+      skillTag:
+        'inline-block bg-gray-100 text-gray-700 px-3 py-1 text-sm border border-gray-300',
       experienceItem: 'mb-4 pl-4 border-l-2 border-gray-300',
       educationItem: 'mb-3',
       divider: 'border-t border-gray-200 my-4',
@@ -58,7 +61,8 @@ export const RESUME_STYLES: ResumeStyle[] = [
   {
     id: 'modern',
     name: 'Modern Minimal',
-    description: 'Clean design with ample whitespace for creative and tech roles',
+    description:
+      'Clean design with ample whitespace for creative and tech roles',
     preview: { bg: '#fafafa', accent: '#0ea5e9', text: '#1f2937' },
     styles: {
       container: 'bg-gray-50 text-gray-800 font-sans',
@@ -68,9 +72,11 @@ export const RESUME_STYLES: ResumeStyle[] = [
       title: 'text-xl text-sky-600 mt-2 font-medium',
       contact: 'text-sm text-gray-500 mt-4 flex gap-6',
       section: 'mt-8',
-      sectionTitle: 'text-xs font-bold text-sky-600 uppercase tracking-[0.2em] mb-4',
+      sectionTitle:
+        'text-xs font-bold text-sky-600 uppercase tracking-[0.2em] mb-4',
       sectionContent: 'text-gray-600 leading-relaxed',
-      skillTag: 'inline-block bg-sky-50 text-sky-700 px-4 py-1.5 text-sm rounded-full',
+      skillTag:
+        'inline-block bg-sky-50 text-sky-700 px-4 py-1.5 text-sm rounded-full',
       experienceItem: 'mb-6',
       educationItem: 'mb-4',
       divider: 'border-t border-gray-200 my-6',
@@ -92,9 +98,11 @@ export const RESUME_STYLES: ResumeStyle[] = [
       title: 'text-xl text-amber-400 mt-3 font-light',
       contact: 'text-sm text-gray-400 mt-4 flex gap-6',
       section: 'mt-8',
-      sectionTitle: 'text-sm font-bold text-amber-400 uppercase tracking-widest mb-4 flex items-center gap-2',
+      sectionTitle:
+        'text-sm font-bold text-amber-400 uppercase tracking-widest mb-4 flex items-center gap-2',
       sectionContent: 'text-gray-300 leading-relaxed',
-      skillTag: 'inline-block bg-amber-500/10 text-amber-300 px-4 py-1.5 text-sm border border-amber-500/30',
+      skillTag:
+        'inline-block bg-amber-500/10 text-amber-300 px-4 py-1.5 text-sm border border-amber-500/30',
       experienceItem: 'mb-6 pl-4 border-l-2 border-amber-500/50',
       educationItem: 'mb-4',
       divider: 'border-t border-gray-700 my-6',
@@ -106,22 +114,28 @@ export const RESUME_STYLES: ResumeStyle[] = [
   {
     id: 'creative',
     name: 'Creative Bold',
-    description: 'Expressive design with bold colors for creative professionals',
+    description:
+      'Expressive design with bold colors for creative professionals',
     preview: { bg: '#ffffff', accent: '#ec4899', text: '#1f2937' },
     styles: {
       container: 'bg-white text-gray-800 font-sans',
       header: 'pb-6 relative',
-      headerBg: 'bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 text-white p-8 -mx-8 -mt-8',
+      headerBg:
+        'bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 text-white p-8 -mx-8 -mt-8',
       name: 'text-4xl font-black text-white',
       title: 'text-xl text-pink-100 mt-2 font-medium',
       contact: 'text-sm text-pink-100/80 mt-4 flex gap-6',
       section: 'mt-8',
-      sectionTitle: 'text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-purple-500 mb-4',
+      sectionTitle:
+        'text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-purple-500 mb-4',
       sectionContent: 'text-gray-600 leading-relaxed',
-      skillTag: 'inline-block bg-gradient-to-r from-pink-500 to-purple-500 text-white px-4 py-1.5 text-sm rounded-full font-medium',
-      experienceItem: 'mb-6 pl-4 border-l-4 border-gradient-to-b from-pink-500 to-purple-500',
+      skillTag:
+        'inline-block bg-gradient-to-r from-pink-500 to-purple-500 text-white px-4 py-1.5 text-sm rounded-full font-medium',
+      experienceItem:
+        'mb-6 pl-4 border-l-4 border-gradient-to-b from-pink-500 to-purple-500',
       educationItem: 'mb-4',
-      divider: 'h-1 bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 my-6 rounded',
+      divider:
+        'h-1 bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 my-6 rounded',
       icon: 'text-pink-500',
     },
   },
@@ -140,9 +154,11 @@ export const RESUME_STYLES: ResumeStyle[] = [
       title: 'text-lg text-blue-400 mt-2',
       contact: 'text-sm text-gray-500 mt-4 flex gap-6',
       section: 'mt-6',
-      sectionTitle: 'text-sm font-bold text-green-400 mb-3 flex items-center gap-2 before:content-["$"] before:text-gray-500',
+      sectionTitle:
+        'text-sm font-bold text-green-400 mb-3 flex items-center gap-2 before:content-["$"] before:text-gray-500',
       sectionContent: 'text-gray-400 leading-relaxed',
-      skillTag: 'inline-block bg-gray-800 text-blue-400 px-3 py-1 text-sm border border-gray-700 font-mono',
+      skillTag:
+        'inline-block bg-gray-800 text-blue-400 px-3 py-1 text-sm border border-gray-700 font-mono',
       experienceItem: 'mb-4 pl-4 border-l border-green-500/50',
       educationItem: 'mb-3',
       divider: 'border-t border-gray-800 my-4',
@@ -154,7 +170,8 @@ export const RESUME_STYLES: ResumeStyle[] = [
   {
     id: 'sidebar',
     name: 'Elegant Sidebar',
-    description: 'Two-column design with elegant sidebar for structured presentation',
+    description:
+      'Two-column design with elegant sidebar for structured presentation',
     preview: { bg: '#ffffff', accent: '#4f46e5', text: '#374151' },
     styles: {
       container: 'bg-white text-gray-700 font-sans flex',
@@ -164,9 +181,11 @@ export const RESUME_STYLES: ResumeStyle[] = [
       title: 'text-md text-indigo-200 mt-1',
       contact: 'text-xs text-indigo-200 mt-4 flex flex-col gap-2',
       section: 'mt-4',
-      sectionTitle: 'text-sm font-bold text-indigo-600 uppercase tracking-wider mb-2',
+      sectionTitle:
+        'text-sm font-bold text-indigo-600 uppercase tracking-wider mb-2',
       sectionContent: 'text-gray-600 text-sm leading-relaxed',
-      skillTag: 'inline-block bg-indigo-100 text-indigo-700 px-2 py-0.5 text-xs rounded',
+      skillTag:
+        'inline-block bg-indigo-100 text-indigo-700 px-2 py-0.5 text-xs rounded',
       experienceItem: 'mb-4',
       educationItem: 'mb-2 text-sm',
       divider: 'border-t border-indigo-200 my-3',
@@ -178,7 +197,8 @@ export const RESUME_STYLES: ResumeStyle[] = [
   {
     id: 'swiss',
     name: 'Swiss Minimalist',
-    description: 'Typography-focused design inspired by Swiss design principles',
+    description:
+      'Typography-focused design inspired by Swiss design principles',
     preview: { bg: '#ffffff', accent: '#dc2626', text: '#171717' },
     styles: {
       container: 'bg-white text-neutral-900 font-sans',
@@ -188,9 +208,11 @@ export const RESUME_STYLES: ResumeStyle[] = [
       title: 'text-xl text-neutral-500 mt-4 font-light',
       contact: 'text-sm text-neutral-400 mt-6 flex gap-8',
       section: 'mt-10',
-      sectionTitle: 'text-xs font-bold text-red-600 uppercase tracking-[0.3em] mb-6',
+      sectionTitle:
+        'text-xs font-bold text-red-600 uppercase tracking-[0.3em] mb-6',
       sectionContent: 'text-neutral-700 leading-relaxed',
-      skillTag: 'inline-block text-neutral-900 px-0 py-1 text-sm border-b-2 border-red-600 mr-6',
+      skillTag:
+        'inline-block text-neutral-900 px-0 py-1 text-sm border-b-2 border-red-600 mr-6',
       experienceItem: 'mb-8',
       educationItem: 'mb-4',
       divider: 'border-t-2 border-neutral-200 my-8',
@@ -202,7 +224,8 @@ export const RESUME_STYLES: ResumeStyle[] = [
   {
     id: 'nature',
     name: 'Nature Organic',
-    description: 'Soft organic design with earthy tones for wellness and sustainability roles',
+    description:
+      'Soft organic design with earthy tones for wellness and sustainability roles',
     preview: { bg: '#faf8f5', accent: '#65a30d', text: '#44403c' },
     styles: {
       container: 'bg-[#faf8f5] text-stone-700 font-sans',
@@ -212,9 +235,11 @@ export const RESUME_STYLES: ResumeStyle[] = [
       title: 'text-lg text-lime-700 mt-2',
       contact: 'text-sm text-stone-500 mt-4 flex justify-center gap-6',
       section: 'mt-8',
-      sectionTitle: 'text-sm font-semibold text-lime-700 mb-4 flex items-center gap-2',
+      sectionTitle:
+        'text-sm font-semibold text-lime-700 mb-4 flex items-center gap-2',
       sectionContent: 'text-stone-600 leading-relaxed',
-      skillTag: 'inline-block bg-lime-100 text-lime-800 px-4 py-1.5 text-sm rounded-full',
+      skillTag:
+        'inline-block bg-lime-100 text-lime-800 px-4 py-1.5 text-sm rounded-full',
       experienceItem: 'mb-6 pl-4 border-l-2 border-lime-300',
       educationItem: 'mb-4',
       divider: 'border-t border-lime-200 my-6',

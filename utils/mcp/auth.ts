@@ -60,8 +60,10 @@ export async function verifyMcpToken(
   const token = authHeader.substring(7)
   const baseUrl = getBaseUrlFromRequest(req)
   const expectedAudience = `${baseUrl}${resourceUrl}`
-  // Also accept tokens issued for the base MCP resource (e.g., /api/mcp)
-  // This handles cases where ChatGPT doesn't pass the resource parameter
+  /*
+   * Also accept tokens issued for the base MCP resource (e.g., /api/mcp)
+   * This handles cases where ChatGPT doesn't pass the resource parameter
+   */
   const baseMcpAudience = `${baseUrl}/api/mcp`
 
   try {
@@ -77,12 +79,11 @@ export async function verifyMcpToken(
       })
       payload = result.payload
     } catch (audError) {
-      // If audience mismatch, try base MCP audience
-      // This allows tokens issued for /api/mcp to work with /api/mcp/{appId}
-      if (
-        audError instanceof Error &&
-        audError.message.includes('audience')
-      ) {
+      /*
+       * If audience mismatch, try base MCP audience
+       * This allows tokens issued for /api/mcp to work with /api/mcp/{appId}
+       */
+      if (audError instanceof Error && audError.message.includes('audience')) {
         // Only allow fallback if the resourceUrl is a sub-path of /api/mcp
         if (!resourceUrl.startsWith('/api/mcp')) {
           throw audError

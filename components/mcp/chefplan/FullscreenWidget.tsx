@@ -250,9 +250,12 @@ export default function FullscreenWidget({
                     {tag.replace('-', ' ')}
                   </span>
                 ))}
-                {selectedRecipe.source && selectedRecipe.source !== 'fallback' && (
-                  <span className="cp-tag cp-tag-gray">via {selectedRecipe.source}</span>
-                )}
+                {selectedRecipe.source &&
+                  selectedRecipe.source !== 'fallback' && (
+                    <span className="cp-tag cp-tag-gray">
+                      via {selectedRecipe.source}
+                    </span>
+                  )}
               </div>
             </div>
 

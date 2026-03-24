@@ -57,7 +57,9 @@ export default function ChefPlanWidget() {
   useEffect(() => {
     // Helper to extract plan from various data formats
     const extractPlan = (data: unknown): MealPlan | null => {
-      if (!data || typeof data !== 'object') return null
+      if (!data || typeof data !== 'object') {
+        return null
+      }
       const obj = data as Record<string, unknown>
 
       // Direct plan object
@@ -153,11 +155,11 @@ export default function ChefPlanWidget() {
       return false
     }
 
-    tryOpenAIBridge()
+    void tryOpenAIBridge()
 
     // 4. Listen for postMessage from ChatGPT parent (MCP Apps)
     const handleMessage = (event: MessageEvent) => {
-      const data = event.data
+      const data = event.data as unknown
       const plan = extractPlan(data)
       if (plan) {
         setPlan(plan)

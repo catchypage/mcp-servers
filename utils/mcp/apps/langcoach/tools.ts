@@ -10,7 +10,8 @@ const openLangCoachTool: McpToolDefinition = {
     properties: {
       topic: {
         type: 'string',
-        description: 'Optional focus topic (e.g. grammar, vocabulary, speaking)',
+        description:
+          'Optional focus topic (e.g. grammar, vocabulary, speaking)',
       },
     },
     required: [],

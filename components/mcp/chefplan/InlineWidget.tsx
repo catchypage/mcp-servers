@@ -38,12 +38,14 @@ export default function InlineWidget({
   onOrderIngredients,
   onOpenFullPlan,
 }: InlineWidgetProps) {
-  const { household, constraints, budget_summary, nutrition_summary, days } = plan
+  const { household, constraints, budget_summary, nutrition_summary, days } =
+    plan
   const [selectedDay, setSelectedDay] = useState(0)
 
   const dietLabel =
     constraints.diet.length > 0
-      ? constraints.diet[0].charAt(0).toUpperCase() + constraints.diet[0].slice(1)
+      ? constraints.diet[0].charAt(0).toUpperCase() +
+        constraints.diet[0].slice(1)
       : 'Balanced'
 
   const currentDay = days[selectedDay]
@@ -151,9 +153,15 @@ export default function InlineWidget({
               <div className="cp-meal-info">
                 <span className="cp-meal-title">{meal.title}</span>
                 <div className="cp-meal-meta">
-                  <span><ClockIcon size={12} /> {meal.prep_minutes}m</span>
-                  <span><FlameIcon size={12} /> {meal.calories}</span>
-                  <span><DollarIcon size={12} /> ${meal.estimated_cost.toFixed(0)}</span>
+                  <span>
+                    <ClockIcon size={12} /> {meal.prep_minutes}m
+                  </span>
+                  <span>
+                    <FlameIcon size={12} /> {meal.calories}
+                  </span>
+                  <span>
+                    <DollarIcon size={12} /> ${meal.estimated_cost.toFixed(0)}
+                  </span>
                 </div>
               </div>
             </div>
@@ -178,7 +186,10 @@ export default function InlineWidget({
           <ExpandIcon size={18} />
           View Full Plan
         </button>
-        <button className="cp-btn cp-btn-secondary" onClick={onOrderIngredients}>
+        <button
+          className="cp-btn cp-btn-secondary"
+          onClick={onOrderIngredients}
+        >
           <CartIcon size={18} />
           Order Ingredients
         </button>

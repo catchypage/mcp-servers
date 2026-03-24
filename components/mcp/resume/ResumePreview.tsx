@@ -37,7 +37,9 @@ export default function ResumePreview({ data, style }: ResumePreviewProps) {
 
           {/* Contact in sidebar */}
           <div className="mt-6">
-            <h3 className="text-xs font-bold text-indigo-200 uppercase tracking-wider mb-3">Contact</h3>
+            <h3 className="text-xs font-bold text-indigo-200 uppercase tracking-wider mb-3">
+              Contact
+            </h3>
             <div className="space-y-2 text-sm text-indigo-100">
               {data.contact.email && (
                 <div className="flex items-center gap-2">
@@ -69,10 +71,15 @@ export default function ResumePreview({ data, style }: ResumePreviewProps) {
           {/* Skills in sidebar */}
           {data.skills.length > 0 && (
             <div className="mt-6">
-              <h3 className="text-xs font-bold text-indigo-200 uppercase tracking-wider mb-3">Skills</h3>
+              <h3 className="text-xs font-bold text-indigo-200 uppercase tracking-wider mb-3">
+                Skills
+              </h3>
               <div className="flex flex-wrap gap-1.5">
                 {data.skills.map((skill, i) => (
-                  <span key={i} className="bg-indigo-500/50 text-white px-2 py-0.5 text-xs rounded">
+                  <span
+                    key={i}
+                    className="bg-indigo-500/50 text-white px-2 py-0.5 text-xs rounded"
+                  >
                     {skill}
                   </span>
                 ))}
@@ -83,7 +90,9 @@ export default function ResumePreview({ data, style }: ResumePreviewProps) {
           {/* Education in sidebar */}
           {data.education.length > 0 && (
             <div className="mt-6">
-              <h3 className="text-xs font-bold text-indigo-200 uppercase tracking-wider mb-3">Education</h3>
+              <h3 className="text-xs font-bold text-indigo-200 uppercase tracking-wider mb-3">
+                Education
+              </h3>
               {data.education.map((edu, i) => (
                 <div key={i} className="mb-3 text-sm">
                   <p className="font-semibold text-white">{edu.degree}</p>
@@ -119,12 +128,16 @@ export default function ResumePreview({ data, style }: ResumePreviewProps) {
                 <div key={i} className={s.experienceItem}>
                   <div className="flex justify-between items-start">
                     <div>
-                      <h4 className="font-semibold text-gray-800">{exp.position}</h4>
+                      <h4 className="font-semibold text-gray-800">
+                        {exp.position}
+                      </h4>
                       <p className="text-indigo-600 text-sm">{exp.company}</p>
                     </div>
                     <span className="text-xs text-gray-500">{exp.period}</span>
                   </div>
-                  <p className="text-sm text-gray-600 mt-2">{exp.description}</p>
+                  <p className="text-sm text-gray-600 mt-2">
+                    {exp.description}
+                  </p>
                 </div>
               ))}
             </div>
@@ -182,7 +195,9 @@ export default function ResumePreview({ data, style }: ResumePreviewProps) {
         <div className={s.section}>
           <h2 className={s.sectionTitle}>
             <TargetIcon className={s.icon} size={16} />
-            {style.id === 'terminal' ? ' profile --summary' : 'Professional Summary'}
+            {style.id === 'terminal'
+              ? ' profile --summary'
+              : 'Professional Summary'}
           </h2>
           <p className={s.sectionContent}>{data.summary}</p>
         </div>
@@ -202,7 +217,13 @@ export default function ResumePreview({ data, style }: ResumePreviewProps) {
               <div className="flex justify-between items-start flex-wrap gap-2">
                 <div>
                   <h3 className="font-semibold">{exp.position}</h3>
-                  <p className={style.id === 'terminal' ? 'text-blue-400' : 'text-gray-600'}>
+                  <p
+                    className={
+                      style.id === 'terminal'
+                        ? 'text-blue-400'
+                        : 'text-gray-600'
+                    }
+                  >
                     {exp.company}
                   </p>
                 </div>
@@ -233,7 +254,9 @@ export default function ResumePreview({ data, style }: ResumePreviewProps) {
                 <span className="text-sm opacity-70">{edu.period}</span>
               </div>
               {edu.description && (
-                <p className={`${s.sectionContent} mt-1 text-sm`}>{edu.description}</p>
+                <p className={`${s.sectionContent} mt-1 text-sm`}>
+                  {edu.description}
+                </p>
               )}
             </div>
           ))}

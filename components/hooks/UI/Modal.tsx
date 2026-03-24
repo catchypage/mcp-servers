@@ -62,7 +62,10 @@ const Modal = ({
           <div className="relative">
             <div
               className="absolute inset-0 h-1"
-              style={{ background: 'linear-gradient(90deg, var(--accent-gold), var(--accent-yellow))' }}
+              style={{
+                background:
+                  'linear-gradient(90deg, var(--accent-gold), var(--accent-yellow))',
+              }}
             />
           </div>
         )}

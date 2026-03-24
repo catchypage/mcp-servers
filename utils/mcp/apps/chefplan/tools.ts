@@ -9,9 +9,7 @@ import type {
 } from './types'
 import { nanoid } from 'nanoid'
 import {
-  searchRecipes,
   getRecipeById,
-  getRandomRecipes,
   searchMealDB,
   getRandomMealDB,
   getMealDBByCategory,
@@ -280,8 +278,11 @@ function randomPick<T>(arr: T[]): T {
  * ============================================================================
  */
 
-// Map meal type to search queries for APIs
-// MealDB categories: Beef, Chicken, Dessert, Lamb, Miscellaneous, Pasta, Pork, Seafood, Side, Starter, Vegan, Vegetarian, Breakfast, Goat
+/*
+ * Map meal type to search queries for APIs
+ * MealDB categories: Beef, Chicken, Dessert, Lamb, Miscellaneous, Pasta, Pork,
+ * Seafood, Side, Starter, Vegan, Vegetarian, Breakfast, Goat
+ */
 const MEAL_TYPE_QUERIES: Record<string, string[]> = {
   breakfast: ['Breakfast', 'Egg', 'Pancake', 'Omelette', 'Toast'],
   lunch: ['Chicken', 'Salad', 'Soup', 'Sandwich', 'Starter'],
@@ -297,7 +298,8 @@ function spoonacularToMeal(
 ): Meal {
   const nutrients = recipe.nutrition?.nutrients || []
   const findNutrient = (name: string) =>
-    nutrients.find((n) => n.name.toLowerCase() === name.toLowerCase())?.amount || 0
+    nutrients.find((n) => n.name.toLowerCase() === name.toLowerCase())
+      ?.amount || 0
 
   return {
     meal_id: nanoid(8),
@@ -305,7 +307,8 @@ function spoonacularToMeal(
     title: recipe.title,
     servings,
     prep_minutes: recipe.readyInMinutes || 30,
-    estimated_cost: Math.round((recipe.pricePerServing || 300) * servings) / 100,
+    estimated_cost:
+      Math.round((recipe.pricePerServing || 300) * servings) / 100,
     calories: Math.round(findNutrient('Calories')),
     macros: {
       protein_g: Math.round(findNutrient('Protein')),
@@ -326,7 +329,10 @@ function mealDBToMeal(
   servings: number,
 ): Meal {
   // MealDB doesn't have nutrition, estimate based on category
-  const categoryNutrition: Record<string, { cal: number; protein: number; carbs: number; fat: number }> = {
+  const categoryNutrition: Record<
+    string,
+    { cal: number; protein: number; carbs: number; fat: number }
+  > = {
     Beef: { cal: 550, protein: 35, carbs: 20, fat: 30 },
     Chicken: { cal: 450, protein: 40, carbs: 25, fat: 15 },
     Seafood: { cal: 400, protein: 35, carbs: 15, fat: 18 },
@@ -336,7 +342,8 @@ function mealDBToMeal(
     default: { cal: 450, protein: 25, carbs: 40, fat: 18 },
   }
 
-  const nutrition = categoryNutrition[recipe.strCategory] || categoryNutrition.default
+  const nutrition =
+    categoryNutrition[recipe.strCategory] || categoryNutrition.default
 
   return {
     meal_id: nanoid(8),
@@ -351,7 +358,10 @@ function mealDBToMeal(
       carbs_g: nutrition.carbs,
       fat_g: nutrition.fat,
     },
-    tags: recipe.strTags?.split(',').map((t) => t.trim()).filter(Boolean) || [recipe.strCategory],
+    tags: recipe.strTags
+      ?.split(',')
+      .map((t) => t.trim())
+      .filter(Boolean) || [recipe.strCategory],
     source_id: recipe.idMeal,
     source: 'mealdb',
     image_url: recipe.strMealThumb,
@@ -361,16 +371,21 @@ function mealDBToMeal(
 // Cache for pre-fetched recipes to minimize API calls
 const recipeCache = new Map<string, MealDBRecipe[]>()
 
-// Pre-fetch recipes for all meal types in batch (1 request per type instead of 28)
+/*
+ * Pre-fetch recipes for all meal types in batch (1 request per type instead of
+ * 28)
+ */
 async function prefetchMealDBRecipes(): Promise<void> {
   const allQueries = new Set<string>()
   for (const queries of Object.values(MEAL_TYPE_QUERIES)) {
-    queries.forEach(q => allQueries.add(q))
+    queries.forEach((q) => allQueries.add(q))
   }
 
   // Fetch all unique queries in parallel (max ~10 requests total)
   const fetchPromises = Array.from(allQueries).map(async (query) => {
-    if (recipeCache.has(query)) return
+    if (recipeCache.has(query)) {
+      return
+    }
     try {
       const recipes = await searchMealDB(query)
       if (recipes.length > 0) {
@@ -385,8 +400,11 @@ async function prefetchMealDBRecipes(): Promise<void> {
   console.log(`[ChefPlan] Prefetched ${recipeCache.size} recipe categories`)
 }
 
-// Generate meal using real APIs with fallback
-// Priority: Cached MealDB -> MealDB API -> Spoonacular (paid/limited) -> fallback
+/*
+ * Generate meal using real APIs with fallback
+ * Priority: Cached MealDB -> MealDB API -> Spoonacular (paid/limited) ->
+ * fallback
+ */
 async function generateMealFromAPI(
   type: 'breakfast' | 'lunch' | 'dinner' | 'snack',
   servings: number,
@@ -423,7 +441,9 @@ async function generateMealFromAPI(
     // If search/category fail, get random meal
     const randomMeal = await getRandomMealDB()
     if (randomMeal) {
-      console.log(`[ChefPlan] Got random recipe from MealDB: ${randomMeal.strMeal}`)
+      console.log(
+        `[ChefPlan] Got random recipe from MealDB: ${randomMeal.strMeal}`,
+      )
       return mealDBToMeal(randomMeal, type, servings)
     }
   } catch (e) {
@@ -435,8 +455,10 @@ async function generateMealFromAPI(
   return generateMealFallback(type, servings)
 }
 
-// Fallback meal generator - generates generic meal based on type
-// Only used when all APIs fail
+/*
+ * Fallback meal generator - generates generic meal based on type
+ * Only used when all APIs fail
+ */
 function generateMealFallback(
   type: 'breakfast' | 'lunch' | 'dinner' | 'snack',
   servings: number,
@@ -520,7 +542,9 @@ function generateDayPlanFallback(day: string, servings: number): DayPlan {
 }
 
 // Generate shopping list from meal ingredients using USDA
-async function generateShoppingListFromAPI(days: DayPlan[]): Promise<ShoppingSection[]> {
+async function generateShoppingListFromAPI(
+  days: DayPlan[],
+): Promise<ShoppingSection[]> {
   // Collect all unique ingredients from meals
   const ingredientSet = new Set<string>()
 
@@ -547,15 +571,56 @@ async function generateShoppingListFromAPI(days: DayPlan[]): Promise<ShoppingSec
 
   // Category keywords
   const categoryKeywords: Record<string, string[]> = {
-    Produce: ['tomato', 'onion', 'garlic', 'spinach', 'lettuce', 'broccoli', 'pepper', 'avocado', 'lemon', 'carrot', 'cucumber'],
-    Proteins: ['chicken', 'beef', 'salmon', 'tuna', 'turkey', 'egg', 'pork', 'shrimp', 'fish'],
+    Produce: [
+      'tomato',
+      'onion',
+      'garlic',
+      'spinach',
+      'lettuce',
+      'broccoli',
+      'pepper',
+      'avocado',
+      'lemon',
+      'carrot',
+      'cucumber',
+    ],
+    Proteins: [
+      'chicken',
+      'beef',
+      'salmon',
+      'tuna',
+      'turkey',
+      'egg',
+      'pork',
+      'shrimp',
+      'fish',
+    ],
     Dairy: ['yogurt', 'cheese', 'milk', 'butter', 'cream'],
-    Pantry: ['rice', 'pasta', 'lentil', 'bean', 'oil', 'flour', 'sugar', 'spice', 'sauce'],
+    Pantry: [
+      'rice',
+      'pasta',
+      'lentil',
+      'bean',
+      'oil',
+      'flour',
+      'sugar',
+      'spice',
+      'sauce',
+    ],
     Frozen: ['frozen', 'ice', 'berries'],
   }
 
   // Try to get prices from USDA for common items
-  const commonIngredients = ['chicken breast', 'eggs', 'milk', 'rice', 'olive oil', 'onion', 'garlic', 'tomatoes']
+  const commonIngredients = [
+    'chicken breast',
+    'eggs',
+    'milk',
+    'rice',
+    'olive oil',
+    'onion',
+    'garlic',
+    'tomatoes',
+  ]
 
   for (const ingredient of commonIngredients) {
     try {
@@ -606,15 +671,30 @@ function generateShoppingListFallback(): ShoppingSection[] {
         { name: 'Spinach', quantity: 1, unit: 'bag', estimated_cost: 3.5 },
         { name: 'Avocados', quantity: 4, unit: 'pieces', estimated_cost: 6.0 },
         { name: 'Tomatoes', quantity: 6, unit: 'pieces', estimated_cost: 4.5 },
-        { name: 'Bell Peppers', quantity: 3, unit: 'pieces', estimated_cost: 4.5 },
+        {
+          name: 'Bell Peppers',
+          quantity: 3,
+          unit: 'pieces',
+          estimated_cost: 4.5,
+        },
         { name: 'Lemons', quantity: 3, unit: 'pieces', estimated_cost: 2.0 },
       ],
     },
     {
       section: 'Proteins',
       items: [
-        { name: 'Chicken Breast', quantity: 2, unit: 'lbs', estimated_cost: 12.0 },
-        { name: 'Salmon Fillet', quantity: 1, unit: 'lb', estimated_cost: 14.0 },
+        {
+          name: 'Chicken Breast',
+          quantity: 2,
+          unit: 'lbs',
+          estimated_cost: 12.0,
+        },
+        {
+          name: 'Salmon Fillet',
+          quantity: 1,
+          unit: 'lb',
+          estimated_cost: 14.0,
+        },
         { name: 'Ground Turkey', quantity: 1, unit: 'lb', estimated_cost: 8.0 },
         { name: 'Eggs', quantity: 12, unit: 'pieces', estimated_cost: 5.0 },
       ],
@@ -634,14 +714,29 @@ function generateShoppingListFallback(): ShoppingSection[] {
         { name: 'Lentils', quantity: 1, unit: 'lb', estimated_cost: 3.0 },
         { name: 'Olive Oil', quantity: 1, unit: 'bottle', estimated_cost: 8.0 },
         { name: 'Pasta', quantity: 1, unit: 'lb', estimated_cost: 2.5 },
-        { name: 'Canned Tomatoes', quantity: 2, unit: 'cans', estimated_cost: 4.0 },
+        {
+          name: 'Canned Tomatoes',
+          quantity: 2,
+          unit: 'cans',
+          estimated_cost: 4.0,
+        },
       ],
     },
     {
       section: 'Frozen',
       items: [
-        { name: 'Mixed Berries', quantity: 1, unit: 'bag', estimated_cost: 5.0 },
-        { name: 'Frozen Vegetables', quantity: 2, unit: 'bags', estimated_cost: 6.0 },
+        {
+          name: 'Mixed Berries',
+          quantity: 1,
+          unit: 'bag',
+          estimated_cost: 5.0,
+        },
+        {
+          name: 'Frozen Vegetables',
+          quantity: 2,
+          unit: 'bags',
+          estimated_cost: 6.0,
+        },
       ],
     },
   ]
@@ -819,14 +914,17 @@ async function handleGetRecipeDetails(
     try {
       const spoonacularRecipe = await getRecipeById(Number(foundMeal.source_id))
       if (spoonacularRecipe) {
-        ingredients = (spoonacularRecipe.extendedIngredients || []).map((ing) => ({
-          name: ing.name,
-          amount: `${ing.amount} ${ing.unit}`,
-        }))
+        ingredients = (spoonacularRecipe.extendedIngredients || []).map(
+          (ing) => ({
+            name: ing.name,
+            amount: `${ing.amount} ${ing.unit}`,
+          }),
+        )
 
-        instructions = spoonacularRecipe.analyzedInstructions?.[0]?.steps.map(
-          (step) => step.step,
-        ) || []
+        instructions =
+          spoonacularRecipe.analyzedInstructions?.[0]?.steps.map(
+            (step) => step.step,
+          ) || []
       }
     } catch (e) {
       console.log('Failed to fetch Spoonacular recipe details')
@@ -837,7 +935,9 @@ async function handleGetRecipeDetails(
   if (foundMeal.source === 'mealdb' && foundMeal.source_id) {
     try {
       const mealDBRecipes = await searchMealDB(foundMeal.title)
-      const recipe = mealDBRecipes.find((r) => r.idMeal === foundMeal!.source_id) || mealDBRecipes[0]
+      const recipe =
+        mealDBRecipes.find((r) => r.idMeal === foundMeal.source_id) ||
+        mealDBRecipes[0]
       if (recipe) {
         ingredients = extractMealDBIngredients(recipe).map((ing) => ({
           name: ing.name,
@@ -886,8 +986,16 @@ async function handleGetRecipeDetails(
     ingredients,
     instructions,
     substitutions: [
-      { original: 'Olive oil', alternative: 'Avocado oil', notes: 'Same amount' },
-      { original: 'Fresh herbs', alternative: 'Dried herbs', notes: 'Use 1/3 the amount' },
+      {
+        original: 'Olive oil',
+        alternative: 'Avocado oil',
+        notes: 'Same amount',
+      },
+      {
+        original: 'Fresh herbs',
+        alternative: 'Dried herbs',
+        notes: 'Use 1/3 the amount',
+      },
     ],
     image_url: foundMeal.image_url,
     source: foundMeal.source,
@@ -935,7 +1043,7 @@ async function handleSwapMeal(
 
   // Get candidates from API cache or fetch new ones
   const queries = MEAL_TYPE_QUERIES[mealType]
-  let candidateMeals: Meal[] = []
+  const candidateMeals: Meal[] = []
 
   // Try to get from cache first
   for (const query of queries) {
@@ -944,11 +1052,15 @@ async function handleSwapMeal(
       // Convert cached recipes to meals
       for (const recipe of cached) {
         if (recipe.strMeal !== foundMeal.title && candidateMeals.length < 4) {
-          candidateMeals.push(mealDBToMeal(recipe, mealType, foundMeal.servings))
+          candidateMeals.push(
+            mealDBToMeal(recipe, mealType, foundMeal.servings),
+          )
         }
       }
     }
-    if (candidateMeals.length >= 4) break
+    if (candidateMeals.length >= 4) {
+      break
+    }
   }
 
   // If not enough from cache, fetch from API
@@ -958,7 +1070,9 @@ async function handleSwapMeal(
       const recipes = await searchMealDB(query)
       for (const recipe of recipes) {
         if (recipe.strMeal !== foundMeal.title && candidateMeals.length < 4) {
-          candidateMeals.push(mealDBToMeal(recipe, mealType, foundMeal.servings))
+          candidateMeals.push(
+            mealDBToMeal(recipe, mealType, foundMeal.servings),
+          )
         }
       }
     } catch (e) {

@@ -94,6 +94,13 @@ export interface OpenFoodFactsProduct {
   image_url?: string
 }
 
+/** DOM lib types response.json() as any; isolate unsafe parse here */
+async function readResponseJson<T>(response: Response): Promise<T> {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- Fetch JSON is any in lib.dom
+  const body = await response.json()
+  return body as T
+}
+
 /*
  * =============================================================================
  * SPOONACULAR API CLIENT (Free tier: 150 requests/day)
@@ -143,8 +150,10 @@ export async function searchRecipes(params: {
       console.error('Spoonacular API error:', response.status)
       return []
     }
-    const data = await response.json()
-    return data.results || []
+    const data = await readResponseJson<{ results?: SpoonacularRecipe[] }>(
+      response,
+    )
+    return data.results ?? []
   } catch (error) {
     console.error('Spoonacular API error:', error)
     return []
@@ -166,7 +175,7 @@ export async function getRecipeById(
     if (!response.ok) {
       return null
     }
-    return await response.json()
+    return await readResponseJson<SpoonacularRecipe>(response)
   } catch (error) {
     console.error('Spoonacular API error:', error)
     return null
@@ -201,8 +210,13 @@ export async function generateMealPlan(params: {
     if (!response.ok) {
       return null
     }
-    const data = await response.json()
-    return params.timeFrame === 'week' ? data.week : [data]
+    const data = await readResponseJson<{
+      week?: SpoonacularMealPlanDay[]
+    }>(response)
+    if (params.timeFrame === 'week') {
+      return data.week ?? null
+    }
+    return [data as unknown as SpoonacularMealPlanDay]
   } catch (error) {
     console.error('Spoonacular API error:', error)
     return null
@@ -231,8 +245,10 @@ export async function getRandomRecipes(params: {
     if (!response.ok) {
       return []
     }
-    const data = await response.json()
-    return data.recipes || []
+    const data = await readResponseJson<{ recipes?: SpoonacularRecipe[] }>(
+      response,
+    )
+    return data.recipes ?? []
   } catch (error) {
     console.error('Spoonacular API error:', error)
     return []
@@ -283,8 +299,8 @@ export async function searchUSDAFoods(params: {
     if (!response.ok) {
       return []
     }
-    const data = await response.json()
-    return data.foods || []
+    const data = await readResponseJson<{ foods?: USDAFood[] }>(response)
+    return data.foods ?? []
   } catch (error) {
     console.error('USDA API error:', error)
     return []
@@ -301,7 +317,7 @@ export async function getUSDAFoodById(fdcId: number): Promise<USDAFood | null> {
     if (!response.ok) {
       return null
     }
-    return await response.json()
+    return readResponseJson<USDAFood>(response)
   } catch (error) {
     console.error('USDA API error:', error)
     return null
@@ -371,8 +387,10 @@ export async function searchOpenFoodFacts(params: {
     if (!response.ok) {
       return []
     }
-    const data = await response.json()
-    return data.products || []
+    const data = await readResponseJson<{ products?: OpenFoodFactsProduct[] }>(
+      response,
+    )
+    return data.products ?? []
   } catch (error) {
     console.error('Open Food Facts API error:', error)
     return []
@@ -394,8 +412,11 @@ export async function getOpenFoodFactsProduct(
     if (!response.ok) {
       return null
     }
-    const data = await response.json()
-    return data.status === 1 ? data.product : null
+    const data = await readResponseJson<{
+      status?: number
+      product?: OpenFoodFactsProduct
+    }>(response)
+    return data.status === 1 ? data.product ?? null : null
   } catch (error) {
     console.error('Open Food Facts API error:', error)
     return null
@@ -417,6 +438,20 @@ const mealDBCache = new Map<
   { data: MealDBRecipe[]; timestamp: number }
 >()
 const CACHE_TTL = 1000 * 60 * 30 // 30 minutes
+
+interface MealDBListResponse {
+  meals: MealDBRecipe[] | null
+}
+
+interface MealDBCategoryRow {
+  idMeal: string
+  strMeal: string
+  strMealThumb: string
+}
+
+interface MealDBCategoriesResponse {
+  categories?: { strCategory: string }[]
+}
 
 export interface MealDBRecipe {
   idMeal: string
@@ -463,8 +498,8 @@ export async function searchMealDB(query: string): Promise<MealDBRecipe[]> {
     if (!response.ok) {
       return []
     }
-    const data = await response.json()
-    const meals = data.meals || []
+    const data = await readResponseJson<MealDBListResponse>(response)
+    const meals = data.meals ?? []
     mealDBCache.set(cacheKey, { data: meals, timestamp: Date.now() })
     return meals
   } catch (error) {
@@ -479,8 +514,8 @@ export async function getRandomMealDB(): Promise<MealDBRecipe | null> {
     if (!response.ok) {
       return null
     }
-    const data = await response.json()
-    return data.meals?.[0] || null
+    const data = await readResponseJson<MealDBListResponse>(response)
+    return data.meals?.[0] ?? null
   } catch (error) {
     console.error('MealDB API error:', error)
     return null
@@ -493,8 +528,8 @@ export async function getMealDBById(id: string): Promise<MealDBRecipe | null> {
     if (!response.ok) {
       return null
     }
-    const data = await response.json()
-    return data.meals?.[0] || null
+    const data = await readResponseJson<MealDBListResponse>(response)
+    return data.meals?.[0] ?? null
   } catch (error) {
     console.error('MealDB API error:', error)
     return null
@@ -521,8 +556,10 @@ export async function getMealDBByCategory(
     if (!response.ok) {
       return []
     }
-    const data = await response.json()
-    const basicMeals = data.meals || []
+    const data = await readResponseJson<{ meals: MealDBCategoryRow[] | null }>(
+      response,
+    )
+    const basicMeals = data.meals ?? []
 
     if (basicMeals.length === 0) {
       return []
@@ -534,16 +571,14 @@ export async function getMealDBByCategory(
 
     const meals = fullMeal ? [fullMeal] : []
     mealDBCache.set(cacheKey, {
-      data: basicMeals.map(
-        (m: { idMeal: string; strMeal: string; strMealThumb: string }) => ({
-          ...m,
-          strCategory: category,
-          strArea: '',
-          strInstructions: '',
-          strTags: null,
-          strYoutube: '',
-        }),
-      ) as MealDBRecipe[],
+      data: basicMeals.map((m) => ({
+        ...m,
+        strCategory: category,
+        strArea: '',
+        strInstructions: '',
+        strTags: null,
+        strYoutube: '',
+      })) as MealDBRecipe[],
       timestamp: Date.now(),
     })
 
@@ -560,10 +595,8 @@ export async function getMealDBCategories(): Promise<string[]> {
     if (!response.ok) {
       return []
     }
-    const data = await response.json()
-    return (
-      data.categories?.map((c: { strCategory: string }) => c.strCategory) || []
-    )
+    const data = await readResponseJson<MealDBCategoriesResponse>(response)
+    return data.categories?.map((c) => c.strCategory) ?? []
   } catch (error) {
     console.error('MealDB API error:', error)
     return []
