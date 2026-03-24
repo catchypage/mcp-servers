@@ -1,5 +1,11 @@
 # MCP Hub
 
+## Виджет в ChatGPT (`openai/outputTemplate`)
+
+Ответ **`tools/call`** для публичных тулов должен содержать **`_meta['openai/outputTemplate']`** = полный HTTPS URL ресурса виджета (`…/api/mcp/<appId>/widget`). Хост подгружает HTML через **`resources/read`**; mime **`text/html+skybridge`** (как в authorization-app). Встроенный HTML в **`_meta.ui.widget`** для коннектора не используем. Внутренние тулы (`get_user_info`, …) — без `outputTemplate`, чтобы не перезапускать iframe.
+
+---
+
 ## Lang Coach (`langcoach`)
 
 Тестовый/базовый апп для тренировок английского: один публичный тул `open_lang_coach`, виджет-заглушка, `get_user_info` для аккаунта. **Коннектор:** `https://<домен>/api/mcp/langcoach`.

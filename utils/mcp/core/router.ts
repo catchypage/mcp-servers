@@ -126,35 +126,43 @@ export async function handleMcpRequest(
       try {
         const result = await handler(app, args ?? {}, authResult.user!.id)
         const baseUrl = getBaseUrlFromRequest(req)
-        const widgetHtml = getWidgetHtml(app, baseUrl, result)
+        /*
+         * ChatGPT loads the iframe from resources/read using this HTTPS URI
+         * (same pattern as authorization-app: openai/outputTemplate, not
+         * inline ui.widget HTML).
+         */
+        const widgetResourceUri = `${baseUrl}/api/mcp/${app.id}/widget`
+        const internalToolNames = new Set(
+          (app.internalTools ?? []).map((t) => t.name),
+        )
+        const isInternalOnlyCall = internalToolNames.has(name)
+
+        const toolResultBody: {
+          content: { type: string; text: string }[]
+          structuredContent: Record<string, unknown>
+          _meta?: Record<string, string>
+        } = {
+          content: [
+            {
+              type: 'text',
+              text: (result.message as string) ?? 'OK',
+            },
+          ],
+          structuredContent: result,
+        }
+
+        if (!isInternalOnlyCall) {
+          toolResultBody._meta = {
+            'openai/outputTemplate': widgetResourceUri,
+            'openai/toolInvocation/invoking': `Opening ${app.name}…`,
+            'openai/toolInvocation/invoked': 'Ready',
+          }
+        }
 
         return NextResponse.json(
           {
             ...response,
-            result: {
-              content: [
-                {
-                  type: 'text',
-                  text: (result.message as string) ?? 'OK',
-                },
-              ],
-              structuredContent: result,
-              _meta: {
-                ui: {
-                  widget: {
-                    mimeType: 'text/html;profile=mcp-app',
-                    content: widgetHtml,
-                    _meta: {
-                      'openai/widgetDomain': baseUrl,
-                      'openai/widgetCSP': {
-                        connect_domains: [baseUrl],
-                        resource_domains: [baseUrl],
-                      },
-                    },
-                  },
-                },
-              },
-            },
+            result: toolResultBody,
           },
           { headers: { 'Content-Type': 'application/json', ...corsHeaders } },
         )
@@ -188,7 +196,7 @@ export async function handleMcpRequest(
           uri: `${baseUrl}${resourceUrl}/widget`,
           name: `${app.name} Widget`,
           description: app.description ?? '',
-          mimeType: 'text/html;profile=mcp-app',
+          mimeType: 'text/html+skybridge',
         })
       }
       return NextResponse.json(
@@ -220,7 +228,7 @@ export async function handleMcpRequest(
             contents: [
               {
                 uri: uri ?? expectedUri,
-                mimeType: 'text/html;profile=mcp-app',
+                mimeType: 'text/html+skybridge',
                 text: widgetHtml,
                 _meta: {
                   'openai/widgetDomain': baseUrl,
