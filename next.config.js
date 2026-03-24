@@ -1,5 +1,4 @@
 /** @type {import('next').NextConfig} */
-/** @type {import('next').NextConfig} */
 const nextConfig = {
 	reactStrictMode: true,
 	typescript: {
@@ -48,6 +47,27 @@ const nextConfig = {
 	},
 	async headers() {
 		return [
+			/*
+			 * ChatGPT widget iframe origin (*.web-sandbox.oaiusercontent.com) loads
+			 * ES modules and CSS from /mcp/* (public/). Without CORS, the browser
+			 * blocks script execution (see Blocks diagram-app widget routes).
+			 */
+			{
+				// Match drafty-pro next.config: CORS for Apps SDK iframe + cache static bundles
+				source: '/mcp/:path*',
+				headers: [
+					{ key: 'Access-Control-Allow-Origin', value: '*' },
+					{ key: 'Access-Control-Allow-Methods', value: 'GET, OPTIONS' },
+					{
+						key: 'Access-Control-Allow-Headers',
+						value: 'Content-Type, Authorization',
+					},
+					{
+						key: 'Cache-Control',
+						value: 'public, max-age=31536000, immutable',
+					},
+				],
+			},
 			{
 				source: '/api/send-mail',
 				headers: [
