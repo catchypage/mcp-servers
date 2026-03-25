@@ -17,7 +17,7 @@ export function langcoachWidgetHTML(baseUrl: string): string {
     html, body { margin: 0; padding: 0; width: 100%; min-height: 100vh; }
     * { box-sizing: border-box; }
     body { font-family: system-ui, sans-serif; background: #0f1419; color: #e7e9ea; }
-    #langcoach-widget-root { min-height: 100vh; padding: 1rem; }
+    #langcoach-widget-root { min-height: 100vh; }
   </style>
 </head>
 <body>
