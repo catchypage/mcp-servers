@@ -1,4 +1,4 @@
-import { SITE_NAME } from '@/utils/constants'
+import { useBrand } from '@/utils/use-brand'
 import AuthButtons from './AuthButtons'
 import { signIn } from 'next-auth/react'
 
@@ -11,6 +11,7 @@ const Consent = ({
   scope: string
   state: string
 }) => {
+  const brand = useBrand()
   const singInWithProvider = (provider: string) => {
     const queryParams = new URLSearchParams({
       scope,
@@ -51,7 +52,7 @@ const Consent = ({
               className="text-2xl font-bold"
               style={{ color: 'var(--accent-gold)' }}
             >
-              {SITE_NAME}
+              {brand.name}
             </span>
           </h1>
           <AuthButtons singInWithProvider={singInWithProvider} />

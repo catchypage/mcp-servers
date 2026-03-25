@@ -2,9 +2,10 @@
 
 import Link from 'next/link'
 import { Heart, Star, Calendar } from 'lucide-react'
-import { SITE_NAME } from '@/utils/constants'
+import { useBrand } from '@/utils/use-brand'
 
 const Footer = () => {
+  const brand = useBrand()
   const currentYear = new Date().getFullYear()
 
   return (
@@ -15,7 +16,7 @@ const Footer = () => {
           <div className="space-y-4">
             <div className="flex items-center space-x-2">
               <Star className="w-6 h-6 text-purple-400" />
-              <h3 className="text-lg font-bold text-white">{SITE_NAME}</h3>
+              <h3 className="text-lg font-bold text-white">{brand.name}</h3>
             </div>
             <p className="text-sm text-gray-300">
               Your daily cosmic guidance and astrological insights
@@ -129,7 +130,7 @@ const Footer = () => {
               <span>for cosmic explorers</span>
             </div>
             <div className="text-sm text-gray-400">
-              © {currentYear} {SITE_NAME}. All rights reserved.
+              © {currentYear} {brand.name}. All rights reserved.
             </div>
           </div>
         </div>

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { usePathname } from 'next/navigation'
 import { signIn } from 'next-auth/react'
 import AuthButtons from './AuthButtons'
-import { SITE_NAME } from '@/utils/constants'
+import { useBrand } from '@/utils/use-brand'
 
 interface SignModalProps {
   register?: boolean
@@ -27,6 +27,7 @@ const SignModal = ({
   },
 }: SignModalProps) => {
   const pathName = usePathname()
+  const brand = useBrand()
 
   const [redirectUrl, setRedirectUrl] = useState('')
   const [isGptFlow, setIsGptFlow] = useState(false)
@@ -144,7 +145,7 @@ const SignModal = ({
         <h1 className="text-[var(--text-primary)] text-center text-xl font-playfair">
           {isSignUp ? 'Sign Up' : 'Sign In'} to{' '}
           <span className="text-2xl font-bold text-[var(--accent-gold)]">
-            {SITE_NAME}
+            {brand.name}
           </span>
         </h1>
         <AuthButtons singInWithProvider={singInWithProvider} />

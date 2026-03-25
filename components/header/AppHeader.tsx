@@ -6,7 +6,7 @@ import { motion } from 'framer-motion'
 import { useSession } from 'next-auth/react'
 import ThemeToggle from '@/components/theme/ThemeToggle'
 import Auth from '@/components/auth/Auth'
-import { SITE_NAME } from '@/utils/constants'
+import { useBrand } from '@/utils/use-brand'
 import LoadingDots from '@/components/ui/LoadingDots'
 
 const navLinks = [
@@ -16,6 +16,7 @@ const navLinks = [
 
 export default function AppHeader() {
   const { data: session, status } = useSession()
+  const brand = useBrand()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
 
@@ -41,7 +42,7 @@ export default function AppHeader() {
             className="flex items-center company-text-primary hover:opacity-80 transition-opacity"
           >
             <span className="text-xl font-bold tracking-tight">
-              {SITE_NAME}
+              {brand.name}
             </span>
           </Link>
 

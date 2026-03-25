@@ -2,9 +2,10 @@
 
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { SITE_NAME } from '@/utils/constants'
+import { useBrand } from '@/utils/use-brand'
 
 export default function AppFooter() {
+  const brand = useBrand()
   const year = new Date().getFullYear()
 
   const footerLinks = {
@@ -28,20 +29,19 @@ export default function AppFooter() {
             >
               <Link href="/" className="flex items-center space-x-2 mb-4">
                 <span className="text-xl font-bold company-text-primary">
-                  {SITE_NAME}
+                  {brand.name}
                 </span>
               </Link>
               <p className="company-text-secondary mb-4 max-w-md">
-                Engineering Digital Leverage. We build AI-native solutions that
-                push the boundaries of what's possible.
+                {brand.description}
               </p>
               <p className="company-text-tertiary text-sm">
                 Contact:{' '}
                 <a
-                  href="mailto:support@pyxl.pro"
+                  href={`mailto:${brand.supportEmail}`}
                   className="hover:company-text-primary transition-colors"
                 >
-                  support@pyxl.pro
+                  {brand.supportEmail}
                 </a>
               </p>
             </motion.div>
@@ -106,7 +106,7 @@ export default function AppFooter() {
           viewport={{ once: true }}
         >
           <p className="company-text-tertiary text-sm mb-4 md:mb-0">
-            © {year} {SITE_NAME}. All rights reserved.
+            © {year} {brand.name}. All rights reserved.
           </p>
         </motion.div>
       </div>

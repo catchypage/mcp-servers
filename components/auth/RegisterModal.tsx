@@ -3,7 +3,7 @@
 import { signIn } from 'next-auth/react'
 import { useState } from 'react'
 import { Modal } from '@/components/hooks/UI/Modal'
-import { SITE_NAME } from '@/utils/constants'
+import { useBrand } from '@/utils/use-brand'
 
 interface RegisterModalProps {
   isOpen: boolean
@@ -12,6 +12,7 @@ interface RegisterModalProps {
 }
 
 export default function RegisterModal({ isOpen, onClose }: RegisterModalProps) {
+  const brand = useBrand()
   const [isLoading, setIsLoading] = useState(false)
   const [isSignUp, setIsSignUp] = useState(true)
   const [email, setEmail] = useState('')
@@ -97,7 +98,7 @@ export default function RegisterModal({ isOpen, onClose }: RegisterModalProps) {
         <div className="text-center">
           <h3 className="text-2xl font-bold text-[var(--text-primary)] mb-2 font-playfair">
             {isSignUp ? 'Join' : 'Sign In to'}{' '}
-            <span className="text-[var(--accent-gold)]">{SITE_NAME}</span>
+            <span className="text-[var(--accent-gold)]">{brand.name}</span>
           </h3>
           <p className="text-[var(--text-secondary)] font-cinzel">
             {isSignUp

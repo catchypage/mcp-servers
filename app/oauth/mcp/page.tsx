@@ -4,11 +4,12 @@ import { useSearchParams } from 'next/navigation'
 import { signIn, useSession } from 'next-auth/react'
 import { useEffect, useState } from 'react'
 import { Suspense } from 'react'
-import { SITE_NAME } from '@/utils/constants'
+import { useBrand } from '@/utils/use-brand'
 
 function McpOAuthContent() {
   const searchParams = useSearchParams()
   const { data: session, status } = useSession()
+  const brand = useBrand()
   const [isLoading, setIsLoading] = useState(false)
   const [isCredentialsLoading, setIsCredentialsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -208,7 +209,7 @@ function McpOAuthContent() {
             className="text-2xl font-bold mb-2"
             style={{ color: 'var(--text-primary)' }}
           >
-            Connect to {SITE_NAME}
+            Connect to {brand.name}
           </h1>
           <p style={{ color: 'var(--text-secondary)' }}>
             {isRegister ? 'Create an account' : 'Sign in'} to connect your

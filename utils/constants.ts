@@ -1,6 +1,3 @@
-// Site constants
-export const SITE_NAME = 'Pyxl'
-
 export const SITE_DOMAIN =
   process.env.NEXT_PUBLIC_SITE_URL ?? 'https://pyxl.pro'
 
