@@ -113,23 +113,57 @@ Add extra origins here if the widget loads scripts, fonts, or APIs from other ho
 
 ## 3. Lang Coach (`langcoach`)
 
-**URL pattern:** `https://<origin>/api/mcp/langcoach`
+**URL pattern:** `https://justmatch.us/api/mcp/langcoach`
 
 ### open_lang_coach
 
-**Read Only:** No — Entry tool that loads the practice widget and returns session context (e.g. topic), same class as `open_diagram_app`.
+**Read Only:** No — Entry tool that loads the practice widget and returns session context (e.g. topic).
 
 **Open World:** Yes — Optional topic and user-specific session.
 
 **Destructive:** No.
 
+**Idempotent:** No — Each call may initialize a fresh session.
+
 ### get_user_info (internal, `openai/hidden`)
 
-**Read Only:** Yes — Profile read for the widget.
+**Read Only:** Yes — Reads user profile + `langcoach_profiles` record (placement level, theme, locale) for widget personalization.
 
 **Open World:** Yes — User-specific account data.
 
 **Destructive:** No.
+
+**Idempotent:** Yes — Pure read, no side-effects.
+
+### start_placement_test (internal, `openai/hidden`)
+
+**Read Only:** Yes — Returns shuffled placement test questions (without answers) for the widget to render. No state mutation on the server.
+
+**Open World:** No — Fixed question bank, no external data.
+
+**Destructive:** No.
+
+**Idempotent:** Yes — Returns a fresh set of shuffled questions each time, but no server state is modified.
+
+### submit_placement_test (internal, `openai/hidden`)
+
+**Read Only:** No — Scores the placement test answers and persists the result (CEFR level, weighted score, percentage, date) to `langcoach_profiles`.
+
+**Open World:** No — Input is constrained to question IDs and option indices from the test.
+
+**Destructive:** No — Overwrites the previous placement result (upsert), but does not delete any data.
+
+**Idempotent:** No — Each submission updates the profile with the latest result.
+
+### update_langcoach_profile (internal, `openai/hidden`)
+
+**Read Only:** No — Updates user preferences (theme: dark/light, UI locale) in `langcoach_profiles`.
+
+**Open World:** No — Input is constrained to theme and locale values.
+
+**Destructive:** No — Preference update only.
+
+**Idempotent:** Yes — Setting theme to "dark" twice yields the same result.
 
 ---
 
@@ -141,7 +175,12 @@ Add extra origins here if the widget loads scripts, fonts, or APIs from other ho
 | chefplan  | generate_weekly_plan, get_recipe_details, swap_meal, update_plan_constraints, build_shopping_list, create_order_link | get_recipe_details, build_shopping_list, create_order_link | generate_weekly_plan, swap_meal, update_plan_constraints | —                  |
 | langcoach | open_lang_coach                                                              | —                                                     | open_lang_coach                                   | —                  |
 
-Internal tools (`get_user_info` where marked hidden) are read-only and non-destructive in all apps.
+Internal tools (marked `openai/hidden`, widget-only):
+
+| App       | Internal tools                                                            | Read-only                          | Write                                          |
+| --------- | ------------------------------------------------------------------------- | ---------------------------------- | ---------------------------------------------- |
+| all       | get_user_info                                                             | get_user_info                      | —                                              |
+| langcoach | start_placement_test, submit_placement_test, update_langcoach_profile     | start_placement_test               | submit_placement_test, update_langcoach_profile |
 
 ---
 
