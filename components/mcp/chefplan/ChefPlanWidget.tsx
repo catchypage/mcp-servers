@@ -12,32 +12,7 @@ import InlineWidget from './InlineWidget'
 import FullscreenWidget from './FullscreenWidget'
 import SwapWidget from './SwapWidget'
 
-interface OpenAIBridge {
-  callTool: (
-    toolName: string,
-    args: Record<string, unknown>,
-  ) => Promise<{
-    structuredContent?: Record<string, unknown>
-    [key: string]: unknown
-  }>
-  updateModelContext?: (context: Record<string, unknown>) => void
-  // Method to get the initial tool result that triggered the widget
-  getToolResult?: () => Promise<{
-    structuredContent?: Record<string, unknown>
-    [key: string]: unknown
-  }>
-  // Some versions expose toolResult directly
-  toolResult?: {
-    structuredContent?: Record<string, unknown>
-    [key: string]: unknown
-  }
-}
-
-declare global {
-  interface Window {
-    openai?: OpenAIBridge
-  }
-}
+import '../openai-types'
 
 export default function ChefPlanWidget() {
   const [mode, setMode] = useState<WidgetMode>('inline')

@@ -1012,6 +1012,49 @@ export interface Database {
         }>
         Relationships: []
       }
+      langcoach_profiles: {
+        Row: {
+          user_id: string
+          placement_level: string | null
+          placement_score: number | null
+          placement_pct: number | null
+          placement_date: string | null
+          ui_locale: string
+          theme: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          user_id: string
+          placement_level?: string | null
+          placement_score?: number | null
+          placement_pct?: number | null
+          placement_date?: string | null
+          ui_locale?: string
+          theme?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          user_id?: string
+          placement_level?: string | null
+          placement_score?: number | null
+          placement_pct?: number | null
+          placement_date?: string | null
+          ui_locale?: string
+          theme?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'langcoach_profiles_user_id_fkey'
+            columns: ['user_id']
+            referencedRelation: 'users'
+            referencedColumns: ['id']
+          },
+        ]
+      }
     }
     Views: {
       v_gpt_callback: {
