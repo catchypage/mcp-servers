@@ -14,12 +14,16 @@ export default function AppFooter() {
       { name: 'Account', href: '/account' },
     ],
     product: [{ name: 'Get Started', href: '/account' }],
+    legal: [
+      { name: 'Privacy Policy', href: '/policy' },
+      { name: 'Terms of Service', href: '/terms' },
+    ],
   }
 
   return (
     <footer className="company-bg-secondary border-t company-border-primary">
       <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
           <div className="col-span-1 md:col-span-2">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -84,6 +88,29 @@ export default function AppFooter() {
               </h3>
               <ul className="space-y-2">
                 {footerLinks.product.map((link) => (
+                  <li key={link.name}>
+                    <Link
+                      href={link.href}
+                      className="company-text-secondary hover:company-text-primary transition-colors text-sm"
+                    >
+                      {link.name}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </motion.div>
+          </div>
+
+          <div className="col-span-1">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.25 }}
+              viewport={{ once: true }}
+            >
+              <h3 className="font-semibold company-text-primary mb-4">Legal</h3>
+              <ul className="space-y-2">
+                {footerLinks.legal.map((link) => (
                   <li key={link.name}>
                     <Link
                       href={link.href}

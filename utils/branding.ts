@@ -1,9 +1,13 @@
+export type LegalProductLine = 'langcoach' | 'platform'
+
 export interface BrandConfig {
   name: string
   shortName: string
   description: string
   supportEmail: string
   tagline: string
+  /** Drives legal copy: Lang Coach (ChatGPT MCP) vs general Pyxl site */
+  legalProductLine: LegalProductLine
 }
 
 const DOMAIN_BRANDS: Record<string, BrandConfig> = {
@@ -12,16 +16,18 @@ const DOMAIN_BRANDS: Record<string, BrandConfig> = {
     shortName: 'LC',
     description:
       'AI-powered language learning. Placement tests, daily practice, and personalized coaching.',
-    supportEmail: 'support@justmatch.us',
+    supportEmail: 'gptprosite@gmail.com',
     tagline: 'Master any language with AI',
+    legalProductLine: 'langcoach',
   },
   'pyxl.pro': {
     name: 'Pyxl',
     shortName: 'PX',
     description:
       "Engineering Digital Leverage. We build AI-native solutions that push the boundaries of what's possible.",
-    supportEmail: 'support@pyxl.pro',
+    supportEmail: 'gptprosite@gmail.com',
     tagline: 'AI-native digital studio',
+    legalProductLine: 'platform',
   },
 }
 
