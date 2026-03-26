@@ -1,6 +1,9 @@
 Lang Coach — текст для каталога ChatGPT / формы заявки
 Редактируй значения под каждым заголовком; копируй блоками.
 
+Обоснования аннотаций инструментов (Tool justification) + CSP — отдельный файл:
+docs/langcoach/TOOL_JUSTIFICATIONS.txt
+
 ================================================================================
 App Name
 ================================================================================
@@ -24,6 +27,29 @@ LangCoach helps you check your English level with a placement test and see your 
 Short pitch — одно предложение (опционально)
 ================================================================================
 LangCoach: placement test for English, level saved to your profile, built for ChatGPT.
+
+================================================================================
+Example user message (preview) — required
+================================================================================
+(Shown separately in the store/preview UI. Do not put this text inside the screenshot or demo image.)
+
+Enter a user prompt
+Open Lang Coach so I can practice English.
+
+(Alternative, shorter: Launch Lang Coach.)
+
+================================================================================
+Release Notes — required (may appear on app details page)
+================================================================================
+(Public text. Describe what this version of the app actually does today; update each release.)
+
+Bug fixes and other improvements.
+- Open Lang Coach from chat to load the inline widget after sign-in. The connector can include an optional focus topic (e.g. grammar); it is reflected in the assistant-visible message.
+- Take an English placement test in the widget: multiple-choice questions, scored to a CEFR level (A1–C1) with a score breakdown by area.
+- Your latest level and score are saved to your Lang Coach profile; you can retake the test from the home screen.
+- Home screen shows your current band or invites you to start the test; header shows your avatar and a link to your account on the website.
+- Choose light or dark theme and a supported UI language; settings persist on your profile.
+- Daily practice, streaks, and vocabulary builder appear as “coming soon” and are not available in this release.
 
 ================================================================================
 Support email (если форма просит)
@@ -53,6 +79,8 @@ Developer / company name (если просят)
 Видео (ссылка):
 https://youtu.be/nEPFtKfuOXM
 
-Тестовый аккаунт для ревью OpenAI (логин/пароль) — см. docs/OPENAI_APP_REVIEW_TEST_ACCOUNT.txt
+Тестовый аккаунт для ревью OpenAI (логин/пароль) — см. docs/langcoach/OPENAI_REVIEW_TEST_ACCOUNT.txt
 
 Верификация домена OpenAI Apps: GET /.well-known/openai-apps-challenge (реализовано в app/.well-known/openai-apps-challenge/route.ts)
+
+Release Notes при каждом релизе в сторе — обновляй блок выше (публичный текст).

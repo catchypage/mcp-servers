@@ -113,6 +113,8 @@ Add extra origins here if the widget loads scripts, fonts, or APIs from other ho
 
 ## 3. Lang Coach (`langcoach`)
 
+**Full form text (line-by-line copy):** `docs/langcoach/TOOL_JUSTIFICATIONS.txt`
+
 **URL pattern:** `https://justmatch.us/api/mcp/langcoach`
 
 ### open_lang_coach
@@ -133,7 +135,7 @@ Add extra origins here if the widget loads scripts, fonts, or APIs from other ho
 
 **Destructive:** No.
 
-**Idempotent:** Yes — Pure read, no side-effects.
+**Idempotent:** Yes — Repeatable once a profile row exists; first call may insert a minimal profile row (get-or-create).
 
 ### start_placement_test (internal, `openai/hidden`)
 

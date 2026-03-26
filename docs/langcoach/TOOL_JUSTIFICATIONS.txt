@@ -1,0 +1,91 @@
+LangCoach — Tool justification (OpenAI Apps submission)
+Copy one block per form field. Annotations match utils/mcp/apps/langcoach/tools.ts
+
+================================================================================
+CSP Metadata (widget)
+================================================================================
+connect_domains
+https://justmatch.us
+
+resource_domains
+https://justmatch.us
+
+================================================================================
+open_lang_coach
+================================================================================
+
+Read Only: No
+Describe why Read Only is set to False
+This tool is not a pure read: it is the entry action that opens the Lang Coach interactive widget session and returns structured context (message, optional topic). It initializes the in-chat UI experience rather than only fetching existing data.
+
+Open World: Yes
+Describe why Open World is set to True
+The optional topic and user session context are open-ended and user-specific; the tool is tied to the authenticated user’s workspace in ChatGPT.
+
+Destructive: No
+Describe why Destructive is set to False
+It does not delete accounts, erase stored data, or perform irreversible destructive operations.
+
+================================================================================
+get_user_info
+================================================================================
+
+Read Only: Yes
+Describe why Read Only is set to True
+The handler reads the authenticated user row and langcoach_profiles. If no profile exists yet, it may insert a minimal row (get-or-create) so the widget can load; it does not update placement, preferences, or other mutable fields. The tool’s purpose is to supply read data for the widget.
+
+Open World: Yes
+Describe why Open World is set to True
+The response is user-specific (email, name, avatar, placement level, theme, locale) and varies per account.
+
+Destructive: No
+Describe why Destructive is set to False
+No deletion or destructive updates; profile creation is a minimal upsert for an empty row only so the widget can load.
+
+================================================================================
+start_placement_test
+================================================================================
+
+Read Only: Yes
+Describe why Read Only is set to True
+Returns shuffled placement questions for the client without persisting server state for this call. No user answers are written; no database mutation for the test payload itself.
+
+Open World: No
+Describe why Open World is set to False
+Inputs are bounded (optional locale); output is from a fixed internal question bank. The operation does not target arbitrary external systems or open-ended web content.
+
+Destructive: No
+Describe why Destructive is set to False
+Does not delete or overwrite user data.
+
+================================================================================
+submit_placement_test
+================================================================================
+
+Read Only: No
+Describe why Read Only is set to False
+Scores answers and writes the placement result (level, score, percentage, date) to langcoach_profiles for the user. That is a write to stored user data.
+
+Open World: No
+Describe why Open World is set to False
+Inputs are constrained to question IDs and option indices from the current test; outputs are scoring results. No arbitrary open-web or unbounded external payloads.
+
+Destructive: No
+Describe why Destructive is set to False
+Updates or replaces placement fields on the user’s profile; it does not delete the account or irreversibly remove user records.
+
+================================================================================
+update_langcoach_profile
+================================================================================
+
+Read Only: No
+Describe why Read Only is set to False
+Updates stored preferences (theme, ui_locale) in langcoach_profiles for the authenticated user.
+
+Open World: No
+Describe why Open World is set to False
+Only accepts bounded theme and locale values; no broad external or open-ended inputs.
+
+Destructive: No
+Describe why Destructive is set to False
+Preference updates only; no destructive deletion of user data.

@@ -98,6 +98,10 @@ mcp-servers/
 ├── scripts/
 │   └── build-mcp-clients.cjs
 └── docs/
+    ├── README.md
+    ├── mcp/                 # shared MCP hub docs
+    ├── langcoach/           # Lang Coach app (catalog copy, OpenAI submission text)
+    └── archive/             # legacy / one-off notes (e.g. migrations)
 ```
 
 ---

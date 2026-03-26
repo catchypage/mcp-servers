@@ -10,7 +10,7 @@
 
 Тестовый/базовый апп для тренировок английского: один публичный тул `open_lang_coach`, виджет-заглушка, `get_user_info` для аккаунта. **Коннектор:** `https://<домен>/api/mcp/langcoach`.
 
-Шаблон для новых аппов: **[MCP_NEW_APP_SCAFFOLD.md](./MCP_NEW_APP_SCAFFOLD.md)**.
+Тексты для каталога и ревью OpenAI: **[../langcoach/](../langcoach/)**. Шаблон для новых аппов: **[MCP_NEW_APP_SCAFFOLD.md](./MCP_NEW_APP_SCAFFOLD.md)**.
 
 ---
 

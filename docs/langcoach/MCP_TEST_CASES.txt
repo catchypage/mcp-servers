@@ -1,0 +1,120 @@
+LangCoach — MCP test cases (OpenAI Apps submission)
+Copy one block per form field. Connector: POST https://justmatch.us/api/mcp/langcoach (after OAuth). Public tool for the model: open_lang_coach only. Placement test, profile, and settings run inside the widget after the app opens (not listed here).
+
+================================================================================
+Positive test cases (5)
+================================================================================
+
+--------------------------------------------------------------------------------
+Test Case 1 — Open the app to practice English
+--------------------------------------------------------------------------------
+
+Scenario
+User explicitly asks to open Lang Coach to practice English in the embedded workspace.
+
+User prompt
+Open Lang Coach and help me practice English.
+
+Tool triggered
+open_lang_coach
+
+Expected output
+tools/call succeeds with assistant-visible text (message) and the Lang Coach widget loads (outputTemplate / embedded UI). User completes OAuth if needed, then uses the app inside the widget.
+
+--------------------------------------------------------------------------------
+Test Case 2 — Open with a grammar focus
+--------------------------------------------------------------------------------
+
+Scenario
+User wants to open Lang Coach and signal a focus area for the session; the tool supports an optional topic.
+
+User prompt
+Open Lang Coach — I want to focus on grammar and tenses today.
+
+Tool triggered
+open_lang_coach
+
+Expected output
+Same as Case 1: widget opens; the server may pass the topic into the tool result for the client. No error; user sees the Lang Coach UI.
+
+--------------------------------------------------------------------------------
+Test Case 3 — Open to check English level
+--------------------------------------------------------------------------------
+
+Scenario
+User wants to use Lang Coach to assess or see their level (they will use placement test and profile inside the widget after the app opens).
+
+User prompt
+Open Lang Coach so I can check my English level.
+
+Tool triggered
+open_lang_coach
+
+Expected output
+Widget opens successfully; user can then continue in the UI (e.g. placement test, level card) without another tool call from chat.
+
+--------------------------------------------------------------------------------
+Test Case 4 — Open for vocabulary / speaking
+--------------------------------------------------------------------------------
+
+Scenario
+User frames the request around vocabulary or speaking practice but still wants the Lang Coach app opened.
+
+User prompt
+Open Lang Coach — I need vocabulary and speaking practice.
+
+Tool triggered
+open_lang_coach
+
+Expected output
+Widget loads; session context can reflect the stated focus in the client. User interacts with Lang Coach inside the widget.
+
+--------------------------------------------------------------------------------
+Test Case 5 — Short explicit request to launch the app
+--------------------------------------------------------------------------------
+
+Scenario
+Minimal user prompt that should still resolve to opening the connector (same public tool).
+
+User prompt
+Launch Lang Coach.
+
+Tool triggered
+open_lang_coach
+
+Expected output
+Same successful widget experience as above: message + embedded Lang Coach UI.
+
+================================================================================
+Negative test cases (3)
+================================================================================
+
+--------------------------------------------------------------------------------
+Negative Test Case 1 — Unrelated travel task
+--------------------------------------------------------------------------------
+
+Scenario
+The user is asking for something Lang Coach does not do (booking flights). The connector should not be invoked.
+
+User prompt
+Find me the cheapest round-trip flight from New York to London next month and book it.
+
+--------------------------------------------------------------------------------
+Negative Test Case 2 — General coding / debugging
+--------------------------------------------------------------------------------
+
+Scenario
+The user needs programming help unrelated to opening Lang Coach. The model should answer in chat without invoking the app.
+
+User prompt
+Debug this Python function and explain why it raises AttributeError: def foo(x): return x.bar()
+
+--------------------------------------------------------------------------------
+Negative Test Case 3 — Translation without opening the app
+--------------------------------------------------------------------------------
+
+Scenario
+User asks for a one-off translation. The model should not invoke Lang Coach unless the user explicitly asks to open Lang Coach.
+
+User prompt
+Translate this paragraph into Spanish and keep the tone formal: "We will meet at the office on Monday."
