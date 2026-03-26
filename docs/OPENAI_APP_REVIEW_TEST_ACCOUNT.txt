@@ -1,0 +1,12 @@
+OpenAI ChatGPT App submission — demo / review login
+Use when the form asks for test credentials (username + password).
+
+Email
+test@lang.com
+
+Password
+test123321
+
+Notes
+- Keep this account working and populated with sample data for reviewers.
+- Do not commit real production secrets here; rotate if this file was ever public unexpectedly.

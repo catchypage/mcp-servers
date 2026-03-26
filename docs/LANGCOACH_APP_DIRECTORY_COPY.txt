@@ -49,3 +49,10 @@ Developer / company name (если просят)
 Заметки для себя (не в форму)
 ================================================================================
 Короткое имя в UI: LC. Домен продукта: justmatch.us. MCP: /api/mcp/langcoach
+
+Видео (ссылка):
+https://youtu.be/nEPFtKfuOXM
+
+Тестовый аккаунт для ревью OpenAI (логин/пароль) — см. docs/OPENAI_APP_REVIEW_TEST_ACCOUNT.txt
+
+Верификация домена OpenAI Apps: GET /.well-known/openai-apps-challenge (реализовано в app/.well-known/openai-apps-challenge/route.ts)
