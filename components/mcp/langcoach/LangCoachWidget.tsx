@@ -223,6 +223,7 @@ export default function LangCoachWidget() {
                 selected={selected}
                 loading={loading}
                 isLast={currentIdx + 1 === questions.length}
+                theme={theme}
                 tt={tt}
                 onSelect={handleSelect}
                 onNext={handleNext}
@@ -232,7 +233,12 @@ export default function LangCoachWidget() {
         )}
 
         {screen === 'result' && result && (
-          <ResultScreen result={result} tt={tt} onRestart={handleGoHome} />
+          <ResultScreen
+            result={result}
+            theme={theme}
+            tt={tt}
+            onRestart={handleGoHome}
+          />
         )}
 
         {loading && screen === 'home' && (
