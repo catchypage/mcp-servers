@@ -50,6 +50,38 @@ const createResumeTool: McpToolDefinition = {
   securitySchemes: [{ type: 'oauth2', scopes: ['user:read'] }],
 }
 
+const tailorForVacancyTool: McpToolDefinition = {
+  name: 'tailor_resume_for_vacancy',
+  title: 'Tailor Resume for Vacancy',
+  description:
+    'Create or adapt a resume tailored to a specific job vacancy. Provide the vacancy description and optionally a screenshot URL. AI will analyze the vacancy and suggest the best resume content and style.',
+  inputSchema: {
+    type: 'object',
+    properties: {
+      vacancy_description: {
+        type: 'string',
+        description:
+          'Full job vacancy description: title, company, requirements, responsibilities, etc.',
+      },
+      vacancy_image_url: {
+        type: 'string',
+        description:
+          'Optional URL to a screenshot of the vacancy posting',
+      },
+      full_name: { type: 'string', description: 'Candidate full name' },
+      job_title: { type: 'string', description: 'Current job title of the candidate' },
+    },
+    required: ['vacancy_description'],
+  },
+  annotations: {
+    readOnlyHint: false,
+    destructiveHint: false,
+    openWorldHint: true,
+    idempotentHint: false,
+  },
+  securitySchemes: [{ type: 'oauth2', scopes: ['user:read'] }],
+}
+
 const improveResumeTool: McpToolDefinition = {
   name: 'improve_resume',
   title: 'Improve Resume',
@@ -89,6 +121,7 @@ const getUserInfoTool: McpToolDefinition = {
 
 export const resumeTools: McpToolDefinition[] = [
   createResumeTool,
+  tailorForVacancyTool,
   improveResumeTool,
 ]
 
@@ -172,6 +205,37 @@ async function handleCreateResume(
   }
 }
 
+async function handleTailorForVacancy(
+  _app: McpAppConfig,
+  args: Record<string, unknown>,
+  _userId: string,
+): Promise<Record<string, unknown>> {
+  const vacancyDescription = String(args.vacancy_description ?? '')
+  const vacancyImageUrl = String(args.vacancy_image_url ?? '')
+  const fullName = String(args.full_name ?? '')
+  const jobTitle = String(args.job_title ?? '')
+
+  if (!vacancyDescription.trim()) {
+    return {
+      success: false,
+      error: 'vacancy_description is required',
+      message: 'Please provide the job vacancy description.',
+    }
+  }
+
+  return {
+    success: true,
+    message:
+      'Resume builder opened in vacancy tailoring mode. AI will adapt the resume for the specified vacancy.',
+    vacancyData: {
+      vacancyDescription: vacancyDescription.trim(),
+      vacancyImageUrl: vacancyImageUrl.trim(),
+      fullName: fullName.trim(),
+      jobTitle: jobTitle.trim(),
+    },
+  }
+}
+
 async function handleImproveResume(
   _app: McpAppConfig,
   args: Record<string, unknown>,
@@ -225,6 +289,7 @@ async function handleGetUserInfo(
 export function getResumeToolHandlers(): Record<string, ToolHandler> {
   return {
     create_resume: handleCreateResume,
+    tailor_resume_for_vacancy: handleTailorForVacancy,
     improve_resume: handleImproveResume,
     get_user_info: handleGetUserInfo,
   }

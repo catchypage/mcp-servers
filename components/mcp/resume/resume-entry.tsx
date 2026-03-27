@@ -12,8 +12,6 @@ function initWidget() {
         <ResumeWidget />
       </React.StrictMode>,
     )
-  } else {
-    console.error('Resume widget root element not found')
   }
 }
 
