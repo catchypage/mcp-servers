@@ -16,27 +16,52 @@ export const RESUME_STYLE_IDS = [
 
 export type ResumeStyleId = (typeof RESUME_STYLE_IDS)[number]
 
-const createResumeTool: McpToolDefinition = {
-  name: 'create_resume',
-  title: 'Create Resume',
+/**
+ * Pending context store — when GPT calls open_resume_builder,
+ * we stash the mode + data here so the widget can retrieve it
+ * via the internal get_init_context callTool.
+ */
+const pendingContext = new Map<string, Record<string, unknown>>()
+
+/* ═══════════════════════════════════════════════════════════════
+ * PUBLIC TOOLS (visible to GPT)
+ * ═══════════════════════════════════════════════════════════════ */
+
+const openResumeBuilderTool: McpToolDefinition = {
+  name: 'open_resume_builder',
+  title: 'Open Resume Builder',
   description:
-    'Create a new professional resume. Opens an interactive builder with 8 unique styles: Classic Professional, Modern Minimal, Executive Dark, Creative Bold, Tech Terminal, Elegant Sidebar, Swiss Minimalist, and Nature Organic.',
+    'Open the Resume Builder workspace. Use mode="create" to create a new resume, mode="vacancy" to tailor a resume for a specific job vacancy, or mode="improve" to improve an existing resume. Supports 8 professional styles: Classic, Modern, Executive, Creative, Terminal, Sidebar, Swiss, Nature.',
   inputSchema: {
     type: 'object',
     properties: {
+      mode: {
+        type: 'string',
+        description: 'Widget mode: "create" (default), "vacancy", or "improve"',
+        enum: ['create', 'vacancy', 'improve'],
+      },
       job_title: { type: 'string', description: 'Target job title' },
+      full_name: { type: 'string', description: 'Full name for the resume' },
       style: {
         type: 'string',
-        description:
-          'Resume style: classic, modern, executive, creative, terminal, sidebar, swiss, or nature',
+        description: 'Resume style',
         enum: RESUME_STYLE_IDS,
       },
-      full_name: { type: 'string', description: 'Full name for the resume' },
-      experience: { type: 'string', description: 'Work experience summary' },
-      skills: {
-        type: 'array',
-        items: { type: 'string' },
-        description: 'List of skills',
+      vacancy_description: {
+        type: 'string',
+        description: 'Job vacancy description (for mode=vacancy)',
+      },
+      vacancy_image_url: {
+        type: 'string',
+        description: 'URL to vacancy screenshot (for mode=vacancy)',
+      },
+      resume_text: {
+        type: 'string',
+        description: 'Existing resume text (for mode=improve)',
+      },
+      feedback: {
+        type: 'string',
+        description: 'Improvement feedback (for mode=improve)',
       },
     },
     required: [],
@@ -50,57 +75,24 @@ const createResumeTool: McpToolDefinition = {
   securitySchemes: [{ type: 'oauth2', scopes: ['user:read'] }],
 }
 
-const tailorForVacancyTool: McpToolDefinition = {
-  name: 'tailor_resume_for_vacancy',
-  title: 'Tailor Resume for Vacancy',
-  description:
-    'Create or adapt a resume tailored to a specific job vacancy. Provide the vacancy description and optionally a screenshot URL. AI will analyze the vacancy and suggest the best resume content and style.',
-  inputSchema: {
-    type: 'object',
-    properties: {
-      vacancy_description: {
-        type: 'string',
-        description:
-          'Full job vacancy description: title, company, requirements, responsibilities, etc.',
-      },
-      vacancy_image_url: {
-        type: 'string',
-        description:
-          'Optional URL to a screenshot of the vacancy posting',
-      },
-      full_name: { type: 'string', description: 'Candidate full name' },
-      job_title: { type: 'string', description: 'Current job title of the candidate' },
-    },
-    required: ['vacancy_description'],
-  },
-  annotations: {
-    readOnlyHint: false,
-    destructiveHint: false,
-    openWorldHint: true,
-    idempotentHint: false,
-  },
-  securitySchemes: [{ type: 'oauth2', scopes: ['user:read'] }],
-}
+/* ═══════════════════════════════════════════════════════════════
+ * INTERNAL TOOLS (hidden, called by widget via callTool)
+ * ═══════════════════════════════════════════════════════════════ */
 
-const improveResumeTool: McpToolDefinition = {
-  name: 'improve_resume',
-  title: 'Improve Resume',
-  description: 'Improve an existing resume based on feedback.',
-  inputSchema: {
-    type: 'object',
-    properties: {
-      resume_text: { type: 'string', description: 'Current resume text' },
-      feedback: { type: 'string', description: 'Feedback for improvement' },
-    },
-    required: ['resume_text'],
-  },
+const getInitContextTool: McpToolDefinition = {
+  name: 'get_init_context',
+  title: 'Get Init Context',
+  description:
+    'INTERNAL: Widget-only. Returns the mode and data from the last open_resume_builder call.',
+  inputSchema: { type: 'object', properties: {}, required: [] },
   annotations: {
-    readOnlyHint: false,
+    readOnlyHint: true,
     destructiveHint: false,
-    openWorldHint: true,
-    idempotentHint: false,
+    openWorldHint: false,
+    idempotentHint: true,
   },
   securitySchemes: [{ type: 'oauth2', scopes: ['user:read'] }],
+  _meta: { 'openai/hidden': true },
 }
 
 const getUserInfoTool: McpToolDefinition = {
@@ -119,13 +111,20 @@ const getUserInfoTool: McpToolDefinition = {
   _meta: { 'openai/hidden': true },
 }
 
-export const resumeTools: McpToolDefinition[] = [
-  createResumeTool,
-  tailorForVacancyTool,
-  improveResumeTool,
+/* ═══════════════════════════════════════════════════════════════
+ * EXPORTS
+ * ═══════════════════════════════════════════════════════════════ */
+
+export const resumeTools: McpToolDefinition[] = [openResumeBuilderTool]
+
+export const resumeInternalTools: McpToolDefinition[] = [
+  getInitContextTool,
+  getUserInfoTool,
 ]
 
-export const resumeInternalTools: McpToolDefinition[] = [getUserInfoTool]
+/* ═══════════════════════════════════════════════════════════════
+ * HANDLERS
+ * ═══════════════════════════════════════════════════════════════ */
 
 export type ToolHandler = (
   app: McpAppConfig,
@@ -133,137 +132,60 @@ export type ToolHandler = (
   userId: string,
 ) => Promise<Record<string, unknown>>
 
-async function handleCreateResume(
+async function handleOpenResumeBuilder(
   _app: McpAppConfig,
   args: Record<string, unknown>,
-  _userId: string,
+  userId: string,
 ): Promise<Record<string, unknown>> {
+  const mode = String(args.mode ?? 'create')
   const jobTitle = String(args.job_title ?? '')
   const fullName = String(args.full_name ?? '')
-  const experience = String(args.experience ?? '')
-  const skills = Array.isArray(args.skills) ? args.skills.map(String) : []
   const style = String(args.style ?? 'modern')
-
-  // Validate style
   const validStyle = RESUME_STYLE_IDS.includes(style as ResumeStyleId)
     ? style
     : 'modern'
 
+  const context: Record<string, unknown> = { mode, style: validStyle }
+
+  if (fullName) context.fullName = fullName
+  if (jobTitle) context.jobTitle = jobTitle
+
+  if (mode === 'vacancy') {
+    context.vacancyDescription = String(args.vacancy_description ?? '')
+    context.vacancyImageUrl = String(args.vacancy_image_url ?? '')
+  }
+
+  if (mode === 'improve') {
+    context.resumeText = String(args.resume_text ?? '')
+    context.feedback = String(args.feedback ?? '')
+  }
+
+  // Stash for widget to pick up via get_init_context
+  pendingContext.set(userId, context)
+
+  const messages: Record<string, string> = {
+    create: 'Resume builder is ready. Choose from 8 professional styles and fill in your details.',
+    vacancy: 'Resume builder opened in vacancy tailoring mode. Paste or review the vacancy and AI will adapt your resume.',
+    improve: 'Resume builder opened for improvement. Review and enhance your resume.',
+  }
+
   return {
     success: true,
-    message:
-      'Resume builder opened. Choose from 8 professional styles and fill in your details.',
-    availableStyles: [
-      {
-        id: 'classic',
-        name: 'Classic Professional',
-        description: 'Traditional layout with clean typography',
-      },
-      {
-        id: 'modern',
-        name: 'Modern Minimal',
-        description: 'Clean design with ample whitespace',
-      },
-      {
-        id: 'executive',
-        name: 'Executive Dark',
-        description: 'Premium dark design for senior positions',
-      },
-      {
-        id: 'creative',
-        name: 'Creative Bold',
-        description: 'Expressive design with bold colors',
-      },
-      {
-        id: 'terminal',
-        name: 'Tech Terminal',
-        description: 'Developer-focused terminal aesthetics',
-      },
-      {
-        id: 'sidebar',
-        name: 'Elegant Sidebar',
-        description: 'Two-column design with elegant sidebar',
-      },
-      {
-        id: 'swiss',
-        name: 'Swiss Minimalist',
-        description: 'Typography-focused Swiss design',
-      },
-      {
-        id: 'nature',
-        name: 'Nature Organic',
-        description: 'Soft organic design with earthy tones',
-      },
-    ],
-    prefilledData: {
-      style: validStyle,
-      jobTitle: jobTitle || '',
-      fullName: fullName || '',
-      experience: experience || '',
-      skills: skills.length > 0 ? skills : [],
-    },
+    message: messages[mode] ?? messages.create,
   }
 }
 
-async function handleTailorForVacancy(
+async function handleGetInitContext(
   _app: McpAppConfig,
-  args: Record<string, unknown>,
-  _userId: string,
+  _args: Record<string, unknown>,
+  userId: string,
 ): Promise<Record<string, unknown>> {
-  const vacancyDescription = String(args.vacancy_description ?? '')
-  const vacancyImageUrl = String(args.vacancy_image_url ?? '')
-  const fullName = String(args.full_name ?? '')
-  const jobTitle = String(args.job_title ?? '')
-
-  if (!vacancyDescription.trim()) {
-    return {
-      success: false,
-      error: 'vacancy_description is required',
-      message: 'Please provide the job vacancy description.',
-    }
+  const ctx = pendingContext.get(userId)
+  if (ctx) {
+    pendingContext.delete(userId)
+    return { success: true, ...ctx }
   }
-
-  return {
-    success: true,
-    message:
-      'Resume builder opened in vacancy tailoring mode. AI will adapt the resume for the specified vacancy.',
-    vacancyData: {
-      vacancyDescription: vacancyDescription.trim(),
-      vacancyImageUrl: vacancyImageUrl.trim(),
-      fullName: fullName.trim(),
-      jobTitle: jobTitle.trim(),
-    },
-  }
-}
-
-async function handleImproveResume(
-  _app: McpAppConfig,
-  args: Record<string, unknown>,
-  _userId: string,
-): Promise<Record<string, unknown>> {
-  const resumeText = String(args.resume_text ?? '')
-  const feedback = String(args.feedback ?? '')
-
-  if (!resumeText.trim()) {
-    return {
-      success: false,
-      error: 'resume_text is required',
-      message: 'Resume text is required',
-    }
-  }
-
-  return {
-    success: true,
-    message: 'Resume improved',
-    resume: {
-      original:
-        resumeText.slice(0, 200) + (resumeText.length > 200 ? '...' : ''),
-      feedback: feedback || 'General improvements applied',
-      improved:
-        resumeText +
-        (feedback ? `\n\n[Improvements based on: ${feedback}]` : ''),
-    },
-  }
+  return { success: true, mode: 'create' }
 }
 
 async function handleGetUserInfo(
@@ -288,9 +210,8 @@ async function handleGetUserInfo(
 
 export function getResumeToolHandlers(): Record<string, ToolHandler> {
   return {
-    create_resume: handleCreateResume,
-    tailor_resume_for_vacancy: handleTailorForVacancy,
-    improve_resume: handleImproveResume,
+    open_resume_builder: handleOpenResumeBuilder,
+    get_init_context: handleGetInitContext,
     get_user_info: handleGetUserInfo,
   }
 }

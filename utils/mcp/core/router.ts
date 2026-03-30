@@ -240,7 +240,7 @@ export async function handleMcpRequest(
       const { uri } = (params ?? {}) as { uri: string }
       const baseUrl = getBaseUrlFromRequest(req)
       const expectedUri = `${baseUrl}/api/mcp/${app.id}/widget`
-      const matches = uri?.includes(app.id) || uri === expectedUri
+      const matches = uri?.includes(app.id) || uri === expectedUri || uri?.startsWith(expectedUri)
 
       if (!matches && !uri?.includes('/widget')) {
         return NextResponse.json(

@@ -2,282 +2,37 @@
 
 import React, { useState, useCallback, useEffect } from 'react'
 import { RESUME_STYLES, getStyleById, type ResumeStyle } from './styles'
-import {
-  type ResumeData,
-  type Experience,
-  type Education,
-  type ContactInfo,
-} from './types'
+import { type ResumeData, type Experience, type Education, type ContactInfo } from './types'
 import ResumePreview from './ResumePreview'
 import { DownloadIcon } from './icons'
+import { CollapsibleSection } from './shared/CollapsibleSection'
+import { StylePreviewCard } from './shared/StylePreviewCard'
+import {
+  emptyExperience,
+  emptyEducation,
+  initialResumeData,
+  demoData,
+} from './utils/constants'
+import {
+  isPersonalFilled,
+  isContactFilled,
+  isExperienceFilled,
+  isEducationFilled,
+  isSkillsFilled,
+  isLanguagesFilled,
+  isCertificationsFilled,
+} from './utils/validators'
+import { openDownloadPage, getBaseUrl } from './utils/helpers'
+import {
+  inputClass,
+  labelClass,
+  primaryBtnClass,
+  secondaryBtnClass,
+  buttonClass,
+} from './utils/classNames'
 import '../openai-types'
 
 type Step = 'style' | 'form' | 'preview' | 'vacancy'
-
-const emptyExperience: Experience = {
-  company: '',
-  position: '',
-  period: '',
-  description: '',
-}
-
-const emptyEducation: Education = {
-  institution: '',
-  degree: '',
-  period: '',
-  description: '',
-}
-
-const initialResumeData: ResumeData = {
-  fullName: '',
-  jobTitle: '',
-  summary: '',
-  contact: {
-    email: '',
-    phone: '',
-    location: '',
-    website: '',
-    linkedin: '',
-  },
-  experience: [{ ...emptyExperience }],
-  education: [{ ...emptyEducation }],
-  skills: [],
-  languages: [],
-  certifications: [],
-}
-
-/* ── demo data for style preview thumbnails ── */
-
-const demoData: ResumeData = {
-  fullName: 'Alex Johnson',
-  jobTitle: 'Senior Product Designer',
-  summary:
-    'Creative professional with 8+ years of experience in user-centered design, leading cross-functional teams.',
-  contact: {
-    email: 'alex@example.com',
-    phone: '+1 (555) 987-6543',
-    location: 'San Francisco, CA',
-    website: 'alexjohnson.design',
-    linkedin: 'linkedin.com/in/alexj',
-  },
-  experience: [
-    {
-      company: 'TechCorp Inc.',
-      position: 'Lead Designer',
-      period: '2021 - Present',
-      description:
-        'Led redesign of flagship product, increasing user engagement by 40%.',
-    },
-    {
-      company: 'StartupXYZ',
-      position: 'UX Designer',
-      period: '2018 - 2021',
-      description: 'Built design system from scratch serving 12 product teams.',
-    },
-  ],
-  education: [
-    {
-      institution: 'Stanford University',
-      degree: 'M.S. Human-Computer Interaction',
-      period: '2016 - 2018',
-    },
-  ],
-  skills: ['Figma', 'React', 'User Research', 'Design Systems', 'Prototyping'],
-  languages: ['English', 'Spanish'],
-  certifications: [],
-}
-
-/* ── Collapsible section component ── */
-
-function CollapsibleSection({
-  title,
-  filled,
-  defaultOpen = false,
-  children,
-  headerRight,
-}: {
-  title: string
-  filled: boolean
-  defaultOpen?: boolean
-  children: React.ReactNode
-  headerRight?: React.ReactNode
-}) {
-  const [open, setOpen] = useState(defaultOpen)
-
-  return (
-    <section className="mb-4 rounded-xl bg-white/5 border border-white/10 overflow-hidden">
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        className="w-full flex items-center justify-between px-6 py-4 text-left hover:bg-white/5 transition-colors"
-      >
-        <div className="flex items-center gap-3">
-          {/* Chevron */}
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className={`text-gray-400 transition-transform ${open ? 'rotate-90' : ''}`}
-          >
-            <polyline points="9 18 15 12 9 6" />
-          </svg>
-          <h2 className="text-lg font-semibold text-white">{title}</h2>
-          {/* Fill indicator */}
-          {filled ? (
-            <span className="inline-flex items-center gap-1 text-xs text-green-400 bg-green-500/15 px-2 py-0.5 rounded-full">
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
-                <polyline points="20 6 9 17 4 12" />
-              </svg>
-              Filled
-            </span>
-          ) : (
-            <span className="text-xs text-gray-500 bg-white/5 px-2 py-0.5 rounded-full">
-              Empty
-            </span>
-          )}
-        </div>
-        {headerRight && (
-          <div onClick={(e) => e.stopPropagation()}>
-            {headerRight}
-          </div>
-        )}
-      </button>
-      {open && (
-        <div className="px-6 pb-6 pt-2">
-          {children}
-        </div>
-      )}
-    </section>
-  )
-}
-
-/* ── mini-resume preview card ── */
-
-function StylePreviewCard({
-  style,
-  selected,
-  onSelect,
-}: {
-  style: ResumeStyle
-  selected: boolean
-  onSelect: () => void
-}) {
-  return (
-    <button
-      onClick={onSelect}
-      className={`relative rounded-lg border-2 transition-all text-left overflow-hidden ${
-        selected
-          ? 'border-blue-500 ring-2 ring-blue-500/30'
-          : 'border-white/10 hover:border-white/30'
-      }`}
-    >
-      {/* Thumbnail: scaled resume */}
-      <div
-        className="relative overflow-hidden"
-        style={{ height: 220, background: style.preview.bg }}
-      >
-        <div
-          style={{
-            transform: 'scale(0.25)',
-            transformOrigin: 'top left',
-            width: 800,
-            height: 1050,
-            overflow: 'hidden',
-            pointerEvents: 'none',
-          }}
-        >
-          <ResumePreview data={demoData} style={style} />
-        </div>
-        {/* Bottom fade */}
-        <div
-          className="absolute bottom-0 left-0 right-0 h-12"
-          style={{
-            background:
-              'linear-gradient(to top, rgba(3,7,18,1) 0%, transparent 100%)',
-          }}
-        />
-      </div>
-
-      {/* Label */}
-      <div className="px-2.5 pb-2 pt-1 bg-gray-950">
-        <h3 className="font-semibold text-white text-xs">{style.name}</h3>
-      </div>
-
-      {selected && (
-        <div className="absolute top-1.5 right-1.5 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center shadow-lg">
-          <svg
-            width="12"
-            height="12"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="white"
-            strokeWidth="3"
-          >
-            <polyline points="20 6 9 17 4 12" />
-          </svg>
-        </div>
-      )}
-    </button>
-  )
-}
-
-/* ── PDF: open download page on our domain (bypasses iframe CSP) ── */
-
-function getBaseUrl(): string {
-  const scripts = document.querySelectorAll('script[src*="resume.bundle"]')
-  if (scripts.length > 0) {
-    const src = (scripts[0] as HTMLScriptElement).src
-    const url = new URL(src)
-    return url.origin
-  }
-  return ''
-}
-
-function openDownloadPage(data: ResumeData, styleId: string) {
-  const baseUrl = getBaseUrl()
-  const payload = JSON.stringify({ data, styleId })
-  const encoded = btoa(unescape(encodeURIComponent(payload)))
-  const url = `${baseUrl}/resume/download?d=${encodeURIComponent(encoded)}`
-  window.open(url, '_blank')
-}
-
-/* ── Section fill-status helpers ── */
-
-function isPersonalFilled(d: ResumeData): boolean {
-  return !!(d.fullName.trim() || d.jobTitle.trim() || d.summary.trim())
-}
-
-function isContactFilled(d: ResumeData): boolean {
-  const c = d.contact
-  return !!(c.email?.trim() || c.phone?.trim() || c.location?.trim() || c.website?.trim() || c.linkedin?.trim())
-}
-
-function isExperienceFilled(d: ResumeData): boolean {
-  return d.experience.some((e) => e.position.trim() || e.company.trim())
-}
-
-function isEducationFilled(d: ResumeData): boolean {
-  return d.education.some((e) => e.degree.trim() || e.institution.trim())
-}
-
-function isSkillsFilled(d: ResumeData): boolean {
-  return d.skills.length > 0
-}
-
-function isLanguagesFilled(d: ResumeData): boolean {
-  return (d.languages || []).length > 0
-}
-
-function isCertificationsFilled(d: ResumeData): boolean {
-  return (d.certifications || []).length > 0
-}
-
-/* ══════════════════════════════════════════════════════════ */
 
 export default function ResumeWidget() {
   const [step, setStep] = useState<Step>('style')
@@ -297,55 +52,49 @@ export default function ResumeWidget() {
     explanation: string
   } | null>(null)
 
-  // Read tool result via window.openai bridge (ChatGPT MCP Apps)
+  // callTool wrapper — same pattern as LangCoach
+  const callTool = useCallback(
+    async (
+      name: string,
+      args: Record<string, unknown>,
+    ): Promise<Record<string, unknown> | null> => {
+      if (!window.openai?.callTool) return null
+      try {
+        const res = await window.openai.callTool(name, args)
+        return res.structuredContent ?? res
+      } catch (e) {
+        console.error(`[ResumeWidget] callTool ${name} failed:`, e)
+        return null
+      }
+    },
+    [],
+  )
+
+  // On mount: call get_init_context to retrieve mode + data stashed by open_resume_builder
   useEffect(() => {
-    function applyToolResult(result: Record<string, unknown>) {
-      const sc = (result.structuredContent ?? result) as Record<string, unknown>
-      const vd = sc.vacancyData as {
-        vacancyDescription?: string
-        vacancyImageUrl?: string
-        fullName?: string
-        jobTitle?: string
-      } | undefined
+    void callTool('get_init_context', {}).then((ctx) => {
+      if (!ctx) return
+      const mode = String(ctx.mode ?? 'create')
+      const style = String(ctx.style ?? '')
+      const fullName = String(ctx.fullName ?? '')
+      const jobTitle = String(ctx.jobTitle ?? '')
 
-      if (vd?.vacancyDescription) {
-        setVacancyText(vd.vacancyDescription)
-        if (vd.vacancyImageUrl) setVacancyImageUrl(vd.vacancyImageUrl)
-        if (vd.fullName) setResumeData((prev) => ({ ...prev, fullName: vd.fullName! }))
-        if (vd.jobTitle) setResumeData((prev) => ({ ...prev, jobTitle: vd.jobTitle! }))
+      if (style) setSelectedStyleId(style)
+      if (fullName) setResumeData((prev) => ({ ...prev, fullName }))
+      if (jobTitle) setResumeData((prev) => ({ ...prev, jobTitle }))
+
+      if (mode === 'vacancy') {
+        const vacancyDescription = String(ctx.vacancyDescription ?? '')
+        const vacancyImgUrl = String(ctx.vacancyImageUrl ?? '')
+        if (vacancyDescription) setVacancyText(vacancyDescription)
+        if (vacancyImgUrl) setVacancyImageUrl(vacancyImgUrl)
         setStep('vacancy')
-        return true
+      } else if (mode === 'improve') {
+        setStep('form')
       }
-
-      // Handle prefilled data from create_resume tool
-      const pf = sc.prefilledData as {
-        style?: string
-        jobTitle?: string
-        fullName?: string
-      } | undefined
-      if (pf) {
-        if (pf.style) setSelectedStyleId(pf.style)
-        if (pf.fullName) setResumeData((prev) => ({ ...prev, fullName: pf.fullName! }))
-        if (pf.jobTitle) setResumeData((prev) => ({ ...prev, jobTitle: pf.jobTitle! }))
-        if (pf.fullName || pf.jobTitle) setStep('form')
-      }
-      return false
-    }
-
-    // 1. Try direct toolResult property
-    if (window.openai?.toolResult) {
-      if (applyToolResult(window.openai.toolResult)) return
-    }
-
-    // 2. Try async getToolResult
-    if (window.openai?.getToolResult) {
-      window.openai.getToolResult()
-        .then((result) => {
-          if (result) applyToolResult(result)
-        })
-        .catch(() => {})
-    }
-  }, [])
+      // mode === 'create' stays on 'style' (default)
+    })
+  }, [callTool])
 
   const selectedStyle = getStyleById(selectedStyleId)
 
@@ -466,7 +215,6 @@ export default function ResumeWidget() {
     openDownloadPage(resumeData, selectedStyleId)
   }, [resumeData, selectedStyleId])
 
-  /* ── Vacancy: call LLM to tailor resume ── */
   const handleTailorForVacancy = useCallback(async () => {
     if (!vacancyText.trim() && !vacancyImageUrl.trim()) return
 
@@ -529,7 +277,6 @@ Please adapt my resume for this vacancy. Keep all my real data (name, contacts, 
       const data = await response.json()
       const text = data.text || data.response || ''
 
-      // Parse JSON from LLM response — handle possible markdown wrapping
       let jsonStr = text.trim()
       const jsonMatch = jsonStr.match(/```(?:json)?\s*([\s\S]*?)```/)
       if (jsonMatch) {
@@ -560,14 +307,6 @@ Please adapt my resume for this vacancy. Keep all my real data (name, contacts, 
     setStep('preview')
   }, [vacancyResult])
 
-  const inputClass =
-    'w-full rounded-lg border border-white/20 bg-white/5 px-4 py-2.5 text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500/50 transition-colors'
-  const labelClass = 'block text-sm text-gray-400 mb-1.5'
-  const buttonClass =
-    'px-4 py-2 rounded-lg font-medium transition-colors disabled:opacity-50'
-  const primaryBtnClass = `${buttonClass} bg-blue-600 text-white hover:bg-blue-700`
-  const secondaryBtnClass = `${buttonClass} bg-white/10 text-white hover:bg-white/20`
-
   // ───────────────── Step 1: Style Selection ─────────────────
   if (step === 'style') {
     return (
@@ -585,6 +324,7 @@ Please adapt my resume for this vacancy. Keep all my real data (name, contacts, 
                 style={style}
                 selected={selectedStyleId === style.id}
                 onSelect={() => setSelectedStyleId(style.id)}
+                demoData={demoData}
               />
             ))}
           </div>
@@ -1071,7 +811,6 @@ Please adapt my resume for this vacancy. Keep all my real data (name, contacts, 
             </button>
           </div>
 
-          {/* Vacancy screenshot / image URL */}
           <section className="mb-6 p-6 rounded-xl bg-white/5 border border-white/10">
             <h2 className="text-lg font-semibold mb-4">Vacancy Screenshot</h2>
             <p className="text-gray-400 text-sm mb-3">
@@ -1098,7 +837,6 @@ Please adapt my resume for this vacancy. Keep all my real data (name, contacts, 
             )}
           </section>
 
-          {/* Vacancy text description */}
           <section className="mb-6 p-6 rounded-xl bg-white/5 border border-white/10">
             <h2 className="text-lg font-semibold mb-4">Vacancy Description</h2>
             <p className="text-gray-400 text-sm mb-3">
@@ -1119,7 +857,6 @@ Example:
             />
           </section>
 
-          {/* Current resume summary */}
           <section className="mb-6 p-4 rounded-xl bg-blue-500/10 border border-blue-500/20">
             <h3 className="text-sm font-semibold text-blue-300 mb-2">Your current resume</h3>
             <p className="text-sm text-gray-300">
@@ -1130,7 +867,6 @@ Example:
             </p>
           </section>
 
-          {/* Result */}
           {vacancyResult && (
             <section className="mb-6 p-6 rounded-xl bg-green-500/10 border border-green-500/20">
               <h3 className="text-lg font-semibold text-green-300 mb-3">AI Suggestions</h3>
@@ -1142,7 +878,6 @@ Example:
                 </span>
               </div>
 
-              {/* Mini preview of tailored resume */}
               <div className="mb-4 rounded-lg overflow-hidden border border-white/10"
                 style={{ height: 300, position: 'relative' }}
               >
@@ -1180,7 +915,6 @@ Example:
             </section>
           )}
 
-          {/* Actions */}
           <div className="flex justify-between">
             <button
               onClick={() => setStep('form')}
@@ -1218,7 +952,6 @@ Example:
   // ───────────────── Step 3: Preview ─────────────────
   return (
     <div className="text-white">
-      {/* Header controls */}
       <div className="p-4 border-b border-white/10 bg-gray-900 backdrop-blur-sm sticky top-0 z-10">
         <div className="mx-auto max-w-4xl flex items-center justify-between">
           <div>
@@ -1263,7 +996,6 @@ Example:
         </div>
       </div>
 
-      {/* Resume preview */}
       <div className="p-6 bg-gray-950">
         <div className="mx-auto max-w-4xl">
           <ResumePreview data={resumeData} style={selectedStyle} />
