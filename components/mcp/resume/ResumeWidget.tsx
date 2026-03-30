@@ -36,6 +36,10 @@ import {
   buttonClass,
 } from './utils/classNames'
 import '../openai-types'
+import {
+  unwrapResumeInitPayload,
+  collectResumeInitFromOpenAI,
+} from './resolve-openai-init'
 
 type Step = 'style' | 'form' | 'preview' | 'vacancy'
 
@@ -80,7 +84,15 @@ export default function ResumeWidget() {
       }
       try {
         const res = await window.openai.callTool(name, args)
-        return res.structuredContent ?? res
+        const flat = res.structuredContent ?? res
+        const unwrapped = unwrapResumeInitPayload(flat)
+        if (unwrapped) {
+          return unwrapped
+        }
+        if (typeof flat === 'object' && flat !== null) {
+          return { ...flat }
+        }
+        return null
       } catch (e) {
         console.error(`[ResumeWidget] callTool ${name} failed:`, e)
         return null
@@ -89,46 +101,77 @@ export default function ResumeWidget() {
     [],
   )
 
+  const applyResumeInitContext = useCallback((ctx: Record<string, unknown>) => {
+    const mode = String(ctx.mode ?? 'create')
+      .toLowerCase()
+      .trim()
+    const style = String(ctx.style ?? '')
+    const fullName = String(ctx.fullName ?? '')
+    const jobTitle = String(ctx.jobTitle ?? '')
+
+    if (style) {
+      setSelectedStyleId(style)
+    }
+    if (fullName) {
+      setResumeData((prev) => ({ ...prev, fullName }))
+    }
+    if (jobTitle) {
+      setResumeData((prev) => ({ ...prev, jobTitle }))
+    }
+
+    if (mode === 'vacancy') {
+      const vacancyDescription = String(ctx.vacancyDescription ?? '')
+      const vacancyImgUrl = String(ctx.vacancyImageUrl ?? '')
+      if (vacancyDescription) {
+        setVacancyText(vacancyDescription)
+      }
+      if (vacancyImgUrl) {
+        setVacancyImageUrl(vacancyImgUrl)
+      }
+      setStep('vacancy')
+    } else if (mode === 'improve') {
+      const resumeText = String(ctx.resumeText ?? '')
+      const feedback = String(ctx.feedback ?? '')
+      setResumeData((prev) => {
+        let summary = prev.summary
+        if (resumeText.trim() && !summary.trim()) {
+          summary = resumeText
+        }
+        if (feedback.trim()) {
+          summary = summary.trim()
+            ? `${summary}\n\nFeedback: ${feedback}`
+            : `Feedback: ${feedback}`
+        }
+        return { ...prev, summary }
+      })
+      setStep('form')
+    }
+    // mode === 'create' stays on 'style' (default)
+  }, [])
+
   /*
-   * On mount: call get_init_context to retrieve mode + data stashed by
-   * open_resume_builder
+   * ChatGPT Apps: toolOutput + toolInput on window.openai; legacy
+   * toolResult / getToolResult; then get_init_context (MCP memory fallback).
    */
   useEffect(() => {
-    void callTool('get_init_context', {}).then((ctx) => {
-      if (!ctx) {
+    let cancelled = false
+
+    void (async () => {
+      const payload = await collectResumeInitFromOpenAI(() =>
+        callTool('get_init_context', {}),
+      )
+
+      if (cancelled || !payload) {
         return
       }
-      const mode = String(ctx.mode ?? 'create')
-      const style = String(ctx.style ?? '')
-      const fullName = String(ctx.fullName ?? '')
-      const jobTitle = String(ctx.jobTitle ?? '')
 
-      if (style) {
-        setSelectedStyleId(style)
-      }
-      if (fullName) {
-        setResumeData((prev) => ({ ...prev, fullName }))
-      }
-      if (jobTitle) {
-        setResumeData((prev) => ({ ...prev, jobTitle }))
-      }
+      applyResumeInitContext(payload)
+    })()
 
-      if (mode === 'vacancy') {
-        const vacancyDescription = String(ctx.vacancyDescription ?? '')
-        const vacancyImgUrl = String(ctx.vacancyImageUrl ?? '')
-        if (vacancyDescription) {
-          setVacancyText(vacancyDescription)
-        }
-        if (vacancyImgUrl) {
-          setVacancyImageUrl(vacancyImgUrl)
-        }
-        setStep('vacancy')
-      } else if (mode === 'improve') {
-        setStep('form')
-      }
-      // mode === 'create' stays on 'style' (default)
-    })
-  }, [callTool])
+    return () => {
+      cancelled = true
+    }
+  }, [callTool, applyResumeInitContext])
 
   const selectedStyle = getStyleById(selectedStyleId)
 

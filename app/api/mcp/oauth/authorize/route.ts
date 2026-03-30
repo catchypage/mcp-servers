@@ -56,6 +56,8 @@ export async function GET(req: NextRequest) {
     'https://chatgpt.com/connector/oauth/',
     'https://chatgpt.com/connector_platform_oauth_redirect',
     'https://platform.openai.com/apps-manage/oauth',
+    // MCPJam inspector (local / web testing for MCP + ChatGPT Apps)
+    'https://app.mcpjam.com/oauth/callback',
   ]
   if (!allowedRedirects.some((allowed) => redirectUri.startsWith(allowed))) {
     return NextResponse.json(

@@ -3,7 +3,7 @@
  * static assets under /public/mcp/ (e.g. CSS linked via mcpPublicAssetUrl).
  * One value for all MCP apps.
  */
-export const MCP_WIDGET_ASSETS_VERSION = '23'
+export const MCP_WIDGET_ASSETS_VERSION = '24'
 
 export function getMcpWidgetAssetVersion(): string {
   return MCP_WIDGET_ASSETS_VERSION

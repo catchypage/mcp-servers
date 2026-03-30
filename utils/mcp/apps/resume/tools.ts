@@ -145,7 +145,12 @@ async function handleOpenResumeBuilder(
   args: Record<string, unknown>,
   userId: string,
 ): Promise<Record<string, unknown>> {
-  const mode = String(args.mode ?? 'create')
+  const modeRaw = String(args.mode ?? 'create')
+    .toLowerCase()
+    .trim()
+  const mode = ['create', 'vacancy', 'improve'].includes(modeRaw)
+    ? modeRaw
+    : 'create'
   const jobTitle = String(args.job_title ?? '')
   const fullName = String(args.full_name ?? '')
   const style = String(args.style ?? 'modern')
@@ -184,9 +189,15 @@ async function handleOpenResumeBuilder(
       'Resume builder opened for improvement. Review and enhance your resume.',
   }
 
+  /*
+   * Include `context` in the tool result so the widget can read it via
+   * getToolResult() / toolResult. Memory-only get_init_context breaks on
+   * serverless (another instance) or cold starts.
+   */
   return {
     success: true,
     message: messages[mode] ?? messages.create,
+    ...context,
   }
 }
 
@@ -197,7 +208,11 @@ async function handleGetInitContext(
 ): Promise<Record<string, unknown>> {
   const ctx = pendingContext.get(userId)
   if (ctx) {
-    pendingContext.delete(userId)
+    /*
+     * Do not delete after read. The widget may call get_init_context more than
+     * once (e.g. React 18 StrictMode double-mount in dev, or iframe reload).
+     * Next open_resume_builder overwrites this map entry for the same user.
+     */
     return { success: true, ...ctx }
   }
   return { success: true, mode: 'create' }
