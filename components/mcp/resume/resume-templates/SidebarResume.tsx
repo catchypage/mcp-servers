@@ -127,7 +127,10 @@ export function SidebarResume({ data }: { data: ResumeData }) {
             <ul className="text-indigo-100 text-xs space-y-1">
               {data.certifications.map((c, i) => (
                 <li key={i} className="flex items-start gap-1.5">
-                  <AwardIcon className="text-indigo-300 mt-0.5 shrink-0" size={12} />
+                  <AwardIcon
+                    className="text-indigo-300 mt-0.5 shrink-0"
+                    size={12}
+                  />
                   {c}
                 </li>
               ))}
@@ -144,7 +147,9 @@ export function SidebarResume({ data }: { data: ResumeData }) {
             <h2 className="text-sm font-bold text-indigo-600 uppercase tracking-wider mb-2 flex items-center gap-2">
               <TargetIcon className="text-indigo-400" size={14} /> Profile
             </h2>
-            <p className="text-gray-600 leading-relaxed text-sm">{data.summary}</p>
+            <p className="text-gray-600 leading-relaxed text-sm">
+              {data.summary}
+            </p>
           </div>
         )}
 
@@ -155,10 +160,15 @@ export function SidebarResume({ data }: { data: ResumeData }) {
               <BriefcaseIcon className="text-indigo-400" size={14} /> Experience
             </h2>
             {data.experience.map((exp, i) => (
-              <div key={i} className="mb-5 pb-5 border-b border-gray-100 last:border-0">
+              <div
+                key={i}
+                className="mb-5 pb-5 border-b border-gray-100 last:border-0"
+              >
                 <div className="flex justify-between flex-wrap gap-2">
                   <div>
-                    <h3 className="font-semibold text-gray-800">{exp.position}</h3>
+                    <h3 className="font-semibold text-gray-800">
+                      {exp.position}
+                    </h3>
                     <p className="text-indigo-600 text-sm">{exp.company}</p>
                   </div>
                   <span className="text-xs text-gray-400">{exp.period}</span>

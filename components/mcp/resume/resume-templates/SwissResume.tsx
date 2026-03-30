@@ -43,16 +43,15 @@ export function SwissResume({ data }: { data: ResumeData }) {
               Experience
             </h2>
             {data.experience.map((exp, i) => (
-              <div
-                key={i}
-                className="mb-8 grid grid-cols-4 gap-6"
-              >
+              <div key={i} className="mb-8 grid grid-cols-4 gap-6">
                 <div className="col-span-1">
                   <p className="text-sm text-neutral-400">{exp.period}</p>
                   <p className="text-sm text-neutral-500 mt-1">{exp.company}</p>
                 </div>
                 <div className="col-span-3">
-                  <h3 className="font-bold text-neutral-900 text-lg">{exp.position}</h3>
+                  <h3 className="font-bold text-neutral-900 text-lg">
+                    {exp.position}
+                  </h3>
                   <p className="text-neutral-600 mt-2 leading-relaxed">
                     {exp.description}
                   </p>

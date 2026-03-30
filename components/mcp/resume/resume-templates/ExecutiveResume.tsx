@@ -1,11 +1,7 @@
 import React from 'react'
 import { type ResumeData } from '../types'
 import { ContactRow } from '../shared/ContactRow'
-import {
-  BriefcaseIcon,
-  TargetIcon,
-  AwardIcon,
-} from '../icons'
+import { BriefcaseIcon, TargetIcon, AwardIcon } from '../icons'
 
 export function ExecutiveResume({ data }: { data: ResumeData }) {
   return (
@@ -14,7 +10,8 @@ export function ExecutiveResume({ data }: { data: ResumeData }) {
       <div
         className="px-10 py-8"
         style={{
-          background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 60%, #0f3460 100%)',
+          background:
+            'linear-gradient(135deg, #1a1a2e 0%, #16213e 60%, #0f3460 100%)',
         }}
       >
         <h1 className="text-4xl font-bold text-white tracking-wide">
@@ -36,7 +33,8 @@ export function ExecutiveResume({ data }: { data: ResumeData }) {
         {data.summary && (
           <div className="mb-8">
             <h2 className="text-xs font-bold text-amber-400 uppercase tracking-[0.2em] mb-3 flex items-center gap-2">
-              <TargetIcon className="text-amber-400" size={14} /> Executive Summary
+              <TargetIcon className="text-amber-400" size={14} /> Executive
+              Summary
             </h2>
             <p className="text-gray-300 leading-relaxed">{data.summary}</p>
           </div>
@@ -46,7 +44,8 @@ export function ExecutiveResume({ data }: { data: ResumeData }) {
         {data.experience.length > 0 && (
           <div className="mb-8">
             <h2 className="text-xs font-bold text-amber-400 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
-              <BriefcaseIcon className="text-amber-400" size={14} /> Career History
+              <BriefcaseIcon className="text-amber-400" size={14} /> Career
+              History
             </h2>
             {data.experience.map((exp, i) => (
               <div
@@ -61,7 +60,9 @@ export function ExecutiveResume({ data }: { data: ResumeData }) {
                   </div>
                   <span className="text-sm text-gray-500">{exp.period}</span>
                 </div>
-                <p className="text-gray-400 mt-2 leading-relaxed">{exp.description}</p>
+                <p className="text-gray-400 mt-2 leading-relaxed">
+                  {exp.description}
+                </p>
               </div>
             ))}
           </div>

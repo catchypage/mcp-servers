@@ -35,7 +35,9 @@ export function CollapsibleSection({
             strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
-            className={`text-gray-400 transition-transform ${open ? 'rotate-90' : ''}`}
+            className={`text-gray-400 transition-transform ${
+              open ? 'rotate-90' : ''
+            }`}
           >
             <polyline points="9 18 15 12 9 6" />
           </svg>
@@ -43,7 +45,14 @@ export function CollapsibleSection({
           {/* Fill indicator */}
           {filled ? (
             <span className="inline-flex items-center gap-1 text-xs text-green-400 bg-green-500/15 px-2 py-0.5 rounded-full">
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+              <svg
+                width="10"
+                height="10"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="3"
+              >
                 <polyline points="20 6 9 17 4 12" />
               </svg>
               Filled
@@ -55,16 +64,10 @@ export function CollapsibleSection({
           )}
         </div>
         {headerRight && (
-          <div onClick={(e) => e.stopPropagation()}>
-            {headerRight}
-          </div>
+          <div onClick={(e) => e.stopPropagation()}>{headerRight}</div>
         )}
       </button>
-      {open && (
-        <div className="px-6 pb-6 pt-2">
-          {children}
-        </div>
-      )}
+      {open && <div className="px-6 pb-6 pt-2">{children}</div>}
     </section>
   )
 }

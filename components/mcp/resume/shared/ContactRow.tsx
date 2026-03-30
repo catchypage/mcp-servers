@@ -1,12 +1,6 @@
 import React from 'react'
 import { type ResumeData } from '../types'
-import {
-  MailIcon,
-  PhoneIcon,
-  MapPinIcon,
-  GlobeIcon,
-  LinkIcon,
-} from '../icons'
+import { MailIcon, PhoneIcon, MapPinIcon, GlobeIcon, LinkIcon } from '../icons'
 
 interface ContactRowProps {
   data: ResumeData
@@ -22,15 +16,24 @@ export function ContactRow({
   separator,
 }: ContactRowProps) {
   const items: { icon: typeof MailIcon; value: string }[] = []
-  if (data.contact.email) items.push({ icon: MailIcon, value: data.contact.email })
-  if (data.contact.phone) items.push({ icon: PhoneIcon, value: data.contact.phone })
-  if (data.contact.location)
+  if (data.contact.email) {
+    items.push({ icon: MailIcon, value: data.contact.email })
+  }
+  if (data.contact.phone) {
+    items.push({ icon: PhoneIcon, value: data.contact.phone })
+  }
+  if (data.contact.location) {
     items.push({ icon: MapPinIcon, value: data.contact.location })
-  if (data.contact.website)
+  }
+  if (data.contact.website) {
     items.push({ icon: GlobeIcon, value: data.contact.website })
-  if (data.contact.linkedin)
+  }
+  if (data.contact.linkedin) {
     items.push({ icon: LinkIcon, value: data.contact.linkedin })
-  if (items.length === 0) return null
+  }
+  if (items.length === 0) {
+    return null
+  }
   return (
     <div className={className}>
       {items.map((c, i) => (

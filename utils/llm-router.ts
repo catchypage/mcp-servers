@@ -1,10 +1,15 @@
 // Check if we're running on the client or server
 const isClient = typeof window !== 'undefined'
 
-// LLM Router configuration
-// On client side, we'll use the API route instead of direct connection
-const LLM_ROUTER_BASE_URL = process.env.NEXT_PUBLIC_LLM_ROUTER_BASE_URL || process.env.LLM_ROUTER_BASE_URL
-const LLM_ROUTER_BEARER_TOKEN = process.env.NEXT_PUBLIC_LLM_ROUTER_BEARER_TOKEN || process.env.LLM_ROUTER_BEARER_TOKEN
+/*
+ * LLM Router configuration
+ * On client side, we'll use the API route instead of direct connection
+ */
+const LLM_ROUTER_BASE_URL =
+  process.env.NEXT_PUBLIC_LLM_ROUTER_BASE_URL || process.env.LLM_ROUTER_BASE_URL
+const LLM_ROUTER_BEARER_TOKEN =
+  process.env.NEXT_PUBLIC_LLM_ROUTER_BEARER_TOKEN ||
+  process.env.LLM_ROUTER_BEARER_TOKEN
 
 // Only check for env vars on server side
 if (!isClient && (!LLM_ROUTER_BASE_URL || !LLM_ROUTER_BEARER_TOKEN)) {
@@ -52,9 +57,12 @@ interface LLMRouterResponse {
  */
 export async function callLLMRouter(
   request: LLMRouterRequest,
-  timeoutMs: number = 55000,
+  timeoutMs = 55000,
 ): Promise<string> {
-  // Проверяем, не выполняется ли уже такой же запрос (только если skipDedup не задан)
+  /*
+   * Проверяем, не выполняется ли уже такой же запрос (только если skipDedup не
+   * задан)
+   */
   const requestKey = getRequestKey(request)
   if (!request.skipDedup) {
     const existingRequest = pendingRequests.get(requestKey)
@@ -70,8 +78,10 @@ export async function callLLMRouter(
     const timeoutId = setTimeout(() => controller.abort(), timeoutMs)
 
     try {
-      // Use API route on client side, direct connection on server side
-      // model задан → v1/smart (с моделью), иначе → v1/generate (без модели)
+      /*
+       * Use API route on client side, direct connection on server side
+       * model задан → v1/smart (с моделью), иначе → v1/generate (без модели)
+       */
       const endpoint = request.model ? 'v1/smart' : 'v1/generatev2'
       const url = isClient
         ? '/api/llm-router'
@@ -83,7 +93,7 @@ export async function callLLMRouter(
 
       // Only add Authorization header for direct server-side requests
       if (!isClient) {
-        headers['Authorization'] = `Bearer ${LLM_ROUTER_BEARER_TOKEN}`
+        headers.Authorization = `Bearer ${LLM_ROUTER_BEARER_TOKEN}`
       }
 
       const body: Record<string, any> = {
@@ -131,7 +141,10 @@ export async function callLLMRouter(
       try {
         result = JSON.parse(rawText) as LLMRouterResponse
       } catch (parseError) {
-        console.error('❌ Failed to parse LLM Router response as JSON:', parseError)
+        console.error(
+          '❌ Failed to parse LLM Router response as JSON:',
+          parseError,
+        )
         console.error('Raw text:', rawText.substring(0, 1000))
         throw new Error('Invalid JSON response from LLM Router')
       }
@@ -144,7 +157,9 @@ export async function callLLMRouter(
         durationMs: result.duration_ms,
         attempts: result.attempts,
         textLength: result.text?.length ?? 0,
-        textPreview: result.text ? result.text.substring(0, 100) : 'NO TEXT FIELD',
+        textPreview: result.text
+          ? result.text.substring(0, 100)
+          : 'NO TEXT FIELD',
       })
 
       const responseText = result.text
@@ -196,12 +211,13 @@ export async function callLLMRouter(
 
 /**
  * Вызов LLM Router API с повторными попытками
- * По умолчанию: 2 попытки с таймаутом 55 секунд и задержкой 10 секунд между попытками
+ * По умолчанию: 2 попытки с таймаутом 55 секунд и задержкой 10 секунд между
+ * попытками
  */
 export async function callLLMRouterWithRetry(
   request: LLMRouterRequest,
-  maxRetries: number = 2,
-  timeoutMs: number = 55000,
+  maxRetries = 2,
+  timeoutMs = 55000,
 ): Promise<string> {
   const RETRY_DELAY = 10000 // 10 секунд между попытками
 
@@ -233,7 +249,9 @@ export async function callLLMRouterWithRetry(
       }
 
       console.log(
-        `⏳ Ждем ${RETRY_DELAY}ms перед следующей попыткой (${attempt + 1}/${maxRetries})...`,
+        `⏳ Ждем ${RETRY_DELAY}ms перед следующей попыткой (${
+          attempt + 1
+        }/${maxRetries})...`,
       )
       await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY))
     }

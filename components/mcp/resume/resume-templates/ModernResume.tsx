@@ -46,12 +46,16 @@ export function ModernResume({ data }: { data: ResumeData }) {
               <div key={i} className="mb-6">
                 <div className="flex justify-between flex-wrap gap-2">
                   <div>
-                    <h3 className="font-semibold text-gray-900">{exp.position}</h3>
+                    <h3 className="font-semibold text-gray-900">
+                      {exp.position}
+                    </h3>
                     <p className="text-sky-600 text-sm">{exp.company}</p>
                   </div>
                   <span className="text-sm text-gray-400">{exp.period}</span>
                 </div>
-                <p className="text-gray-600 mt-2 leading-relaxed">{exp.description}</p>
+                <p className="text-gray-600 mt-2 leading-relaxed">
+                  {exp.description}
+                </p>
               </div>
             ))}
           </div>

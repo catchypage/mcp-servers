@@ -23,9 +23,11 @@ export type ResumeStyleId = (typeof RESUME_STYLE_IDS)[number]
  */
 const pendingContext = new Map<string, Record<string, unknown>>()
 
-/* ═══════════════════════════════════════════════════════════════
+/*
+ * ═══════════════════════════════════════════════════════════════
  * PUBLIC TOOLS (visible to GPT)
- * ═══════════════════════════════════════════════════════════════ */
+ * ═══════════════════════════════════════════════════════════════
+ */
 
 const openResumeBuilderTool: McpToolDefinition = {
   name: 'open_resume_builder',
@@ -75,9 +77,11 @@ const openResumeBuilderTool: McpToolDefinition = {
   securitySchemes: [{ type: 'oauth2', scopes: ['user:read'] }],
 }
 
-/* ═══════════════════════════════════════════════════════════════
+/*
+ * ═══════════════════════════════════════════════════════════════
  * INTERNAL TOOLS (hidden, called by widget via callTool)
- * ═══════════════════════════════════════════════════════════════ */
+ * ═══════════════════════════════════════════════════════════════
+ */
 
 const getInitContextTool: McpToolDefinition = {
   name: 'get_init_context',
@@ -111,9 +115,11 @@ const getUserInfoTool: McpToolDefinition = {
   _meta: { 'openai/hidden': true },
 }
 
-/* ═══════════════════════════════════════════════════════════════
+/*
+ * ═══════════════════════════════════════════════════════════════
  * EXPORTS
- * ═══════════════════════════════════════════════════════════════ */
+ * ═══════════════════════════════════════════════════════════════
+ */
 
 export const resumeTools: McpToolDefinition[] = [openResumeBuilderTool]
 
@@ -122,9 +128,11 @@ export const resumeInternalTools: McpToolDefinition[] = [
   getUserInfoTool,
 ]
 
-/* ═══════════════════════════════════════════════════════════════
+/*
+ * ═══════════════════════════════════════════════════════════════
  * HANDLERS
- * ═══════════════════════════════════════════════════════════════ */
+ * ═══════════════════════════════════════════════════════════════
+ */
 
 export type ToolHandler = (
   app: McpAppConfig,
@@ -147,8 +155,12 @@ async function handleOpenResumeBuilder(
 
   const context: Record<string, unknown> = { mode, style: validStyle }
 
-  if (fullName) context.fullName = fullName
-  if (jobTitle) context.jobTitle = jobTitle
+  if (fullName) {
+    context.fullName = fullName
+  }
+  if (jobTitle) {
+    context.jobTitle = jobTitle
+  }
 
   if (mode === 'vacancy') {
     context.vacancyDescription = String(args.vacancy_description ?? '')
@@ -164,9 +176,12 @@ async function handleOpenResumeBuilder(
   pendingContext.set(userId, context)
 
   const messages: Record<string, string> = {
-    create: 'Resume builder is ready. Choose from 8 professional styles and fill in your details.',
-    vacancy: 'Resume builder opened in vacancy tailoring mode. Paste or review the vacancy and AI will adapt your resume.',
-    improve: 'Resume builder opened for improvement. Review and enhance your resume.',
+    create:
+      'Resume builder is ready. Choose from 8 professional styles and fill in your details.',
+    vacancy:
+      'Resume builder opened in vacancy tailoring mode. Paste or review the vacancy and AI will adapt your resume.',
+    improve:
+      'Resume builder opened for improvement. Review and enhance your resume.',
   }
 
   return {

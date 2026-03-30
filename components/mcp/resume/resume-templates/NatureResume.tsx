@@ -1,11 +1,7 @@
 import React from 'react'
 import { type ResumeData } from '../types'
 import { ContactRow } from '../shared/ContactRow'
-import {
-  TargetIcon,
-  BriefcaseIcon,
-  AwardIcon,
-} from '../icons'
+import { TargetIcon, BriefcaseIcon, AwardIcon } from '../icons'
 
 export function NatureResume({ data }: { data: ResumeData }) {
   return (
@@ -23,7 +19,9 @@ export function NatureResume({ data }: { data: ResumeData }) {
         <h1 className="text-3xl font-semibold text-stone-800">
           {data.fullName || 'Your Name'}
         </h1>
-        <p className="text-lg text-lime-700 mt-1">{data.jobTitle || 'Job Title'}</p>
+        <p className="text-lg text-lime-700 mt-1">
+          {data.jobTitle || 'Job Title'}
+        </p>
         <ContactRow
           data={data}
           className="text-sm text-stone-500 mt-4 flex flex-wrap justify-center gap-x-6 gap-y-1"
@@ -56,7 +54,9 @@ export function NatureResume({ data }: { data: ResumeData }) {
                 <div className="absolute -left-[5px] top-1.5 w-2 h-2 rounded-full bg-lime-500" />
                 <div className="flex justify-between flex-wrap gap-2">
                   <div>
-                    <h3 className="font-semibold text-stone-800">{exp.position}</h3>
+                    <h3 className="font-semibold text-stone-800">
+                      {exp.position}
+                    </h3>
                     <p className="text-lime-700 text-sm">{exp.company}</p>
                   </div>
                   <span className="text-xs text-stone-400 bg-lime-50 px-3 py-1 rounded-full">
@@ -80,7 +80,9 @@ export function NatureResume({ data }: { data: ResumeData }) {
               </h2>
               {data.education.map((edu, i) => (
                 <div key={i} className="mb-3 last:mb-0">
-                  <h3 className="font-semibold text-stone-800 text-sm">{edu.degree}</h3>
+                  <h3 className="font-semibold text-stone-800 text-sm">
+                    {edu.degree}
+                  </h3>
                   <p className="text-stone-500 text-xs">{edu.institution}</p>
                   <p className="text-stone-400 text-xs">{edu.period}</p>
                 </div>
@@ -132,7 +134,10 @@ export function NatureResume({ data }: { data: ResumeData }) {
                 <ul className="text-stone-600 text-xs space-y-1">
                   {data.certifications.map((c, i) => (
                     <li key={i} className="flex items-start gap-1.5">
-                      <AwardIcon className="text-lime-600 mt-0.5 shrink-0" size={12} />
+                      <AwardIcon
+                        className="text-lime-600 mt-0.5 shrink-0"
+                        size={12}
+                      />
                       {c}
                     </li>
                   ))}

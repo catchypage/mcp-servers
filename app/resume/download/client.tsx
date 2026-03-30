@@ -16,7 +16,9 @@ export default function ResumeDownloadClient({ data, styleId }: Props) {
   const style = getStyleById(styleId)
 
   const handleDownload = useCallback(async () => {
-    if (!resumeRef.current) return
+    if (!resumeRef.current) {
+      return
+    }
     setGenerating(true)
 
     try {
@@ -65,7 +67,9 @@ export default function ResumeDownloadClient({ data, styleId }: Props) {
           <p className="text-gray-500 text-xs">Style: {style.name}</p>
         </div>
         <button
-          onClick={handleDownload}
+          onClick={() => {
+            void handleDownload()
+          }}
           disabled={generating}
           className="inline-flex items-center gap-2 px-5 py-2 rounded-lg bg-blue-600 text-white font-semibold text-sm hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >

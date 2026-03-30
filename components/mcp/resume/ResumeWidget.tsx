@@ -1,8 +1,13 @@
 'use client'
 
 import React, { useState, useCallback, useEffect } from 'react'
-import { RESUME_STYLES, getStyleById, type ResumeStyle } from './styles'
-import { type ResumeData, type Experience, type Education, type ContactInfo } from './types'
+import { RESUME_STYLES, getStyleById } from './styles'
+import {
+  type ResumeData,
+  type Experience,
+  type Education,
+  type ContactInfo,
+} from './types'
 import ResumePreview from './ResumePreview'
 import { DownloadIcon } from './icons'
 import { CollapsibleSection } from './shared/CollapsibleSection'
@@ -34,6 +39,18 @@ import '../openai-types'
 
 type Step = 'style' | 'form' | 'preview' | 'vacancy'
 
+/** Response shape from POST /api/llm-router */
+interface LlmRouterResponse {
+  text?: string
+  response?: string
+}
+
+interface TailorVacancyPayload {
+  resumeData: ResumeData
+  suggestedStyleId?: string
+  explanation?: string
+}
+
 export default function ResumeWidget() {
   const [step, setStep] = useState<Step>('style')
   const [selectedStyleId, setSelectedStyleId] = useState<string>('modern')
@@ -58,7 +75,9 @@ export default function ResumeWidget() {
       name: string,
       args: Record<string, unknown>,
     ): Promise<Record<string, unknown> | null> => {
-      if (!window.openai?.callTool) return null
+      if (!window.openai?.callTool) {
+        return null
+      }
       try {
         const res = await window.openai.callTool(name, args)
         return res.structuredContent ?? res
@@ -70,24 +89,39 @@ export default function ResumeWidget() {
     [],
   )
 
-  // On mount: call get_init_context to retrieve mode + data stashed by open_resume_builder
+  /*
+   * On mount: call get_init_context to retrieve mode + data stashed by
+   * open_resume_builder
+   */
   useEffect(() => {
     void callTool('get_init_context', {}).then((ctx) => {
-      if (!ctx) return
+      if (!ctx) {
+        return
+      }
       const mode = String(ctx.mode ?? 'create')
       const style = String(ctx.style ?? '')
       const fullName = String(ctx.fullName ?? '')
       const jobTitle = String(ctx.jobTitle ?? '')
 
-      if (style) setSelectedStyleId(style)
-      if (fullName) setResumeData((prev) => ({ ...prev, fullName }))
-      if (jobTitle) setResumeData((prev) => ({ ...prev, jobTitle }))
+      if (style) {
+        setSelectedStyleId(style)
+      }
+      if (fullName) {
+        setResumeData((prev) => ({ ...prev, fullName }))
+      }
+      if (jobTitle) {
+        setResumeData((prev) => ({ ...prev, jobTitle }))
+      }
 
       if (mode === 'vacancy') {
         const vacancyDescription = String(ctx.vacancyDescription ?? '')
         const vacancyImgUrl = String(ctx.vacancyImageUrl ?? '')
-        if (vacancyDescription) setVacancyText(vacancyDescription)
-        if (vacancyImgUrl) setVacancyImageUrl(vacancyImgUrl)
+        if (vacancyDescription) {
+          setVacancyText(vacancyDescription)
+        }
+        if (vacancyImgUrl) {
+          setVacancyImageUrl(vacancyImgUrl)
+        }
         setStep('vacancy')
       } else if (mode === 'improve') {
         setStep('form')
@@ -181,7 +215,7 @@ export default function ResumeWidget() {
     if (langInput.trim()) {
       setResumeData((prev) => ({
         ...prev,
-        languages: [...(prev.languages || []), langInput.trim()],
+        languages: [...(prev.languages ?? []), langInput.trim()],
       }))
       setLangInput('')
     }
@@ -190,7 +224,7 @@ export default function ResumeWidget() {
   const removeLanguage = useCallback((index: number) => {
     setResumeData((prev) => ({
       ...prev,
-      languages: (prev.languages || []).filter((_, i) => i !== index),
+      languages: (prev.languages ?? []).filter((_, i) => i !== index),
     }))
   }, [])
 
@@ -198,7 +232,7 @@ export default function ResumeWidget() {
     if (certInput.trim()) {
       setResumeData((prev) => ({
         ...prev,
-        certifications: [...(prev.certifications || []), certInput.trim()],
+        certifications: [...(prev.certifications ?? []), certInput.trim()],
       }))
       setCertInput('')
     }
@@ -207,7 +241,7 @@ export default function ResumeWidget() {
   const removeCertification = useCallback((index: number) => {
     setResumeData((prev) => ({
       ...prev,
-      certifications: (prev.certifications || []).filter((_, i) => i !== index),
+      certifications: (prev.certifications ?? []).filter((_, i) => i !== index),
     }))
   }, [])
 
@@ -216,7 +250,9 @@ export default function ResumeWidget() {
   }, [resumeData, selectedStyleId])
 
   const handleTailorForVacancy = useCallback(async () => {
-    if (!vacancyText.trim() && !vacancyImageUrl.trim()) return
+    if (!vacancyText.trim() && !vacancyImageUrl.trim()) {
+      return
+    }
 
     setVacancyLoading(true)
     setVacancyResult(null)
@@ -225,10 +261,15 @@ export default function ResumeWidget() {
       const baseUrl = getBaseUrl()
       const vacancyInfo = [
         vacancyText.trim() && `Vacancy description:\n${vacancyText.trim()}`,
-        vacancyImageUrl.trim() && `Vacancy image URL: ${vacancyImageUrl.trim()}`,
-      ].filter(Boolean).join('\n\n')
+        vacancyImageUrl.trim() &&
+          `Vacancy image URL: ${vacancyImageUrl.trim()}`,
+      ]
+        .filter(Boolean)
+        .join('\n\n')
 
-      const stylesList = RESUME_STYLES.map((s) => `- ${s.id}: ${s.name} — ${s.description}`).join('\n')
+      const stylesList = RESUME_STYLES.map(
+        (s) => `- ${s.id}: ${s.name} — ${s.description}`,
+      ).join('\n')
 
       const response = await fetch(`${baseUrl}/api/llm-router`, {
         method: 'POST',
@@ -274,20 +315,20 @@ Please adapt my resume for this vacancy. Keep all my real data (name, contacts, 
         throw new Error(`API error: ${response.status}`)
       }
 
-      const data = await response.json()
-      const text = data.text || data.response || ''
+      const data = (await response.json()) as LlmRouterResponse
+      const text = data.text ?? data.response ?? ''
 
       let jsonStr = text.trim()
       const jsonMatch = jsonStr.match(/```(?:json)?\s*([\s\S]*?)```/)
-      if (jsonMatch) {
+      if (jsonMatch?.[1]) {
         jsonStr = jsonMatch[1].trim()
       }
 
-      const parsed = JSON.parse(jsonStr)
+      const parsed = JSON.parse(jsonStr) as TailorVacancyPayload
       setVacancyResult({
         resumeData: parsed.resumeData,
-        suggestedStyleId: parsed.suggestedStyleId || selectedStyleId,
-        explanation: parsed.explanation || 'Resume adapted for the vacancy.',
+        suggestedStyleId: parsed.suggestedStyleId ?? selectedStyleId,
+        explanation: parsed.explanation ?? 'Resume adapted for the vacancy.',
       })
     } catch (error) {
       console.error('Failed to tailor resume:', error)
@@ -298,7 +339,9 @@ Please adapt my resume for this vacancy. Keep all my real data (name, contacts, 
   }, [vacancyText, vacancyImageUrl, resumeData, selectedStyleId])
 
   const applyVacancyResult = useCallback(() => {
-    if (!vacancyResult) return
+    if (!vacancyResult) {
+      return
+    }
     setResumeData(vacancyResult.resumeData)
     setSelectedStyleId(vacancyResult.suggestedStyleId)
     setVacancyResult(null)
@@ -624,7 +667,7 @@ Please adapt my resume for this vacancy. Keep all my real data (name, contacts, 
                     <label className={labelClass}>Description (optional)</label>
                     <input
                       type="text"
-                      value={edu.description || ''}
+                      value={edu.description ?? ''}
                       onChange={(e) =>
                         updateEducation(index, 'description', e.target.value)
                       }
@@ -696,7 +739,7 @@ Please adapt my resume for this vacancy. Keep all my real data (name, contacts, 
               </button>
             </div>
             <div className="flex flex-wrap gap-2">
-              {(resumeData.languages || []).map((lang, index) => (
+              {(resumeData.languages ?? []).map((lang, index) => (
                 <span
                   key={index}
                   className="inline-flex items-center gap-2 bg-green-500/20 text-green-300 px-3 py-1.5 rounded-full text-sm"
@@ -734,7 +777,7 @@ Please adapt my resume for this vacancy. Keep all my real data (name, contacts, 
               </button>
             </div>
             <div className="flex flex-wrap gap-2">
-              {(resumeData.certifications || []).map((cert, index) => (
+              {(resumeData.certifications ?? []).map((cert, index) => (
                 <span
                   key={index}
                   className="inline-flex items-center gap-2 bg-purple-500/20 text-purple-300 px-3 py-1.5 rounded-full text-sm"
@@ -768,7 +811,16 @@ Please adapt my resume for this vacancy. Keep all my real data (name, contacts, 
                 className={`${buttonClass} bg-purple-600 text-white hover:bg-purple-700`}
               >
                 <span className="flex items-center gap-2">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
                     <path d="M12 20h9" />
                     <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
                   </svg>
@@ -830,7 +882,7 @@ Please adapt my resume for this vacancy. Keep all my real data (name, contacts, 
                   alt="Vacancy screenshot"
                   className="max-w-full max-h-64 object-contain mx-auto"
                   onError={(e) => {
-                    (e.target as HTMLImageElement).style.display = 'none'
+                    ;(e.target as HTMLImageElement).style.display = 'none'
                   }}
                 />
               </div>
@@ -840,7 +892,8 @@ Please adapt my resume for this vacancy. Keep all my real data (name, contacts, 
           <section className="mb-6 p-6 rounded-xl bg-white/5 border border-white/10">
             <h2 className="text-lg font-semibold mb-4">Vacancy Description</h2>
             <p className="text-gray-400 text-sm mb-3">
-              Paste the job description, requirements, and any relevant info about the position
+              Paste the job description, requirements, and any relevant info
+              about the position
             </p>
             <textarea
               value={vacancyText}
@@ -858,19 +911,26 @@ Example:
           </section>
 
           <section className="mb-6 p-4 rounded-xl bg-blue-500/10 border border-blue-500/20">
-            <h3 className="text-sm font-semibold text-blue-300 mb-2">Your current resume</h3>
+            <h3 className="text-sm font-semibold text-blue-300 mb-2">
+              Your current resume
+            </h3>
             <p className="text-sm text-gray-300">
               <strong>{resumeData.fullName}</strong> — {resumeData.jobTitle}
             </p>
             <p className="text-xs text-gray-400 mt-1">
-              {resumeData.experience.length} experience(s), {resumeData.skills.length} skill(s), Style: {selectedStyle.name}
+              {resumeData.experience.length} experience(s),{' '}
+              {resumeData.skills.length} skill(s), Style: {selectedStyle.name}
             </p>
           </section>
 
           {vacancyResult && (
             <section className="mb-6 p-6 rounded-xl bg-green-500/10 border border-green-500/20">
-              <h3 className="text-lg font-semibold text-green-300 mb-3">AI Suggestions</h3>
-              <p className="text-gray-300 text-sm mb-4">{vacancyResult.explanation}</p>
+              <h3 className="text-lg font-semibold text-green-300 mb-3">
+                AI Suggestions
+              </h3>
+              <p className="text-gray-300 text-sm mb-4">
+                {vacancyResult.explanation}
+              </p>
               <div className="flex items-center gap-3 mb-4">
                 <span className="text-sm text-gray-400">Suggested style:</span>
                 <span className="text-sm font-medium text-white bg-white/10 px-3 py-1 rounded-full">
@@ -878,7 +938,8 @@ Example:
                 </span>
               </div>
 
-              <div className="mb-4 rounded-lg overflow-hidden border border-white/10"
+              <div
+                className="mb-4 rounded-lg overflow-hidden border border-white/10"
                 style={{ height: 300, position: 'relative' }}
               >
                 <div
@@ -923,20 +984,48 @@ Example:
               Back
             </button>
             <button
-              onClick={handleTailorForVacancy}
-              disabled={vacancyLoading || (!vacancyText.trim() && !vacancyImageUrl.trim())}
+              onClick={() => {
+                void handleTailorForVacancy()
+              }}
+              disabled={
+                vacancyLoading ||
+                (!vacancyText.trim() && !vacancyImageUrl.trim())
+              }
               className={`${buttonClass} bg-purple-600 text-white hover:bg-purple-700`}
             >
               {vacancyLoading ? (
                 <span className="flex items-center gap-2">
-                  <svg className="animate-spin" width="16" height="16" viewBox="0 0 24 24" fill="none">
-                    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeDasharray="60" strokeLinecap="round" />
+                  <svg
+                    className="animate-spin"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                  >
+                    <circle
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="3"
+                      strokeDasharray="60"
+                      strokeLinecap="round"
+                    />
                   </svg>
                   Analyzing...
                 </span>
               ) : (
                 <span className="flex items-center gap-2">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
                     <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
                   </svg>
                   Tailor Resume with AI
@@ -970,7 +1059,16 @@ Example:
               className={`${buttonClass} bg-purple-600 text-white hover:bg-purple-700`}
             >
               <span className="flex items-center gap-2">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
                   <path d="M12 20h9" />
                   <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
                 </svg>
@@ -983,10 +1081,7 @@ Example:
             >
               Change Style
             </button>
-            <button
-              onClick={handleDownloadPdf}
-              className={primaryBtnClass}
-            >
+            <button onClick={handleDownloadPdf} className={primaryBtnClass}>
               <span className="flex items-center gap-2">
                 <DownloadIcon size={16} />
                 Download PDF

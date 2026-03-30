@@ -10,7 +10,8 @@ export function CreativeResume({ data }: { data: ResumeData }) {
       <div
         className="px-10 py-10 text-white"
         style={{
-          background: 'linear-gradient(135deg, #ec4899 0%, #a855f7 50%, #6366f1 100%)',
+          background:
+            'linear-gradient(135deg, #ec4899 0%, #a855f7 50%, #6366f1 100%)',
         }}
       >
         <h1 className="text-5xl font-black">{data.fullName || 'Your Name'}</h1>
@@ -51,7 +52,9 @@ export function CreativeResume({ data }: { data: ResumeData }) {
                   >
                     <div className="flex justify-between flex-wrap gap-2">
                       <div>
-                        <h3 className="font-bold text-gray-900">{exp.position}</h3>
+                        <h3 className="font-bold text-gray-900">
+                          {exp.position}
+                        </h3>
                         <p className="text-purple-600 text-sm font-medium">
                           {exp.company}
                         </p>
@@ -82,8 +85,7 @@ export function CreativeResume({ data }: { data: ResumeData }) {
                       key={i}
                       className="text-white text-xs px-3 py-1 rounded-full font-medium"
                       style={{
-                        background:
-                          'linear-gradient(135deg, #ec4899, #a855f7)',
+                        background: 'linear-gradient(135deg, #ec4899, #a855f7)',
                       }}
                     >
                       {s}

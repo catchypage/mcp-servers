@@ -32,7 +32,8 @@ export function ClassicResume({ data }: { data: ResumeData }) {
       {data.summary && (
         <div className="mt-6">
           <h2 className="text-sm font-bold text-[#1e3a5f] uppercase tracking-widest border-b border-gray-300 pb-1 mb-3 flex items-center gap-2">
-            <TargetIcon className="text-[#1e3a5f]" size={14} /> Professional Summary
+            <TargetIcon className="text-[#1e3a5f]" size={14} /> Professional
+            Summary
           </h2>
           <p className="text-gray-700 leading-relaxed">{data.summary}</p>
         </div>
@@ -42,7 +43,8 @@ export function ClassicResume({ data }: { data: ResumeData }) {
       {data.experience.length > 0 && (
         <div className="mt-6">
           <h2 className="text-sm font-bold text-[#1e3a5f] uppercase tracking-widest border-b border-gray-300 pb-1 mb-3 flex items-center gap-2">
-            <BriefcaseIcon className="text-[#1e3a5f]" size={14} /> Work Experience
+            <BriefcaseIcon className="text-[#1e3a5f]" size={14} /> Work
+            Experience
           </h2>
           {data.experience.map((exp, i) => (
             <div key={i} className="mb-5 pl-4 border-l-2 border-gray-300">
@@ -53,7 +55,9 @@ export function ClassicResume({ data }: { data: ResumeData }) {
                 </div>
                 <span className="text-sm text-gray-500">{exp.period}</span>
               </div>
-              <p className="text-gray-700 mt-1 leading-relaxed">{exp.description}</p>
+              <p className="text-gray-700 mt-1 leading-relaxed">
+                {exp.description}
+              </p>
             </div>
           ))}
         </div>

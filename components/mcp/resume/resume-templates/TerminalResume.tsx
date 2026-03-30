@@ -33,13 +33,17 @@ export function TerminalResume({ data }: { data: ResumeData }) {
             {data.contact.email && (
               <p>
                 <span className="text-purple-400">&quot;email&quot;</span>:{' '}
-                <span className="text-yellow-300">&quot;{data.contact.email}&quot;</span>
+                <span className="text-yellow-300">
+                  &quot;{data.contact.email}&quot;
+                </span>
               </p>
             )}
             {data.contact.phone && (
               <p>
                 <span className="text-purple-400">&quot;phone&quot;</span>:{' '}
-                <span className="text-yellow-300">&quot;{data.contact.phone}&quot;</span>
+                <span className="text-yellow-300">
+                  &quot;{data.contact.phone}&quot;
+                </span>
               </p>
             )}
             {data.contact.location && (
@@ -89,10 +93,7 @@ export function TerminalResume({ data }: { data: ResumeData }) {
               <span className="text-gray-600">--oneline --work-history</span>
             </p>
             {data.experience.map((exp, i) => (
-              <div
-                key={i}
-                className="mb-4 pl-4 border-l border-green-500/40"
-              >
+              <div key={i} className="mb-4 pl-4 border-l border-green-500/40">
                 <div className="flex justify-between flex-wrap gap-2">
                   <div>
                     <h3 className="text-green-300 font-bold">{exp.position}</h3>
@@ -133,7 +134,9 @@ export function TerminalResume({ data }: { data: ResumeData }) {
             </p>
             {data.education.map((edu, i) => (
               <div key={i} className="mb-3">
-                <h3 className="text-green-300 font-semibold text-sm">{edu.degree}</h3>
+                <h3 className="text-green-300 font-semibold text-sm">
+                  {edu.degree}
+                </h3>
                 <p className="text-gray-500 text-sm">
                   {edu.institution} — {edu.period}
                 </p>
@@ -167,7 +170,9 @@ export function TerminalResume({ data }: { data: ResumeData }) {
             <p className="text-gray-500 text-sm mb-2">
               $ <span className="text-green-400">echo</span> $LANGUAGES
             </p>
-            <p className="text-yellow-300 text-sm">{data.languages.join(' | ')}</p>
+            <p className="text-yellow-300 text-sm">
+              {data.languages.join(' | ')}
+            </p>
           </div>
         )}
 

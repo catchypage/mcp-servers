@@ -6,7 +6,13 @@ export function isPersonalFilled(d: ResumeData): boolean {
 
 export function isContactFilled(d: ResumeData): boolean {
   const c = d.contact
-  return !!(c.email?.trim() || c.phone?.trim() || c.location?.trim() || c.website?.trim() || c.linkedin?.trim())
+  return !!(
+    c.email?.trim() ||
+    c.phone?.trim() ||
+    c.location?.trim() ||
+    c.website?.trim() ||
+    c.linkedin?.trim()
+  )
 }
 
 export function isExperienceFilled(d: ResumeData): boolean {
