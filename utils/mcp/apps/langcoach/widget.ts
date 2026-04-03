@@ -19,9 +19,9 @@ export function langcoachWidgetHTML(baseUrl: string): string {
       margin: 0 !important;
       padding: 0 !important;
       width: 100% !important;
-      height: 600px !important;
-      min-height: 600px !important;
-      max-height: 600px !important;
+      height: 700px !important;
+      min-height: 700px !important;
+      max-height: 700px !important;
       overflow: hidden !important;
     }
     body { font-family: system-ui, sans-serif; background: #0f1419; color: #e7e9ea; }

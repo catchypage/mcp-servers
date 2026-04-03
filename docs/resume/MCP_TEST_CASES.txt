@@ -1,5 +1,5 @@
 Resume Builder — MCP test cases (OpenAI Apps submission)
-Copy one block per form field. Connector: POST https://justmatch.us/api/mcp/resume (no OAuth required). Public tool for the model: open_resume_builder only.
+Copy one block per form field. Connector: POST https://mvp.mom/api/mcp/resume (no OAuth required). Public tool for the model: open_resume_builder only.
 
 ================================================================================
 Positive test cases (5)
@@ -19,7 +19,7 @@ Tool triggered
 open_resume_builder
 
 Expected output
-tools/call succeeds with assistant-visible message and the Resume Builder widget loads (outputTemplate / embedded UI). User completes OAuth if needed, then fills in resume details inside the widget.
+tools/call succeeds with assistant-visible message and the Resume Builder widget loads (outputTemplate / embedded UI). No sign-in needed. User fills in resume details inside the widget.
 
 --------------------------------------------------------------------------------
 Test Case 2 — Create a resume for a specific role
