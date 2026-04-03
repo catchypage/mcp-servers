@@ -6,10 +6,10 @@ No authentication required (skipAuth: true).
 CSP Metadata (widget)
 ================================================================================
 connect_domains
-https://justmatch.us
+https://mvp.mom
 
 resource_domains
-https://justmatch.us
+https://mvp.mom
 
 ================================================================================
 open_resume_builder

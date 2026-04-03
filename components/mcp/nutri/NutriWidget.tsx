@@ -55,14 +55,14 @@ export default function NutriWidget() {
 
   if (screen === 'loading') {
     return (
-      <div className="h-[600px] flex items-center justify-center text-slate-500 text-sm font-sans bg-slate-900">
+      <div className="h-[700px] flex items-center justify-center text-slate-500 text-sm font-sans bg-slate-900">
         Loading ChefPlan…
       </div>
     )
   }
 
   return (
-    <div className="h-[600px] flex flex-col bg-slate-900 text-slate-200 font-sans overflow-hidden">
+    <div className="h-[700px] flex flex-col bg-slate-900 text-slate-200 font-sans overflow-hidden">
       <Header screen={screen} onNavigate={setScreen} />
       <div className="flex-1 overflow-y-auto overflow-x-hidden">
         {screen === 'form' && (

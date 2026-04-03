@@ -1,5 +1,5 @@
 ChefPlan — MCP test cases (OpenAI Apps submission)
-Copy one block per form field. Connector: POST https://justmatch.us/api/mcp/chefplan2 (no OAuth required). Public tools: calculate_metabolism, find_recipe.
+Copy one block per form field. Connector: POST https://cuto.pro/api/mcp/chefplan2 (no OAuth required). Public tools: calculate_metabolism, find_recipe.
 
 ================================================================================
 Positive test cases (5)

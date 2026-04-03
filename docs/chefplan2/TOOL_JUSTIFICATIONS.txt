@@ -5,10 +5,10 @@ Copy one block per form field. Annotations match utils/mcp/apps/nutri/tools.ts
 CSP Metadata (widget)
 ================================================================================
 connect_domains
-https://justmatch.us
+https://cuto.pro
 
 resource_domains
-https://justmatch.us
+https://cuto.pro
 
 img_domains
 (images are proxied through our server at /api/mcp/chefplan2/img to avoid CSP

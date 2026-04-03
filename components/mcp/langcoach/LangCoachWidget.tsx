@@ -184,7 +184,7 @@ export default function LangCoachWidget() {
 
   return (
     <div
-      className={`h-[600px] overflow-y-auto flex flex-col font-sans ${rootBg} ${rootText}`}
+      className={`h-[700px] overflow-y-auto flex flex-col font-sans ${rootBg} ${rootText}`}
     >
       <Header
         tt={tt}

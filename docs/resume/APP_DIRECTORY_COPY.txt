@@ -36,7 +36,7 @@ Open Resume Builder and help me create a resume for a frontend developer role.
 Release Notes — required (may appear on app details page)
 ================================================================================
 Bug fixes and other improvements.
-- Open Resume Builder from chat to load the interactive widget after sign-in.
+- Open Resume Builder from chat to load the interactive widget. No sign-in required.
 - Choose from 8 professional resume styles: Classic, Modern, Executive, Creative, Terminal, Sidebar, Swiss, Nature.
 - Three modes: create a new resume, tailor for a specific vacancy, or improve an existing resume.
 - Fill in personal info, experience, education, and skills in the inline form.
@@ -52,12 +52,12 @@ gptprosite@gmail.com
 ================================================================================
 Privacy policy URL
 ================================================================================
-https://justmatch.us/policy
+https://mvp.mom/policy
 
 ================================================================================
 Terms URL
 ================================================================================
-https://justmatch.us/terms
+https://mvp.mom/terms
 
 ================================================================================
 Developer / company name (если просят)
@@ -67,8 +67,9 @@ Developer / company name (если просят)
 ================================================================================
 Заметки для себя (не в форму)
 ================================================================================
-Домен продукта: justmatch.us. MCP: /api/mcp/resume
+Домен продукта: mvp.mom. MCP: /api/mcp/resume
+Connector URL: https://mvp.mom/api/mcp/resume
 
-Тестовый аккаунт для ревью OpenAI (логин/пароль) — см. docs/resume/OPENAI_REVIEW_TEST_ACCOUNT.txt
+Тестовый аккаунт не нужен (нет авторизации, skipAuth: true).
 
 Release Notes при каждом релизе в сторе — обновляй блок выше (публичный текст).

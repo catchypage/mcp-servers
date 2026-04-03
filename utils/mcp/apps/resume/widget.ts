@@ -15,9 +15,24 @@ export function resumeWidgetHTML(baseUrl: string): string {
   <title>Resume Builder</title>
   <link rel="stylesheet" href="${stylesUrl}" />
   <style>
-    html, body { margin: 0; padding: 0; width: 100%; }
-    * { box-sizing: border-box; }
-    #resume-widget-root { max-height: 700px; overflow-y: auto; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      margin: 0 !important;
+      padding: 0 !important;
+      width: 100% !important;
+      height: 700px !important;
+      min-height: 700px !important;
+      max-height: 700px !important;
+      overflow: hidden !important;
+      font-family: system-ui, -apple-system, sans-serif;
+    }
+    #resume-widget-root {
+      width: 100% !important;
+      height: 100% !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      overflow-y: auto;
+    }
   </style>
 </head>
 <body>
