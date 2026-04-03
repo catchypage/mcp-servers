@@ -9,6 +9,14 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'Content-Type, Authorization',
 }
 
+interface LlmRouterRequestBody {
+  system?: string
+  user?: string
+  temperature?: number
+  max_output_tokens?: number
+  model?: string
+}
+
 export async function OPTIONS() {
   return new NextResponse(null, { status: 204, headers: corsHeaders })
 }
@@ -25,7 +33,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const body = await req.json()
+    const body = (await req.json()) as LlmRouterRequestBody
     const { system, user, temperature, max_output_tokens, model } = body
 
     const endpoint = model ? 'v1/smart' : 'v1/generatev2'
@@ -50,14 +58,18 @@ export async function POST(req: NextRequest) {
 
     if (!response.ok) {
       const errorText = await response.text()
-      console.error('[llm-router] Upstream error:', response.status, errorText.slice(0, 500))
+      console.error(
+        '[llm-router] Upstream error:',
+        response.status,
+        errorText.slice(0, 500),
+      )
       return NextResponse.json(
         { error: `Upstream error: ${response.status}` },
         { status: response.status, headers: corsHeaders },
       )
     }
 
-    const result = await response.json()
+    const result: unknown = await response.json()
     return NextResponse.json(result, { headers: corsHeaders })
   } catch (error) {
     console.error('[llm-router] Error:', error)

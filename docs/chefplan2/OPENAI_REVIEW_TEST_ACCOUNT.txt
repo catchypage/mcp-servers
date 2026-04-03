@@ -1,0 +1,5 @@
+OpenAI ChatGPT App submission — demo / review login
+Use when the form asks for test credentials (username + password).
+
+Not applicable — ChefPlan does not require authentication (skipAuth: true).
+No login credentials are needed to test the app.

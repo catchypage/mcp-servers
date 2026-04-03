@@ -1,0 +1,55 @@
+ChefPlan — Tool justification (OpenAI Apps submission)
+Copy one block per form field. Annotations match utils/mcp/apps/nutri/tools.ts
+
+================================================================================
+CSP Metadata (widget)
+================================================================================
+connect_domains
+https://justmatch.us
+
+resource_domains
+https://justmatch.us
+
+img_domains
+(images are proxied through our server at /api/mcp/chefplan2/img to avoid CSP
+violations; no external img-src domains needed)
+
+================================================================================
+calculate_metabolism
+================================================================================
+
+Read Only: Yes
+Describe why Read Only is set to True
+This tool performs a pure mathematical calculation (Mifflin-St Jeor equation) using the provided body metrics. No data is written to any database or persistent store. It returns computed values (BMR, TDEE, macros) without side effects.
+
+Open World: No
+Describe why Open World is set to False
+All inputs are bounded numeric values (weight, height, age) and constrained enums (gender, activity level, goal). The output is deterministic for the same inputs. The tool does not access external systems or open-ended web content.
+
+Destructive: No
+Describe why Destructive is set to False
+Pure computation; no data is created, modified, or deleted.
+
+Idempotent: Yes
+Describe why Idempotent is set to True
+Same inputs always produce the same outputs. Calling the tool multiple times with identical parameters has no additional effect.
+
+================================================================================
+find_recipe
+================================================================================
+
+Read Only: Yes
+Describe why Read Only is set to True
+This tool searches an external recipe database (TheMealDB) and returns recipe data (title, image, ingredients, instructions). It does not write or modify any data on our server or the external API.
+
+Open World: Yes
+Describe why Open World is set to True
+The search query is free-form user text, and results come from an external recipe database (TheMealDB) with thousands of entries. The tool fetches data from the open web.
+
+Destructive: No
+Describe why Destructive is set to False
+Read-only API call to an external recipe database. No data is created, modified, or deleted.
+
+Idempotent: No
+Describe why Idempotent is set to False
+The "random" option returns a different recipe each time. Search results may also vary as the external database is updated.

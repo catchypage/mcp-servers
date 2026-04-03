@@ -14,10 +14,23 @@ export function langcoachWidgetHTML(baseUrl: string): string {
   <title>Lang Coach</title>
   <link rel="stylesheet" href="${stylesUrl}" />
   <style>
-    html, body { margin: 0; padding: 0; width: 100%; min-height: 100vh; }
     * { box-sizing: border-box; }
+    html, body {
+      margin: 0 !important;
+      padding: 0 !important;
+      width: 100% !important;
+      height: 600px !important;
+      min-height: 600px !important;
+      max-height: 600px !important;
+      overflow: hidden !important;
+    }
     body { font-family: system-ui, sans-serif; background: #0f1419; color: #e7e9ea; }
-    #langcoach-widget-root { min-height: 100vh; }
+    #langcoach-widget-root {
+      width: 100% !important;
+      height: 100% !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
   </style>
 </head>
 <body>

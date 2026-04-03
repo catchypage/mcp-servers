@@ -11,10 +11,16 @@ export interface OpenAIBridge {
     structuredContent?: Record<string, unknown>
     [key: string]: unknown
   }>
+  /** Legacy bridge; prefer toolOutput for ChatGPT Apps SDK. */
   toolResult?: {
     structuredContent?: Record<string, unknown>
     [key: string]: unknown
   }
+  /** Latest tool invocation output (Apps SDK). */
+  toolOutput?: unknown
+  /** Arguments passed to the tool that opened this widget (Apps SDK). */
+  toolInput?: Record<string, unknown>
+  toolResponseMetadata?: Record<string, unknown>
 }
 
 declare global {

@@ -103,7 +103,9 @@ export async function handleMcpRequest(
     }
 
     case 'tools/call': {
-      const authResult = await verifyMcpToken(req, resourceUrl)
+      const authResult = app.skipAuth
+        ? { authenticated: true, user: { id: 'anonymous' } }
+        : await verifyMcpToken(req, resourceUrl)
 
       if (!authResult.authenticated) {
         const baseUrl = getBaseUrlFromRequest(req)
@@ -240,7 +242,10 @@ export async function handleMcpRequest(
       const { uri } = (params ?? {}) as { uri: string }
       const baseUrl = getBaseUrlFromRequest(req)
       const expectedUri = `${baseUrl}/api/mcp/${app.id}/widget`
-      const matches = uri?.includes(app.id) || uri === expectedUri
+      const matches =
+        uri?.includes(app.id) ||
+        uri === expectedUri ||
+        uri?.startsWith(expectedUri)
 
       if (!matches && !uri?.includes('/widget')) {
         return NextResponse.json(

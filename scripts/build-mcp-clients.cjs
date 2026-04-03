@@ -46,6 +46,13 @@ function buildMcpClients() {
       stylesCss: 'langcoach-styles.css',
       tailwindContent: './components/mcp/langcoach/**/*.{tsx,ts}',
     },
+    {
+      name: 'ChefPlan2',
+      entry: '../components/mcp/nutri/nutri-entry.tsx',
+      output: 'chefplan2.bundle.js',
+      stylesCss: 'chefplan2-styles.css',
+      tailwindContent: './components/mcp/nutri/**/*.{tsx,ts}',
+    },
   ]
 
   components.forEach((comp) => {
@@ -86,7 +93,7 @@ function buildMcpClients() {
 
   console.log('\n🎨 Building MCP Tailwind CSS per app...')
 
-  components.forEach((comp) => {
+  components.filter((comp) => comp.stylesCss && comp.tailwindContent).forEach((comp) => {
     try {
       const outCss = path.join(publicMcpDir, comp.stylesCss)
       const cmd = [

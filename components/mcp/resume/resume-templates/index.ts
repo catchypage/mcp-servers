@@ -1,0 +1,8 @@
+export { ClassicResume } from './ClassicResume'
+export { ModernResume } from './ModernResume'
+export { ExecutiveResume } from './ExecutiveResume'
+export { CreativeResume } from './CreativeResume'
+export { TerminalResume } from './TerminalResume'
+export { SidebarResume } from './SidebarResume'
+export { SwissResume } from './SwissResume'
+export { NatureResume } from './NatureResume'
