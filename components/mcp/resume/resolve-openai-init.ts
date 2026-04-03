@@ -33,10 +33,23 @@ export function unwrapResumeInitPayload(
   return null
 }
 
+function str(
+  args: Record<string, unknown>,
+  ...keys: string[]
+): string {
+  for (const k of keys) {
+    const v = args[k]
+    if (v !== undefined && v !== null && String(v).trim() !== '') {
+      return String(v)
+    }
+  }
+  return ''
+}
+
 /**
- * Map open_resume_builder tool arguments (snake_case) to the same shape as
- * server context — used when window.openai.toolInput is set but toolOutput is
- * late or missing (known host quirks).
+ * Map open_resume_builder tool arguments (snake_case and camelCase) to the
+ * same shape as server context — used when window.openai.toolInput is set but
+ * toolOutput is late or missing (hosts may normalize key casing).
  */
 export function toolInputArgsToResumeInit(
   args: Record<string, unknown>,
@@ -52,24 +65,63 @@ export function toolInputArgsToResumeInit(
 
   const ctx: Record<string, unknown> = { mode, style }
 
-  if (args.full_name) {
-    ctx.fullName = String(args.full_name)
+  const fullName = str(args, 'full_name', 'fullName')
+  if (fullName) {
+    ctx.fullName = fullName
   }
-  if (args.job_title) {
-    ctx.jobTitle = String(args.job_title)
+  const jobTitle = str(args, 'job_title', 'jobTitle')
+  if (jobTitle) {
+    ctx.jobTitle = jobTitle
   }
   if (mode === 'vacancy') {
-    ctx.vacancyDescription = String(args.vacancy_description ?? '')
-    ctx.vacancyImageUrl = String(args.vacancy_image_url ?? '')
+    ctx.vacancyDescription = str(
+      args,
+      'vacancy_description',
+      'vacancyDescription',
+    )
+    ctx.vacancyImageUrl = str(args, 'vacancy_image_url', 'vacancyImageUrl')
   }
   if (mode === 'improve') {
-    ctx.resumeText = String(args.resume_text ?? '')
-    ctx.feedback = String(args.feedback ?? '')
+    ctx.resumeText = str(args, 'resume_text', 'resumeText')
+    ctx.feedback = str(args, 'feedback')
   }
   return ctx
 }
 
-function mergeToolOutputAndInput(
+/**
+ * Prefer non-empty string values from `primary` when `secondary` is empty
+ * (some hosts strip fields from toolOutput but keep them in toolInput).
+ */
+function mergeResumeInitRecords(
+  secondary: Record<string, unknown> | null,
+  primary: Record<string, unknown> | null,
+): Record<string, unknown> | null {
+  if (!secondary && !primary) {
+    return null
+  }
+  const s = secondary ?? {}
+  const p = primary ?? {}
+  const keys = new Set([...Object.keys(s), ...Object.keys(p)])
+  const out: Record<string, unknown> = {}
+  for (const k of keys) {
+    const pv = p[k]
+    const sv = s[k]
+    const pStr = typeof pv === 'string' ? pv.trim() : ''
+    const sStr = typeof sv === 'string' ? sv.trim() : ''
+    if (pStr !== '') {
+      out[k] = pv
+    } else if (sStr !== '') {
+      out[k] = sv
+    } else if (pv !== undefined && pv !== null) {
+      out[k] = pv
+    } else if (sv !== undefined) {
+      out[k] = sv
+    }
+  }
+  return Object.keys(out).length ? out : null
+}
+
+export function mergeToolOutputAndInput(
   toolOutput: unknown,
   toolInput: unknown,
 ): Record<string, unknown> | null {
@@ -88,66 +140,7 @@ function mergeToolOutputAndInput(
   }
 
   if (fromOut && fromIn) {
-    return { ...fromIn, ...fromOut }
+    return mergeResumeInitRecords(fromOut, fromIn)
   }
   return fromOut ?? fromIn
-}
-
-function readLegacyBridge(w: NonNullable<Window['openai']>): Record<string, unknown> | null {
-  const tr = w.toolResult
-  if (!tr) {
-    return null
-  }
-  return (
-    unwrapResumeInitPayload(tr) ??
-    unwrapResumeInitPayload({ structuredContent: tr }) ??
-    null
-  )
-}
-
-/**
- * Collect init payload: official toolOutput + toolInput, legacy helpers, then
- * MCP get_init_context. Retries while host injects globals (local + ChatGPT).
- */
-export async function collectResumeInitFromOpenAI(
-  callGetInitContext: () => Promise<Record<string, unknown> | null>,
-): Promise<Record<string, unknown> | null> {
-  const maxAttempts = 25
-  const delayMs = 80
-
-  for (let attempt = 0; attempt < maxAttempts; attempt++) {
-    const w = window.openai
-
-    if (w) {
-      const merged = mergeToolOutputAndInput(w.toolOutput, w.toolInput)
-      if (merged?.mode) {
-        return merged
-      }
-
-      const legacy = readLegacyBridge(w)
-      if (legacy?.mode) {
-        return legacy
-      }
-
-      if (attempt < 8 && w.getToolResult) {
-        try {
-          const gr = await w.getToolResult()
-          const u = unwrapResumeInitPayload(gr)
-          if (u?.mode) {
-            return u
-          }
-        } catch {
-          /* host may not support */
-        }
-      }
-    }
-
-    await new Promise((r) => setTimeout(r, delayMs))
-  }
-
-  const fromServer = await callGetInitContext()
-  if (!fromServer) {
-    return null
-  }
-  return unwrapResumeInitPayload(fromServer) ?? fromServer
 }

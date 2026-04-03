@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useCallback, useEffect } from 'react'
+import React, { useState, useCallback, useEffect, useRef } from 'react'
 import { RESUME_STYLES, getStyleById } from './styles'
 import {
   type ResumeData,
@@ -36,9 +36,10 @@ import {
   buttonClass,
 } from './utils/classNames'
 import '../openai-types'
+import { useToolInput, useToolOutput } from '../hooks/useOpenAiGlobals'
 import {
   unwrapResumeInitPayload,
-  collectResumeInitFromOpenAI,
+  mergeToolOutputAndInput,
 } from './resolve-openai-init'
 
 type Step = 'style' | 'form' | 'preview' | 'vacancy'
@@ -149,23 +150,74 @@ export default function ResumeWidget() {
     // mode === 'create' stays on 'style' (default)
   }, [])
 
+  const toolOutput = useToolOutput()
+  const toolInput = useToolInput()
+  const initAppliedRef = useRef(false)
+
   /*
-   * ChatGPT Apps: toolOutput + toolInput on window.openai; legacy
-   * toolResult / getToolResult; then get_init_context (MCP memory fallback).
+   * ChatGPT Apps: subscribe to openai:set_globals (useToolOutput / useToolInput)
+   * so late toolOutput is applied; polling alone misses host updates (see
+   * astral-day useOpenAiGlobal). Fallback: legacy bridges + get_init_context
+   * after a delay (serverless Map may be empty).
    */
+  useEffect(() => {
+    const merged = mergeToolOutputAndInput(toolOutput, toolInput)
+    if (merged && typeof merged.mode === 'string') {
+      initAppliedRef.current = true
+      applyResumeInitContext(merged)
+    }
+  }, [toolOutput, toolInput, applyResumeInitContext])
+
   useEffect(() => {
     let cancelled = false
 
     void (async () => {
-      const payload = await collectResumeInitFromOpenAI(() =>
-        callTool('get_init_context', {}),
-      )
+      for (let attempt = 0; attempt < 30; attempt++) {
+        if (cancelled || initAppliedRef.current) {
+          return
+        }
+        const w = window.openai
+        if (w?.toolResult) {
+          const tr = w.toolResult
+          const u =
+            unwrapResumeInitPayload(tr) ??
+            unwrapResumeInitPayload({ structuredContent: tr })
+          if (u && typeof u.mode === 'string') {
+            initAppliedRef.current = true
+            applyResumeInitContext(u)
+            return
+          }
+        }
+        if (attempt < 10 && w?.getToolResult) {
+          try {
+            const gr = await w.getToolResult()
+            const u = unwrapResumeInitPayload(gr)
+            if (u && typeof u.mode === 'string') {
+              initAppliedRef.current = true
+              applyResumeInitContext(u)
+              return
+            }
+          } catch {
+            /* host may not support */
+          }
+        }
+        await new Promise((r) => setTimeout(r, 100))
+      }
 
-      if (cancelled || !payload) {
+      if (cancelled || initAppliedRef.current) {
         return
       }
 
-      applyResumeInitContext(payload)
+      const fromServer = await callTool('get_init_context', {})
+      if (cancelled || !fromServer) {
+        return
+      }
+      const payload =
+        unwrapResumeInitPayload(fromServer) ??
+        (typeof fromServer.mode === 'string' ? fromServer : null)
+      if (payload && typeof payload.mode === 'string') {
+        applyResumeInitContext(payload)
+      }
     })()
 
     return () => {
@@ -289,7 +341,7 @@ export default function ResumeWidget() {
   }, [])
 
   const handleDownloadPdf = useCallback(() => {
-    openDownloadPage(resumeData, selectedStyleId)
+    void openDownloadPage(resumeData, selectedStyleId)
   }, [resumeData, selectedStyleId])
 
   const handleTailorForVacancy = useCallback(async () => {

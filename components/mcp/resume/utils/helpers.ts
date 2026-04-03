@@ -10,10 +10,38 @@ export function getBaseUrl(): string {
   return ''
 }
 
-export function openDownloadPage(data: ResumeData, styleId: string) {
+function openUrl(url: string) {
+  const oa = (window as { openai?: { openExternal?: (p: { href: string }) => void } }).openai
+  if (oa?.openExternal) {
+    oa.openExternal({ href: url })
+  } else {
+    window.open(url, '_blank')
+  }
+}
+
+export async function openDownloadPage(
+  data: ResumeData,
+  styleId: string,
+): Promise<void> {
   const baseUrl = getBaseUrl()
+
+  try {
+    const res = await fetch(`${baseUrl}/api/mcp/resume/download-token`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ data, styleId }),
+    })
+
+    if (res.ok) {
+      const { id } = (await res.json()) as { id: string }
+      openUrl(`${baseUrl}/resume/download?id=${id}`)
+      return
+    }
+  } catch (e) {
+    console.error('[Resume] download-token failed, falling back to base64:', e)
+  }
+
   const payload = JSON.stringify({ data, styleId })
   const encoded = btoa(unescape(encodeURIComponent(payload)))
-  const url = `${baseUrl}/resume/download?d=${encodeURIComponent(encoded)}`
-  window.open(url, '_blank')
+  openUrl(`${baseUrl}/resume/download?d=${encodeURIComponent(encoded)}`)
 }
