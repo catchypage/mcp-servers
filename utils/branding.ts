@@ -1,4 +1,4 @@
-export type LegalProductLine = 'langcoach' | 'platform'
+export type LegalProductLine = 'langcoach' | 'platform' | 'resume' | 'chefplan'
 
 export interface BrandConfig {
   name: string
@@ -19,6 +19,24 @@ const DOMAIN_BRANDS: Record<string, BrandConfig> = {
     supportEmail: 'gptprosite@gmail.com',
     tagline: 'Master any language with AI',
     legalProductLine: 'langcoach',
+  },
+  'mvp.mom': {
+    name: 'Resume Builder',
+    shortName: 'RB',
+    description:
+      'Create, tailor, and download professional resumes in 8 styles, directly in ChatGPT.',
+    supportEmail: 'gptprosite@gmail.com',
+    tagline: 'Build your perfect resume',
+    legalProductLine: 'resume',
+  },
+  'cuto.pro': {
+    name: 'ChefPlan',
+    shortName: 'CP',
+    description:
+      'Metabolism calculator and recipe finder with photos. BMR, TDEE, macros, and recipes from around the world.',
+    supportEmail: 'gptprosite@gmail.com',
+    tagline: 'Your nutrition companion',
+    legalProductLine: 'chefplan',
   },
   'pyxl.pro': {
     name: 'Pyxl',
