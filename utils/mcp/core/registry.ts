@@ -25,12 +25,10 @@ export interface McpAppConfig {
   tools: McpToolDefinition[]
   internalTools?: McpToolDefinition[]
   widget?: string
-  /**
-   * ChatGPT reads these from tools/list _meta (same pattern as Blocks & Arrows
-   * open_diagram_app). Per-tool _meta overrides when set on the tool.
-   */
   widgetInvoking?: string
   widgetInvoked?: string
+  /** Skip OAuth verification for tools/call (public apps without auth). */
+  skipAuth?: boolean
   resources?: {
     uri: string
     name: string
@@ -41,13 +39,10 @@ export interface McpAppConfig {
 
 import { resumeTools, resumeInternalTools } from '@/utils/mcp/apps/resume/tools'
 import {
-  chefplanTools,
-  chefplanInternalTools,
-} from '@/utils/mcp/apps/chefplan/tools'
-import {
   langcoachTools,
   langcoachInternalTools,
 } from '@/utils/mcp/apps/langcoach/tools'
+import { nutriTools } from '@/utils/mcp/apps/nutri/tools'
 
 export const MCP_APPS: Record<string, McpAppConfig> = {
   resume: {
@@ -65,26 +60,6 @@ export const MCP_APPS: Record<string, McpAppConfig> = {
         uri: '/api/mcp/resume/widget',
         name: 'Resume Widget',
         description: 'Interactive resume builder',
-        mimeType: 'text/html+skybridge',
-      },
-    ],
-  },
-  chefplan: {
-    id: 'chefplan',
-    name: 'ChefPlan Meal Planner',
-    description:
-      'AI-powered weekly meal planning with nutrition tracking, shopping lists, and grocery ordering',
-    version: '1.0.0',
-    widgetInvoking: 'Opening ChefPlan…',
-    widgetInvoked: 'Meal planner ready!',
-    tools: chefplanTools,
-    internalTools: chefplanInternalTools,
-    widget: '/mcp/chefplan.bundle.js',
-    resources: [
-      {
-        uri: '/api/mcp/chefplan/widget',
-        name: 'ChefPlan Widget',
-        description: 'Interactive meal planning widget',
         mimeType: 'text/html+skybridge',
       },
     ],
@@ -109,18 +84,33 @@ export const MCP_APPS: Record<string, McpAppConfig> = {
       },
     ],
   },
+  chefplan2: {
+    id: 'chefplan2',
+    name: 'ChefPlan',
+    description:
+      'Metabolism calculator (BMR/TDEE/macros) and recipe finder with photos',
+    version: '1.0.0',
+    widgetInvoking: 'Opening ChefPlan…',
+    widgetInvoked: 'Ready!',
+    skipAuth: true,
+    tools: nutriTools,
+    widget: '/mcp/chefplan2.bundle.js',
+    resources: [
+      {
+        uri: '/api/mcp/chefplan2/widget',
+        name: 'ChefPlan Widget',
+        description: 'Metabolism calculator and recipe finder',
+        mimeType: 'text/html+skybridge',
+      },
+    ],
+  },
 }
 
 export function resolveApp(appId: string): McpAppConfig | null {
   return MCP_APPS[appId] ?? null
 }
 
-/**
- * Domains per app (for reference / docs).
- * Actual mapping: MCP_DOMAIN_MAP env or domain-map.ts
- */
 export const APP_DOMAINS: Record<string, string[]> = {
   resume: ['resume.pyxl.pro', 'resume.example.com'],
-  chefplan: ['chefplan.pyxl.pro', 'meals.pyxl.pro', 'chefplan.example.com'],
   langcoach: ['langcoach.pyxl.pro', 'langcoach.example.com'],
 }

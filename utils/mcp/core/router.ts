@@ -103,7 +103,9 @@ export async function handleMcpRequest(
     }
 
     case 'tools/call': {
-      const authResult = await verifyMcpToken(req, resourceUrl)
+      const authResult = app.skipAuth
+        ? { authenticated: true, user: { id: 'anonymous' } }
+        : await verifyMcpToken(req, resourceUrl)
 
       if (!authResult.authenticated) {
         const baseUrl = getBaseUrlFromRequest(req)
