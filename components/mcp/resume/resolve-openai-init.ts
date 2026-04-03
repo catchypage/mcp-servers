@@ -33,10 +33,7 @@ export function unwrapResumeInitPayload(
   return null
 }
 
-function str(
-  args: Record<string, unknown>,
-  ...keys: string[]
-): string {
+function str(args: Record<string, unknown>, ...keys: string[]): string {
   for (const k of keys) {
     const v = args[k]
     if (v !== undefined && v !== null && String(v).trim() !== '') {
@@ -101,9 +98,14 @@ function mergeResumeInitRecords(
   }
   const s = secondary ?? {}
   const p = primary ?? {}
-  const keys = new Set([...Object.keys(s), ...Object.keys(p)])
+  const keys = Object.keys(s).concat(Object.keys(p))
+  const seen: Record<string, boolean> = {}
   const out: Record<string, unknown> = {}
   for (const k of keys) {
+    if (seen[k]) {
+      continue
+    }
+    seen[k] = true
     const pv = p[k]
     const sv = s[k]
     const pStr = typeof pv === 'string' ? pv.trim() : ''

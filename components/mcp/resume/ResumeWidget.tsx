@@ -155,10 +155,10 @@ export default function ResumeWidget() {
   const initAppliedRef = useRef(false)
 
   /*
-   * ChatGPT Apps: subscribe to openai:set_globals (useToolOutput / useToolInput)
-   * so late toolOutput is applied; polling alone misses host updates (see
-   * astral-day useOpenAiGlobal). Fallback: legacy bridges + get_init_context
-   * after a delay (serverless Map may be empty).
+   * ChatGPT Apps: subscribe to openai:set_globals (useToolOutput /
+   * useToolInput) so late toolOutput is applied; polling alone misses host
+   * updates (see astral-day useOpenAiGlobal). Fallback: legacy bridges +
+   * get_init_context after a delay (serverless Map may be empty).
    */
   useEffect(() => {
     const merged = mergeToolOutputAndInput(toolOutput, toolInput)

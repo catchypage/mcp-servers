@@ -11,7 +11,9 @@ export function getBaseUrl(): string {
 }
 
 function openUrl(url: string) {
-  const oa = (window as { openai?: { openExternal?: (p: { href: string }) => void } }).openai
+  const oa = (
+    window as { openai?: { openExternal?: (p: { href: string }) => void } }
+  ).openai
   if (oa?.openExternal) {
     oa.openExternal({ href: url })
   } else {

@@ -43,7 +43,7 @@ function subscribeToOpenAiKey(
 }
 
 function getOpenAiSnapshot(key: OpenAiGlobalKey): unknown {
-  if (typeof window === 'undefined' || !window.openai) {
+  if (!window?.openai) {
     return undefined
   }
   return (window.openai as Record<string, unknown>)[key]
@@ -52,8 +52,7 @@ function getOpenAiSnapshot(key: OpenAiGlobalKey): unknown {
 export function useToolInput(): Record<string, unknown> | undefined {
   return useSyncExternalStore(
     (onChange) => subscribeToOpenAiKey('toolInput', onChange),
-    () =>
-      getOpenAiSnapshot('toolInput') as Record<string, unknown> | undefined,
+    () => getOpenAiSnapshot('toolInput') as Record<string, unknown> | undefined,
     () => undefined,
   )
 }

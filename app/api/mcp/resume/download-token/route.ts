@@ -10,7 +10,7 @@ interface StoredEntry {
   createdAt: number
 }
 
-const TOKEN_TTL_MS = 15 * 60 * 1000 // 15 min
+const TOKEN_TTL_MS = 10 * 60 * 1000 // 10 min
 const store = new Map<string, StoredEntry>()
 
 function generateToken(): string {
@@ -24,11 +24,11 @@ function generateToken(): string {
 
 function evictExpired() {
   const now = Date.now()
-  for (const [key, entry] of store) {
+  store.forEach((entry, key) => {
     if (now - entry.createdAt > TOKEN_TTL_MS) {
       store.delete(key)
     }
-  }
+  })
 }
 
 const corsHeaders = {

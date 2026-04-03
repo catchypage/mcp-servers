@@ -18,9 +18,13 @@ function decodeBase64Payload(encoded: string): DownloadPayload | null {
     const parsed: unknown = JSON.parse(raw)
     if (typeof parsed === 'object' && parsed !== null && 'data' in parsed) {
       const p = parsed as DownloadPayload
-      if (p.data) return p
+      if (p.data) {
+        return p
+      }
     }
-  } catch { /* invalid */ }
+  } catch {
+    /* invalid */
+  }
   return null
 }
 
@@ -33,10 +37,16 @@ async function fetchByToken(
       `${baseUrl}/api/mcp/resume/download-token?id=${encodeURIComponent(id)}`,
       { cache: 'no-store' },
     )
-    if (!res.ok) return null
+    if (!res.ok) {
+      return null
+    }
     const body = (await res.json()) as { data?: ResumeData; styleId?: string }
-    if (body.data) return { data: body.data, styleId: body.styleId }
-  } catch { /* fetch failed */ }
+    if (body.data) {
+      return { data: body.data, styleId: body.styleId }
+    }
+  } catch {
+    /* fetch failed */
+  }
   return null
 }
 
