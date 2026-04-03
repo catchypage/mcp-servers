@@ -7,21 +7,29 @@
  * use DOMAIN_MAP env with JSON: {"resume.example.com":"resume",...}
  */
 
+const HARDCODED_DOMAINS: Record<string, string> = {
+  'mvp.mom': 'resume',
+  'cuto.pro': 'chefplan2',
+}
+
 export const DOMAIN_TO_APP: Record<string, string> = (() => {
   const env = process.env.MCP_DOMAIN_MAP ?? process.env.DOMAIN_MAP
   if (!env) {
-    return {}
+    return { ...HARDCODED_DOMAINS }
   }
 
   if (env.startsWith('{')) {
     try {
-      return JSON.parse(env) as Record<string, string>
+      return {
+        ...HARDCODED_DOMAINS,
+        ...(JSON.parse(env) as Record<string, string>),
+      }
     } catch {
-      return {}
+      return { ...HARDCODED_DOMAINS }
     }
   }
 
-  const map: Record<string, string> = {}
+  const map: Record<string, string> = { ...HARDCODED_DOMAINS }
   for (const pair of env.split(',')) {
     const [domain, appId] = pair.split(':').map((s) => s.trim())
     if (domain && appId) {

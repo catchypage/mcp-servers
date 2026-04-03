@@ -111,6 +111,7 @@ export function resolveApp(appId: string): McpAppConfig | null {
 }
 
 export const APP_DOMAINS: Record<string, string[]> = {
-  resume: ['resume.pyxl.pro', 'resume.example.com'],
-  langcoach: ['langcoach.pyxl.pro', 'langcoach.example.com'],
+  resume: ['mvp.mom'],
+  langcoach: ['justmatch.us'],
+  chefplan2: ['cuto.pro'],
 }

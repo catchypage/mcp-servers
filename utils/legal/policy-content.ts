@@ -18,7 +18,7 @@ export interface PolicyDocument {
 }
 
 const FOOTER =
-  'This Privacy Policy is provided for transparency. We recommend reviewing it with legal counsel for your jurisdiction. Where OpenAI ChatGPT is involved, OpenAI’s own policies apply to their processing of chat data; see openai.com/policies.'
+  'This Privacy Policy is provided for transparency. We recommend reviewing it with legal counsel for your jurisdiction. Where OpenAI ChatGPT is involved, OpenAI\'s own policies apply to their processing of chat data; see openai.com/policies.'
 
 export function getPolicyDocument(
   brand: BrandConfig,
@@ -30,7 +30,7 @@ export function getPolicyDocument(
   const langCoachBlocks: PolicySection[] = [
     {
       title: '1. Who we are',
-      description: `${brand.name} (“we”, “us”) is operated in connection with this website (${siteUrl}). When you use ${brand.name} inside OpenAI ChatGPT, you also interact with OpenAI’s services as described in their policies.`,
+      description: `${brand.name} ("we", "us") is operated in connection with this website (${siteUrl}). When you use ${brand.name} inside OpenAI ChatGPT, you also interact with OpenAI's services as described in their policies.`,
     },
     {
       title: '2. Information we collect',
@@ -66,7 +66,7 @@ export function getPolicyDocument(
         'We do not sell your personal information. We may share data with:',
       items: [
         'Infrastructure and hosting providers (e.g. database and application hosting) who process data on our behalf under agreements.',
-        'OpenAI: when you use our app inside ChatGPT, OpenAI processes data under their own terms and privacy policy; we do not control OpenAI’s processing of the chat.',
+        "OpenAI: when you use our app inside ChatGPT, OpenAI processes data under their own terms and privacy policy; we do not control OpenAI's processing of the chat.",
         'Law enforcement or regulators when required by applicable law.',
       ],
     },
@@ -108,10 +108,155 @@ export function getPolicyDocument(
     },
   ]
 
+  const resumeBlocks: PolicySection[] = [
+    {
+      title: '1. Who we are',
+      description: `${brand.name} ("we", "us") operates this website (${siteUrl}) and the Resume Builder app available through OpenAI ChatGPT via MCP (Model Context Protocol).`,
+    },
+    {
+      title: '2. Information we collect',
+      description:
+        'Resume Builder is designed to minimize data collection:',
+      items: [
+        'Resume content: name, job title, work experience, education, and skills that you enter into the widget. This data is processed in your browser session and is NOT stored on our servers.',
+        'No authentication required: we do not collect email addresses, passwords, or OAuth tokens. The app works without sign-in.',
+        'Technical data: standard server logs (IP address, timestamps, user agent) retained briefly for security and operations.',
+        'ChatGPT context: when you invoke our tool in ChatGPT, OpenAI may pass tool arguments (e.g. job title, name, style) to our MCP server. We process these transiently and do not persist them.',
+      ],
+    },
+    {
+      title: '3. How we use information',
+      description: 'Purposes include:',
+      items: [
+        'to render the resume builder widget and generate your resume layout in the browser;',
+        'to operate our MCP server and respond to tool calls from ChatGPT;',
+        'to maintain security and prevent abuse via server logs;',
+        'to comply with applicable law.',
+      ],
+    },
+    {
+      title: '4. Data storage and retention',
+      description:
+        'Resume content you enter is processed entirely in the browser widget and in transient server memory. We do not save your resume data to any database. When your session ends, the data is gone. Server logs are retained for a limited period for security purposes.',
+    },
+    {
+      title: '5. ChatGPT and OpenAI',
+      description:
+        "When you use Resume Builder through OpenAI ChatGPT, OpenAI processes data under their own terms and privacy policy. We receive only the structured arguments sent to our MCP tool (such as job title or name), not your full chat history.",
+    },
+    {
+      title: '6. Sharing',
+      description:
+        'We do not sell your personal information. We do not share resume content with third parties. Data may be disclosed to law enforcement when required by law.',
+    },
+    {
+      title: '7. Cookies and tracking',
+      description:
+        'We do not use cookies, analytics trackers, or advertising pixels on this service.',
+    },
+    {
+      title: '8. Children',
+      description:
+        'This service is not directed at children under 13. We do not knowingly collect personal data from children.',
+    },
+    {
+      title: '9. Your rights',
+      description:
+        'Since we do not store your personal data beyond the session, there is generally nothing to delete. If you have questions about server logs or wish to exercise data rights under GDPR, CCPA, or similar laws, contact us below.',
+    },
+    {
+      title: '10. Changes',
+      description:
+        'We may update this Privacy Policy. The new version will be posted on this page with an updated effective date.',
+    },
+    {
+      title: '11. Contact',
+      description: 'Privacy questions or requests:',
+      isContact: true,
+    },
+  ]
+
+  const chefplanBlocks: PolicySection[] = [
+    {
+      title: '1. Who we are',
+      description: `${brand.name} ("we", "us") operates this website (${siteUrl}) and the ChefPlan app available through OpenAI ChatGPT via MCP (Model Context Protocol).`,
+    },
+    {
+      title: '2. Information we collect',
+      description: 'ChefPlan is designed to minimize data collection:',
+      items: [
+        'Body metrics: weight, height, age, gender, and activity level that you provide for metabolism calculation. These are processed transiently and NOT stored on our servers.',
+        'Recipe searches: search queries you enter to find recipes. These are forwarded to TheMealDB (a free, public recipe API) and are not stored by us.',
+        'No authentication required: we do not collect email addresses, passwords, or OAuth tokens. The app works without sign-in.',
+        'Technical data: standard server logs (IP address, timestamps, user agent) retained briefly for security.',
+        'ChatGPT context: when you invoke our tools in ChatGPT, OpenAI may pass tool arguments (e.g. body metrics, recipe query) to our MCP server. We process these transiently and do not persist them.',
+      ],
+    },
+    {
+      title: '3. How we use information',
+      description: 'Purposes include:',
+      items: [
+        'to calculate BMR, TDEE, and macronutrient targets using the Mifflin-St Jeor equation;',
+        'to search and display recipes from TheMealDB API;',
+        'to proxy recipe images through our server to comply with browser security policies;',
+        'to operate our MCP server and respond to tool calls from ChatGPT;',
+        'to maintain security and prevent abuse via server logs.',
+      ],
+    },
+    {
+      title: '4. Data storage and retention',
+      description:
+        'Body metrics and recipe searches are processed transiently in server memory and the browser. We do not save your health data or search history to any database. When your session ends, the data is gone. Server logs are retained for a limited period for security.',
+    },
+    {
+      title: '5. Third-party services',
+      description: 'We use the following third-party services:',
+      items: [
+        "OpenAI ChatGPT: when you use ChefPlan through ChatGPT, OpenAI processes data under their own terms and privacy policy. We receive only structured tool arguments, not your full chat.",
+        'TheMealDB (themealdb.com): a free, public recipe database. Recipe search queries are sent to their API. See their terms for details.',
+      ],
+    },
+    {
+      title: '6. Sharing',
+      description:
+        'We do not sell your personal information. We do not share your body metrics or health calculations with third parties. Recipe search queries are sent to TheMealDB as described above. Data may be disclosed to law enforcement when required by law.',
+    },
+    {
+      title: '7. Cookies and tracking',
+      description:
+        'We do not use cookies, analytics trackers, or advertising pixels on this service.',
+    },
+    {
+      title: '8. Health disclaimer',
+      description:
+        'ChefPlan provides general nutritional estimates for informational purposes only. It is not medical advice. Consult a healthcare professional before making dietary changes, especially if you have health conditions.',
+    },
+    {
+      title: '9. Children',
+      description:
+        'This service is not directed at children under 13. We do not knowingly collect personal data from children.',
+    },
+    {
+      title: '10. Your rights',
+      description:
+        'Since we do not store your personal data beyond the session, there is generally nothing to delete. If you have questions about server logs or wish to exercise data rights under GDPR, CCPA, or similar laws, contact us below.',
+    },
+    {
+      title: '11. Changes',
+      description:
+        'We may update this Privacy Policy. The new version will be posted on this page with an updated effective date.',
+    },
+    {
+      title: '12. Contact',
+      description: 'Privacy questions or requests:',
+      isContact: true,
+    },
+  ]
+
   const platformBlocks: PolicySection[] = [
     {
       title: '1. Who we are',
-      description: `${brand.name} (“we”, “us”) operates this website (${siteUrl}) and related services, including integrations with OpenAI ChatGPT via MCP where applicable.`,
+      description: `${brand.name} ("we", "us") operates this website (${siteUrl}) and related services, including integrations with OpenAI ChatGPT via MCP where applicable.`,
     },
     {
       title: '2. Information we collect',
@@ -126,7 +271,7 @@ export function getPolicyDocument(
     {
       title: '4. ChatGPT and OpenAI',
       description:
-        'When you use our services through OpenAI ChatGPT, OpenAI processes data under their own terms and privacy policy. We receive only information sent to our MCP tools or our website as part of that use.',
+        "When you use our services through OpenAI ChatGPT, OpenAI processes data under their own terms and privacy policy. We receive only information sent to our MCP tools or our website as part of that use.",
     },
     {
       title: '5. Sharing',
@@ -145,18 +290,32 @@ export function getPolicyDocument(
     },
   ]
 
-  const introLangCoach = `This Privacy Policy describes how ${brand.name} (“we”, “us”) collects, uses, and shares personal information when you use our English language learning and placement services at ${siteUrl}. It also describes how ${brand.name} works when you connect through OpenAI ChatGPT using our Model Context Protocol (MCP) integration.`
+  const introLangCoach = `This Privacy Policy describes how ${brand.name} ("we", "us") collects, uses, and shares personal information when you use our English language learning and placement services at ${siteUrl}. It also describes how ${brand.name} works when you connect through OpenAI ChatGPT using our Model Context Protocol (MCP) integration.`
 
-  const introPlatform = `This Privacy Policy describes how ${brand.name} (“we”, “us”) handles personal information when you use ${siteUrl} and related services, including when you connect third-party integrations such as OpenAI ChatGPT.`
+  const introResume = `This Privacy Policy describes how ${brand.name} ("we", "us") handles your information when you use our resume builder at ${siteUrl} or through OpenAI ChatGPT. ${brand.name} is designed with privacy in mind — we do not require sign-in and do not permanently store your resume data.`
+
+  const introChefplan = `This Privacy Policy describes how ${brand.name} ("we", "us") handles your information when you use our metabolism calculator and recipe finder at ${siteUrl} or through OpenAI ChatGPT. ${brand.name} does not require sign-in and does not permanently store your health data or search history.`
+
+  const introPlatform = `This Privacy Policy describes how ${brand.name} ("we", "us") handles personal information when you use ${siteUrl} and related services, including when you connect third-party integrations such as OpenAI ChatGPT.`
+
+  const introMap: Record<string, string> = {
+    langcoach: introLangCoach,
+    resume: introResume,
+    chefplan: introChefplan,
+  }
+
+  const sectionsMap: Record<string, PolicySection[]> = {
+    langcoach: langCoachBlocks,
+    resume: resumeBlocks,
+    chefplan: chefplanBlocks,
+  }
 
   return {
     pageTitle: `Privacy Policy — ${brand.name}`,
     hostLabel,
-    effectiveDate: 'March 26, 2026',
-    intro:
-      brand.legalProductLine === 'langcoach' ? introLangCoach : introPlatform,
-    sections:
-      brand.legalProductLine === 'langcoach' ? langCoachBlocks : platformBlocks,
+    effectiveDate: 'April 3, 2026',
+    intro: introMap[brand.legalProductLine] ?? introPlatform,
+    sections: sectionsMap[brand.legalProductLine] ?? platformBlocks,
     footer: FOOTER,
     contact: {
       company: brand.name,
