@@ -1,0 +1,120 @@
+Resume Builder — MCP test cases (OpenAI Apps submission)
+Copy one block per form field. Connector: POST https://justmatch.us/api/mcp/resume (no OAuth required). Public tool for the model: open_resume_builder only.
+
+================================================================================
+Positive test cases (5)
+================================================================================
+
+--------------------------------------------------------------------------------
+Test Case 1 — Open the app to create a resume
+--------------------------------------------------------------------------------
+
+Scenario
+User explicitly asks to open Resume Builder to create a new resume.
+
+User prompt
+Open Resume Builder and help me create a resume.
+
+Tool triggered
+open_resume_builder
+
+Expected output
+tools/call succeeds with assistant-visible message and the Resume Builder widget loads (outputTemplate / embedded UI). User completes OAuth if needed, then fills in resume details inside the widget.
+
+--------------------------------------------------------------------------------
+Test Case 2 — Create a resume for a specific role
+--------------------------------------------------------------------------------
+
+Scenario
+User wants to create a resume for a specific job title; the tool pre-fills the job title field.
+
+User prompt
+Open Resume Builder — I need a resume for a senior backend engineer position.
+
+Tool triggered
+open_resume_builder (with job_title argument)
+
+Expected output
+Widget opens with job_title pre-filled. User sees the Resume Builder UI with the role already set.
+
+--------------------------------------------------------------------------------
+Test Case 3 — Tailor resume for a vacancy
+--------------------------------------------------------------------------------
+
+Scenario
+User wants to tailor their resume for a specific job posting.
+
+User prompt
+Open Resume Builder in vacancy mode. Here is the job description: "We are looking for a React developer with 3+ years experience..."
+
+Tool triggered
+open_resume_builder (mode=vacancy, vacancy_description provided)
+
+Expected output
+Widget opens in vacancy tailoring mode. The vacancy description is available in the widget for AI-assisted tailoring.
+
+--------------------------------------------------------------------------------
+Test Case 4 — Improve an existing resume
+--------------------------------------------------------------------------------
+
+Scenario
+User wants to improve their existing resume with feedback.
+
+User prompt
+Open Resume Builder to improve my resume. Make it more concise and add stronger action verbs.
+
+Tool triggered
+open_resume_builder (mode=improve, feedback provided)
+
+Expected output
+Widget opens in improve mode with the feedback context available. User can paste or edit their resume and apply improvements.
+
+--------------------------------------------------------------------------------
+Test Case 5 — Choose a specific style
+--------------------------------------------------------------------------------
+
+Scenario
+User asks for a specific resume style.
+
+User prompt
+Open Resume Builder with the executive dark style for my VP of Engineering resume.
+
+Tool triggered
+open_resume_builder (style=executive, job_title provided)
+
+Expected output
+Widget opens with the executive style pre-selected and job title set. User sees the dark premium layout.
+
+================================================================================
+Negative test cases (3)
+================================================================================
+
+--------------------------------------------------------------------------------
+Negative Test Case 1 — Unrelated cooking request
+--------------------------------------------------------------------------------
+
+Scenario
+The user is asking for something Resume Builder does not do. The connector should not be invoked.
+
+User prompt
+Find me a recipe for chicken parmesan with a side of garlic bread.
+
+--------------------------------------------------------------------------------
+Negative Test Case 2 — General writing help without resume context
+--------------------------------------------------------------------------------
+
+Scenario
+The user needs writing help but is not asking to open Resume Builder. The model should answer in chat.
+
+User prompt
+Write me a cover letter for a marketing manager position.
+
+--------------------------------------------------------------------------------
+Negative Test Case 3 — Code review request
+--------------------------------------------------------------------------------
+
+Scenario
+The user needs programming help unrelated to resume building.
+
+User prompt
+Review this TypeScript code and suggest improvements for better error handling.

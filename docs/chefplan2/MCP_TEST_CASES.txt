@@ -1,0 +1,120 @@
+ChefPlan — MCP test cases (OpenAI Apps submission)
+Copy one block per form field. Connector: POST https://justmatch.us/api/mcp/chefplan2 (no OAuth required). Public tools: calculate_metabolism, find_recipe.
+
+================================================================================
+Positive test cases (5)
+================================================================================
+
+--------------------------------------------------------------------------------
+Test Case 1 — Calculate metabolism with full parameters
+--------------------------------------------------------------------------------
+
+Scenario
+User provides all body metrics and wants a full metabolism calculation.
+
+User prompt
+Calculate my metabolism — male, 80 kg, 180 cm, 28 years, moderate activity, goal: lose weight.
+
+Tool triggered
+calculate_metabolism
+
+Expected output
+tools/call succeeds with BMR, TDEE, goal calories, and recommended macros (protein, carbs, fat). Widget displays the results with visual breakdown.
+
+--------------------------------------------------------------------------------
+Test Case 2 — Calculate metabolism with minimal parameters
+--------------------------------------------------------------------------------
+
+Scenario
+User provides only basic info; the tool should ask for missing data or show the form.
+
+User prompt
+Calculate my calories. I'm female, 65 kg, 165 cm, 25 years old.
+
+Tool triggered
+calculate_metabolism
+
+Expected output
+Returns BMR and TDEE with default activity (moderate) and goal (maintain). Widget shows results that can be recalculated with different settings.
+
+--------------------------------------------------------------------------------
+Test Case 3 — Find a specific recipe
+--------------------------------------------------------------------------------
+
+Scenario
+User searches for a specific recipe by name.
+
+User prompt
+Find me a chicken curry recipe.
+
+Tool triggered
+find_recipe (query: "chicken curry")
+
+Expected output
+Returns recipe with title, photo URL, ingredients list, cooking instructions, category, area, and optional YouTube link. Widget displays the recipe card.
+
+--------------------------------------------------------------------------------
+Test Case 4 — Get a random recipe
+--------------------------------------------------------------------------------
+
+Scenario
+User wants a surprise recipe suggestion.
+
+User prompt
+Show me a random recipe — surprise me!
+
+Tool triggered
+find_recipe (random: true)
+
+Expected output
+Returns a random recipe with full details. Widget shows the recipe card with photo and instructions.
+
+--------------------------------------------------------------------------------
+Test Case 5 — Calculate metabolism then find a recipe
+--------------------------------------------------------------------------------
+
+Scenario
+User wants both metabolism info and a recipe in one conversation.
+
+User prompt
+First calculate my metabolism (male, 75 kg, 175 cm, 30 years, active), then find me a healthy salad recipe.
+
+Tool triggered
+calculate_metabolism, then find_recipe
+
+Expected output
+Both tools succeed. Widget shows metabolism results first, then recipe card when the second tool is called. User can switch between tabs.
+
+================================================================================
+Negative test cases (3)
+================================================================================
+
+--------------------------------------------------------------------------------
+Negative Test Case 1 — Unrelated travel request
+--------------------------------------------------------------------------------
+
+Scenario
+The user is asking for something ChefPlan does not do. The connector should not be invoked.
+
+User prompt
+Book me a flight from New York to Paris for next weekend and find a hotel near the Eiffel Tower.
+
+--------------------------------------------------------------------------------
+Negative Test Case 2 — General coding question
+--------------------------------------------------------------------------------
+
+Scenario
+The user needs programming help unrelated to food or nutrition.
+
+User prompt
+Write a Python script that reads a CSV file and plots a bar chart using matplotlib.
+
+--------------------------------------------------------------------------------
+Negative Test Case 3 — Medical nutrition advice
+--------------------------------------------------------------------------------
+
+Scenario
+The user asks for specific medical dietary advice. ChefPlan provides general calculations, not medical recommendations.
+
+User prompt
+I have type 2 diabetes. What exact diet should I follow and which medications interact with my food?

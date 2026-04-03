@@ -1,0 +1,74 @@
+Resume Builder — текст для каталога ChatGPT / формы заявки
+Редактируй значения под каждым заголовком; копируй блоками.
+
+Обоснования аннотаций инструментов (Tool justification) + CSP — отдельный файл:
+docs/resume/TOOL_JUSTIFICATIONS.txt
+
+================================================================================
+App Name
+================================================================================
+Resume Builder
+
+================================================================================
+Subtitle
+================================================================================
+Build a polished resume in chat
+
+================================================================================
+Description
+================================================================================
+Resume Builder helps you create, tailor, and improve professional resumes right inside ChatGPT. Open the app, pick one of 8 styles (Classic, Modern, Executive, Creative, Terminal, Sidebar, Swiss, Nature), fill in your details, and download a polished PDF. Use "vacancy" mode to tailor your resume for a specific job posting, or "improve" mode to enhance an existing resume with AI feedback.
+
+================================================================================
+Short pitch — одно предложение (опционально)
+================================================================================
+Resume Builder: create, tailor, and download professional resumes in 8 styles, directly in ChatGPT.
+
+================================================================================
+Example user message (preview) — required
+================================================================================
+Enter a user prompt
+Open Resume Builder and help me create a resume for a frontend developer role.
+
+(Alternative, shorter: Open Resume Builder.)
+
+================================================================================
+Release Notes — required (may appear on app details page)
+================================================================================
+Bug fixes and other improvements.
+- Open Resume Builder from chat to load the interactive widget after sign-in.
+- Choose from 8 professional resume styles: Classic, Modern, Executive, Creative, Terminal, Sidebar, Swiss, Nature.
+- Three modes: create a new resume, tailor for a specific vacancy, or improve an existing resume.
+- Fill in personal info, experience, education, and skills in the inline form.
+- Live preview of your resume as you type.
+- Download your resume as a PDF via a secure short-lived token link.
+- AI can pre-fill fields from your prompt (name, job title, style).
+
+================================================================================
+Support email (если форма просит)
+================================================================================
+gptprosite@gmail.com
+
+================================================================================
+Privacy policy URL
+================================================================================
+https://justmatch.us/policy
+
+================================================================================
+Terms URL
+================================================================================
+https://justmatch.us/terms
+
+================================================================================
+Developer / company name (если просят)
+================================================================================
+
+
+================================================================================
+Заметки для себя (не в форму)
+================================================================================
+Домен продукта: justmatch.us. MCP: /api/mcp/resume
+
+Тестовый аккаунт для ревью OpenAI (логин/пароль) — см. docs/resume/OPENAI_REVIEW_TEST_ACCOUNT.txt
+
+Release Notes при каждом релизе в сторе — обновляй блок выше (публичный текст).

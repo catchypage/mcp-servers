@@ -1,0 +1,74 @@
+ChefPlan — текст для каталога ChatGPT / формы заявки
+Редактируй значения под каждым заголовком; копируй блоками.
+
+Обоснования аннотаций инструментов (Tool justification) + CSP — отдельный файл:
+docs/chefplan2/TOOL_JUSTIFICATIONS.txt
+
+================================================================================
+App Name
+================================================================================
+ChefPlan
+
+================================================================================
+Subtitle
+================================================================================
+Calories, macros & recipe finder
+
+================================================================================
+Description
+================================================================================
+ChefPlan calculates your daily energy needs (BMR, TDEE, and macros) using the Mifflin-St Jeor equation and helps you find recipes with photos, ingredients, and step-by-step instructions. Enter your weight, height, age, gender, activity level, and goal to get a personalized calorie target. Search for recipes by name or get a random dish — all inside the ChatGPT widget. No sign-in required.
+
+================================================================================
+Short pitch — одно предложение (опционально)
+================================================================================
+ChefPlan: metabolism calculator and recipe finder with photos, built for ChatGPT. No login needed.
+
+================================================================================
+Example user message (preview) — required
+================================================================================
+Enter a user prompt
+Calculate my metabolism — male, 80 kg, 180 cm, 28 years, moderate activity.
+
+(Alternative: Find me a chicken curry recipe.)
+
+================================================================================
+Release Notes — required (may appear on app details page)
+================================================================================
+Bug fixes and other improvements.
+- Metabolism calculator: enter weight, height, age, gender, activity level, and goal to get BMR, TDEE, and recommended macros (protein, carbs, fat).
+- Recipe finder: search by name or get a random recipe with photo, ingredients list, step-by-step instructions, and YouTube video link.
+- Interactive widget with Calculator and Recipes tabs.
+- Search results show a paginated list (10 per page) with thumbnails.
+- Recalculate button on results screen to adjust parameters.
+- No authentication required — works without sign-in.
+
+================================================================================
+Support email (если форма просит)
+================================================================================
+gptprosite@gmail.com
+
+================================================================================
+Privacy policy URL
+================================================================================
+https://justmatch.us/policy
+
+================================================================================
+Terms URL
+================================================================================
+https://justmatch.us/terms
+
+================================================================================
+Developer / company name (если просят)
+================================================================================
+
+
+================================================================================
+Заметки для себя (не в форму)
+================================================================================
+App ID: chefplan2. Домен: justmatch.us. MCP: /api/mcp/chefplan2
+skipAuth: true — авторизация не требуется.
+
+Тестовый аккаунт не нужен (нет авторизации).
+
+Release Notes при каждом релизе в сторе — обновляй блок выше (публичный текст).

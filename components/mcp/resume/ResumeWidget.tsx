@@ -74,34 +74,6 @@ export default function ResumeWidget() {
     explanation: string
   } | null>(null)
 
-  // callTool wrapper — same pattern as LangCoach
-  const callTool = useCallback(
-    async (
-      name: string,
-      args: Record<string, unknown>,
-    ): Promise<Record<string, unknown> | null> => {
-      if (!window.openai?.callTool) {
-        return null
-      }
-      try {
-        const res = await window.openai.callTool(name, args)
-        const flat = res.structuredContent ?? res
-        const unwrapped = unwrapResumeInitPayload(flat)
-        if (unwrapped) {
-          return unwrapped
-        }
-        if (typeof flat === 'object' && flat !== null) {
-          return { ...flat }
-        }
-        return null
-      } catch (e) {
-        console.error(`[ResumeWidget] callTool ${name} failed:`, e)
-        return null
-      }
-    },
-    [],
-  )
-
   const applyResumeInitContext = useCallback((ctx: Record<string, unknown>) => {
     const mode = String(ctx.mode ?? 'create')
       .toLowerCase()
@@ -157,8 +129,7 @@ export default function ResumeWidget() {
   /*
    * ChatGPT Apps: subscribe to openai:set_globals (useToolOutput /
    * useToolInput) so late toolOutput is applied; polling alone misses host
-   * updates (see astral-day useOpenAiGlobal). Fallback: legacy bridges +
-   * get_init_context after a delay (serverless Map may be empty).
+   * updates (see astral-day useOpenAiGlobal).
    */
   useEffect(() => {
     const merged = mergeToolOutputAndInput(toolOutput, toolInput)
@@ -203,27 +174,12 @@ export default function ResumeWidget() {
         }
         await new Promise((r) => setTimeout(r, 100))
       }
-
-      if (cancelled || initAppliedRef.current) {
-        return
-      }
-
-      const fromServer = await callTool('get_init_context', {})
-      if (cancelled || !fromServer) {
-        return
-      }
-      const payload =
-        unwrapResumeInitPayload(fromServer) ??
-        (typeof fromServer.mode === 'string' ? fromServer : null)
-      if (payload && typeof payload.mode === 'string') {
-        applyResumeInitContext(payload)
-      }
     })()
 
     return () => {
       cancelled = true
     }
-  }, [callTool, applyResumeInitContext])
+  }, [applyResumeInitContext])
 
   const selectedStyle = getStyleById(selectedStyleId)
 

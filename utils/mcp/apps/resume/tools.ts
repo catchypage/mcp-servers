@@ -16,13 +16,6 @@ export const RESUME_STYLE_IDS = [
 
 export type ResumeStyleId = (typeof RESUME_STYLE_IDS)[number]
 
-/**
- * Pending context store — when GPT calls open_resume_builder,
- * we stash the mode + data here so the widget can retrieve it
- * via the internal get_init_context callTool.
- */
-const pendingContext = new Map<string, Record<string, unknown>>()
-
 /*
  * ═══════════════════════════════════════════════════════════════
  * PUBLIC TOOLS (visible to GPT)
@@ -74,45 +67,6 @@ const openResumeBuilderTool: McpToolDefinition = {
     openWorldHint: true,
     idempotentHint: false,
   },
-  securitySchemes: [{ type: 'oauth2', scopes: ['user:read'] }],
-}
-
-/*
- * ═══════════════════════════════════════════════════════════════
- * INTERNAL TOOLS (hidden, called by widget via callTool)
- * ═══════════════════════════════════════════════════════════════
- */
-
-const getInitContextTool: McpToolDefinition = {
-  name: 'get_init_context',
-  title: 'Get Init Context',
-  description:
-    'INTERNAL: Widget-only. Returns the mode and data from the last open_resume_builder call.',
-  inputSchema: { type: 'object', properties: {}, required: [] },
-  annotations: {
-    readOnlyHint: true,
-    destructiveHint: false,
-    openWorldHint: false,
-    idempotentHint: true,
-  },
-  securitySchemes: [{ type: 'oauth2', scopes: ['user:read'] }],
-  _meta: { 'openai/hidden': true },
-}
-
-const getUserInfoTool: McpToolDefinition = {
-  name: 'get_user_info',
-  title: 'Get User Info',
-  description:
-    'INTERNAL: Only the client widget calls this. GPT must never call. User info for the widget.',
-  inputSchema: { type: 'object', properties: {}, required: [] },
-  annotations: {
-    readOnlyHint: true,
-    destructiveHint: false,
-    openWorldHint: true,
-    idempotentHint: true,
-  },
-  securitySchemes: [{ type: 'oauth2', scopes: ['user:read'] }],
-  _meta: { 'openai/hidden': true },
 }
 
 /*
@@ -122,11 +76,6 @@ const getUserInfoTool: McpToolDefinition = {
  */
 
 export const resumeTools: McpToolDefinition[] = [openResumeBuilderTool]
-
-export const resumeInternalTools: McpToolDefinition[] = [
-  getInitContextTool,
-  getUserInfoTool,
-]
 
 /*
  * ═══════════════════════════════════════════════════════════════
@@ -143,7 +92,7 @@ export type ToolHandler = (
 async function handleOpenResumeBuilder(
   _app: McpAppConfig,
   args: Record<string, unknown>,
-  userId: string,
+  _userId: string,
 ): Promise<Record<string, unknown>> {
   const modeRaw = String(args.mode ?? 'create')
     .toLowerCase()
@@ -177,9 +126,6 @@ async function handleOpenResumeBuilder(
     context.feedback = String(args.feedback ?? '')
   }
 
-  // Stash for widget to pick up via get_init_context
-  pendingContext.set(userId, context)
-
   const messages: Record<string, string> = {
     create:
       'Resume builder is ready. Choose from 8 professional styles and fill in your details.',
@@ -189,11 +135,6 @@ async function handleOpenResumeBuilder(
       'Resume builder opened for improvement. Review and enhance your resume.',
   }
 
-  /*
-   * Include `context` in the tool result so the widget can read it via
-   * getToolResult() / toolResult. Memory-only get_init_context breaks on
-   * serverless (another instance) or cold starts.
-   */
   return {
     success: true,
     message: messages[mode] ?? messages.create,
@@ -201,47 +142,8 @@ async function handleOpenResumeBuilder(
   }
 }
 
-async function handleGetInitContext(
-  _app: McpAppConfig,
-  _args: Record<string, unknown>,
-  userId: string,
-): Promise<Record<string, unknown>> {
-  const ctx = pendingContext.get(userId)
-  if (ctx) {
-    /*
-     * Do not delete after read. The widget may call get_init_context more than
-     * once (e.g. React 18 StrictMode double-mount in dev, or iframe reload).
-     * Next open_resume_builder overwrites this map entry for the same user.
-     */
-    return { success: true, ...ctx }
-  }
-  return { success: true, mode: 'create' }
-}
-
-async function handleGetUserInfo(
-  _app: McpAppConfig,
-  _args: Record<string, unknown>,
-  userId: string,
-): Promise<Record<string, unknown>> {
-  const { supabaseAdmin } = await import('@/utils/supabase/supabase-admin')
-  const { data: user } = await supabaseAdmin
-    .from('users')
-    .select('id, email, full_name, avatar_url')
-    .eq('id', userId)
-    .single()
-
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'
-  return {
-    success: true,
-    user: user ?? {},
-    accountUrl: `${baseUrl}/account`,
-  }
-}
-
 export function getResumeToolHandlers(): Record<string, ToolHandler> {
   return {
     open_resume_builder: handleOpenResumeBuilder,
-    get_init_context: handleGetInitContext,
-    get_user_info: handleGetUserInfo,
   }
 }

@@ -37,7 +37,7 @@ export interface McpAppConfig {
   }[]
 }
 
-import { resumeTools, resumeInternalTools } from '@/utils/mcp/apps/resume/tools'
+import { resumeTools } from '@/utils/mcp/apps/resume/tools'
 import {
   langcoachTools,
   langcoachInternalTools,
@@ -52,8 +52,8 @@ export const MCP_APPS: Record<string, McpAppConfig> = {
     version: '1.0.0',
     widgetInvoking: 'Opening your resume builder…',
     widgetInvoked: 'Resume builder ready!',
+    skipAuth: true,
     tools: resumeTools,
-    internalTools: resumeInternalTools,
     widget: '/mcp/resume.bundle.js',
     resources: [
       {
