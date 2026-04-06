@@ -18,7 +18,7 @@ export interface PolicyDocument {
 }
 
 const FOOTER =
-  'This Privacy Policy is provided for transparency. We recommend reviewing it with legal counsel for your jurisdiction. Where OpenAI ChatGPT is involved, OpenAI\'s own policies apply to their processing of chat data; see openai.com/policies.'
+  "This Privacy Policy is provided for transparency. We recommend reviewing it with legal counsel for your jurisdiction. Where OpenAI ChatGPT is involved, OpenAI's own policies apply to their processing of chat data; see openai.com/policies."
 
 export function getPolicyDocument(
   brand: BrandConfig,
@@ -115,8 +115,7 @@ export function getPolicyDocument(
     },
     {
       title: '2. Information we collect',
-      description:
-        'Resume Builder is designed to minimize data collection:',
+      description: 'Resume Builder is designed to minimize data collection:',
       items: [
         'Resume content: name, job title, work experience, education, and skills that you enter into the widget. This data is processed in your browser session and is NOT stored on our servers.',
         'No authentication required: we do not collect email addresses, passwords, or OAuth tokens. The app works without sign-in.',
@@ -142,7 +141,7 @@ export function getPolicyDocument(
     {
       title: '5. ChatGPT and OpenAI',
       description:
-        "When you use Resume Builder through OpenAI ChatGPT, OpenAI processes data under their own terms and privacy policy. We receive only the structured arguments sent to our MCP tool (such as job title or name), not your full chat history.",
+        'When you use Resume Builder through OpenAI ChatGPT, OpenAI processes data under their own terms and privacy policy. We receive only the structured arguments sent to our MCP tool (such as job title or name), not your full chat history.',
     },
     {
       title: '6. Sharing',
@@ -212,7 +211,7 @@ export function getPolicyDocument(
       title: '5. Third-party services',
       description: 'We use the following third-party services:',
       items: [
-        "OpenAI ChatGPT: when you use ChefPlan through ChatGPT, OpenAI processes data under their own terms and privacy policy. We receive only structured tool arguments, not your full chat.",
+        'OpenAI ChatGPT: when you use ChefPlan through ChatGPT, OpenAI processes data under their own terms and privacy policy. We receive only structured tool arguments, not your full chat.',
         'TheMealDB (themealdb.com): a free, public recipe database. Recipe search queries are sent to their API. See their terms for details.',
       ],
     },
@@ -271,7 +270,7 @@ export function getPolicyDocument(
     {
       title: '4. ChatGPT and OpenAI',
       description:
-        "When you use our services through OpenAI ChatGPT, OpenAI processes data under their own terms and privacy policy. We receive only information sent to our MCP tools or our website as part of that use.",
+        'When you use our services through OpenAI ChatGPT, OpenAI processes data under their own terms and privacy policy. We receive only information sent to our MCP tools or our website as part of that use.',
     },
     {
       title: '5. Sharing',
