@@ -35,13 +35,7 @@ Calculate my metabolism — male, 80 kg, 180 cm, 28 years, moderate activity.
 ================================================================================
 Release Notes — required (may appear on app details page)
 ================================================================================
-Bug fixes and other improvements.
-- Metabolism calculator: enter weight, height, age, gender, activity level, and goal to get BMR, TDEE, and recommended macros (protein, carbs, fat).
-- Recipe finder: search by name or get a random recipe with photo, ingredients list, step-by-step instructions, and YouTube video link.
-- Interactive widget with Calculator and Recipes tabs.
-- Search results show a paginated list (10 per page) with thumbnails.
-- Recalculate button on results screen to adjust parameters.
-- No authentication required — works without sign-in.
+Calculate BMR, TDEE, and macros based on your body metrics. Search recipes by name or get a random dish with photos, ingredients, and instructions. No sign-in needed.
 
 ================================================================================
 Support email (если форма просит)

@@ -1,4 +1,4 @@
-Resume Builder — текст для каталога ChatGPT / формы заявки
+Resume Booster — текст для каталога ChatGPT / формы заявки
 Редактируй значения под каждым заголовком; копируй блоками.
 
 Обоснования аннотаций инструментов (Tool justification) + CSP — отдельный файл:
@@ -7,7 +7,7 @@ docs/resume/TOOL_JUSTIFICATIONS.txt
 ================================================================================
 App Name
 ================================================================================
-Resume Builder
+Resume Booster
 
 ================================================================================
 Subtitle
@@ -17,32 +17,25 @@ Build a polished resume in chat
 ================================================================================
 Description
 ================================================================================
-Resume Builder helps you create, tailor, and improve professional resumes right inside ChatGPT. Open the app, pick one of 8 styles (Classic, Modern, Executive, Creative, Terminal, Sidebar, Swiss, Nature), fill in your details, and download a polished PDF. Use "vacancy" mode to tailor your resume for a specific job posting, or "improve" mode to enhance an existing resume with AI feedback.
+Resume Booster helps you create, tailor, and improve professional resumes right inside ChatGPT. Open the app, pick one of 8 styles (Classic, Modern, Executive, Creative, Terminal, Sidebar, Swiss, Nature), fill in your details, and download a polished PDF. Use "vacancy" mode to tailor your resume for a specific job posting, or "improve" mode to enhance an existing resume with AI feedback.
 
 ================================================================================
 Short pitch — одно предложение (опционально)
 ================================================================================
-Resume Builder: create, tailor, and download professional resumes in 8 styles, directly in ChatGPT.
+Resume Booster: create, tailor, and download professional resumes in 8 styles, directly in ChatGPT.
 
 ================================================================================
 Example user message (preview) — required
 ================================================================================
 Enter a user prompt
-Open Resume Builder and help me create a resume for a frontend developer role.
+Open Resume Booster and help me create a resume for a frontend developer role.
 
-(Alternative, shorter: Open Resume Builder.)
+(Alternative, shorter: Open Resume Booster.)
 
 ================================================================================
 Release Notes — required (may appear on app details page)
 ================================================================================
-Bug fixes and other improvements.
-- Open Resume Builder from chat to load the interactive widget. No sign-in required.
-- Choose from 8 professional resume styles: Classic, Modern, Executive, Creative, Terminal, Sidebar, Swiss, Nature.
-- Three modes: create a new resume, tailor for a specific vacancy, or improve an existing resume.
-- Fill in personal info, experience, education, and skills in the inline form.
-- Live preview of your resume as you type.
-- Download your resume as a PDF via a secure short-lived token link.
-- AI can pre-fill fields from your prompt (name, job title, style).
+Create professional resumes in 8 styles directly in ChatGPT. Three modes: create, tailor for a vacancy, or improve an existing resume. Live preview, PDF download, no sign-in needed.
 
 ================================================================================
 Support email (если форма просит)
