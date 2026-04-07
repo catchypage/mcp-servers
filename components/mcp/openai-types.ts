@@ -34,4 +34,3 @@ declare global {
     openai?: OpenAIBridge
   }
 }
-
