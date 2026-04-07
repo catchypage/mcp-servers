@@ -135,4 +135,5 @@ export const APP_DOMAINS: Record<string, string[]> = {
   resume: ['mvp.mom'],
   langcoach: ['justmatch.us'],
   chefplan2: ['cuto.pro'],
+  moviepick: ['nuova.pro'],
 }

@@ -1,4 +1,9 @@
-export type LegalProductLine = 'langcoach' | 'platform' | 'resume' | 'chefplan'
+export type LegalProductLine =
+  | 'langcoach'
+  | 'platform'
+  | 'resume'
+  | 'chefplan'
+  | 'moviepick'
 
 export interface BrandConfig {
   name: string
@@ -37,6 +42,15 @@ const DOMAIN_BRANDS: Record<string, BrandConfig> = {
     supportEmail: 'gptprosite@gmail.com',
     tagline: 'Your nutrition companion',
     legalProductLine: 'chefplan',
+  },
+  'nuova.pro': {
+    name: 'MoviePick',
+    shortName: 'MP',
+    description:
+      'Discover movies and TV: search by title with genres and years, or roll a random pick with filters — in ChatGPT or on the web.',
+    supportEmail: 'gptprosite@gmail.com',
+    tagline: 'Pick your next watch',
+    legalProductLine: 'moviepick',
   },
   'pyxl.pro': {
     name: 'Pyxl',

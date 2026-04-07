@@ -252,6 +252,76 @@ export function getPolicyDocument(
     },
   ]
 
+  const moviepickBlocks: PolicySection[] = [
+    {
+      title: '1. Who we are',
+      description: `${brand.name} ("we", "us") operates this website (${siteUrl}) and the MoviePick experience available through OpenAI ChatGPT via MCP (Model Context Protocol).`,
+    },
+    {
+      title: '2. Information we collect',
+      description:
+        'MoviePick is built to avoid accounts and long-term personal profiles. We may process:',
+      items: [
+        'MCP tool inputs: when you use MoviePick inside ChatGPT, OpenAI sends tool requests to our server. Typical arguments include search text (titles), optional genre filters, year or year-range filters, and media type (movie, TV, or both). We use these values only to fetch matching titles and return structured results to your client.',
+        'Transient processing: search and random responses are assembled in server memory. We do not use your queries to build a personal watch history database tied to your identity on our side.',
+        'Image proxy: poster and still URLs may be requested through our image proxy endpoint so the widget can load images under the same origin. We do not store poster images for later use.',
+        'No sign-in required: the public MoviePick MCP flow does not require you to log in to our site. We do not collect email, passwords, or OAuth tokens for that flow.',
+        'Technical data: standard server logs (for example IP address, timestamps, request path, and user agent) for security, abuse prevention, and operations. These logs are not used for marketing.',
+        'ChatGPT and conversation context: OpenAI may process your chat under their own policies. We receive only what the ChatGPT client sends as MCP tool parameters and structured tool outputs, not your full conversation log from OpenAI.',
+      ],
+    },
+    {
+      title: '3. How we use information',
+      description: 'Purposes include:',
+      items: [
+        'to run title search, detail lookup, and random discovery against a third-party film and TV metadata catalog;',
+        'to return posters, titles, years, descriptions, and related metadata to your ChatGPT session or browser;',
+        'to operate and secure our MCP server and HTTP APIs;',
+        'to diagnose errors and protect against abuse.',
+      ],
+    },
+    {
+      title: '4. Data storage and retention',
+      description:
+        'We do not intentionally retain your search queries or tool arguments as a personal history in application databases for MoviePick. Processing is short-lived on the server for each request. Server logs may be kept for a limited period for security and then rotated or deleted according to our infrastructure practices.',
+    },
+    {
+      title: '5. Third-party metadata',
+      description:
+        'Movie titles, TV series data, genres, release years, posters, and related facts are retrieved from an external catalog API (commercial metadata provider). That provider receives API requests needed to resolve your search or random filters (for example query strings and filter parameters). Their handling of requests is governed by their own terms and policies.',
+    },
+    {
+      title: '6. Sharing',
+      description:
+        'We do not sell your personal information. We do not share tool arguments with advertisers. Metadata requests are sent to the catalog provider as described above. We may disclose information to law enforcement when required by applicable law.',
+    },
+    {
+      title: '7. Cookies and tracking',
+      description:
+        'The MoviePick widget and MCP APIs described here do not use advertising cookies or cross-site tracking pixels. ChatGPT or your browser may use their own storage or cookies according to their settings.',
+    },
+    {
+      title: '8. Children',
+      description:
+        'MoviePick is not directed at children under 13. We do not knowingly collect personal data from children under 13.',
+    },
+    {
+      title: '9. Your rights',
+      description:
+        'Depending on your region, you may have rights to access, correct, delete, or restrict processing of personal data. Because we minimize retention of query content, some requests may apply mainly to server logs. Contact us using the details below.',
+    },
+    {
+      title: '10. Changes',
+      description:
+        'We may update this Privacy Policy. The new version will be posted on this page with an updated effective date.',
+    },
+    {
+      title: '11. Contact',
+      description: 'Privacy questions or requests:',
+      isContact: true,
+    },
+  ]
+
   const platformBlocks: PolicySection[] = [
     {
       title: '1. Who we are',
@@ -295,18 +365,22 @@ export function getPolicyDocument(
 
   const introChefplan = `This Privacy Policy describes how ${brand.name} ("we", "us") handles your information when you use our metabolism calculator and recipe finder at ${siteUrl} or through OpenAI ChatGPT. ${brand.name} does not require sign-in and does not permanently store your health data or search history.`
 
+  const introMoviepick = `This Privacy Policy describes how ${brand.name} ("we", "us") handles information when you use our movie and TV discovery service at ${siteUrl} or through OpenAI ChatGPT via MCP. ${brand.name} does not require sign-in for the public MCP experience and does not maintain a personal watch-history database tied to you on our servers.`
+
   const introPlatform = `This Privacy Policy describes how ${brand.name} ("we", "us") handles personal information when you use ${siteUrl} and related services, including when you connect third-party integrations such as OpenAI ChatGPT.`
 
   const introMap: Record<string, string> = {
     langcoach: introLangCoach,
     resume: introResume,
     chefplan: introChefplan,
+    moviepick: introMoviepick,
   }
 
   const sectionsMap: Record<string, PolicySection[]> = {
     langcoach: langCoachBlocks,
     resume: resumeBlocks,
     chefplan: chefplanBlocks,
+    moviepick: moviepickBlocks,
   }
 
   return {
