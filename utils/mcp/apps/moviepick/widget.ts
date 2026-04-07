@@ -12,22 +12,21 @@ export function moviepickWidgetHTML(baseUrl: string): string {
   <link rel="stylesheet" href="${stylesUrl}" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    /* Heights: MoviePickWidget sets html/body inline (expanded > 700px). */
     html, body {
-      margin: 0 !important;
-      padding: 0 !important;
-      width: 100% !important;
-      height: 700px !important;
-      min-height: 700px !important;
-      max-height: 700px !important;
-      overflow: hidden !important;
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
       font-family: system-ui, -apple-system, sans-serif;
     }
     body { background: #0f172a; color: #e2e8f0; }
     #moviepick-root {
-      width: 100% !important;
-      height: 100% !important;
-      margin: 0 !important;
-      padding: 0 !important;
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
     }
   </style>
 </head>

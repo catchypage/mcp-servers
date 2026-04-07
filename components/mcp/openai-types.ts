@@ -21,6 +21,12 @@ export interface OpenAIBridge {
   /** Arguments passed to the tool that opened this widget (Apps SDK). */
   toolInput?: Record<string, unknown>
   toolResponseMetadata?: Record<string, unknown>
+  /** Host max height for the widget (px). */
+  maxHeight?: number
+  /** e.g. inline | pip | fullscreen */
+  displayMode?: string
+  /** Tell the host the content height (px) to reduce clipping. */
+  notifyIntrinsicHeight?: (heightPx: number) => void
 }
 
 declare global {
@@ -28,3 +34,4 @@ declare global {
     openai?: OpenAIBridge
   }
 }
+
