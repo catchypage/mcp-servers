@@ -153,11 +153,16 @@ function mergeInitRecords(
   }
   const o = fromOutput ?? {}
   const i = fromInput ?? {}
-  const keys = new Set([...Object.keys(o), ...Object.keys(i)])
+  // Array.from: Set for-of breaks with target es5 (no downlevelIteration)
+  const keys = Array.from(new Set([...Object.keys(o), ...Object.keys(i)]))
   const out: Record<string, unknown> = {}
   for (const k of keys) {
-    const ov = o[k]
-    const iv = i[k]
+    const ov: unknown = Object.prototype.hasOwnProperty.call(o, k)
+      ? o[k]
+      : undefined
+    const iv: unknown = Object.prototype.hasOwnProperty.call(i, k)
+      ? i[k]
+      : undefined
     if (k === 'movie' && ov && typeof ov === 'object') {
       out[k] = ov
       continue
