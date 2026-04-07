@@ -45,6 +45,14 @@ export interface RandomSnapshot {
 
 export type Screen = 'loading' | 'search' | 'results' | 'detail' | 'random'
 
+/** Snapshot to reopen the last viewed title from the header */
+export interface LastViewedDetailState {
+  movie: MovieDetail
+  detailFromRandom: boolean
+  randomSnapshot: RandomSnapshot | null
+  prevScreen: Extract<Screen, 'search' | 'results' | 'random'>
+}
+
 /** Bootstrap search UI from MCP toolOutput + toolInput */
 export interface MovieSearchMcpInit {
   query: string

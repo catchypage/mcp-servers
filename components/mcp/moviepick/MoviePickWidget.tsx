@@ -11,6 +11,7 @@ import type {
   Screen,
   MovieDetail as MovieDetailType,
   RandomSnapshot,
+  LastViewedDetailState,
 } from './types'
 import { YEAR_SLIDER_MAX, YEAR_SLIDER_MIN } from './types'
 import {
@@ -80,8 +81,13 @@ export default function MoviePickWidget() {
     null,
   )
   const [randomMcpInit, setRandomMcpInit] = useState<RandomMcpInit | null>(null)
+  const [lastViewed, setLastViewed] = useState<LastViewedDetailState | null>(
+    null,
+  )
+  const [lastTabActive, setLastTabActive] = useState(false)
 
   const applyMergedContext = useCallback((ctx: Record<string, unknown>) => {
+    setLastTabActive(false)
     setRandomMcpInit(null)
     setSearchMcpInit(null)
 
@@ -227,6 +233,36 @@ export default function MoviePickWidget() {
     notifyOpenAiIntrinsicHeight(containerHeight)
   }, [containerHeight])
 
+  useEffect(() => {
+    if (screen !== 'detail' || !movie) {
+      return
+    }
+    let back: LastViewedDetailState['prevScreen'] = 'search'
+    if (prevScreen === 'results') {
+      back = 'results'
+    } else if (prevScreen === 'random') {
+      back = 'random'
+    }
+    setLastViewed({
+      movie,
+      detailFromRandom,
+      randomSnapshot: lastRandomSnapshot,
+      prevScreen: back,
+    })
+  }, [screen, movie, detailFromRandom, lastRandomSnapshot, prevScreen])
+
+  const handleOpenLast = useCallback(() => {
+    if (!lastViewed) {
+      return
+    }
+    setLastTabActive(true)
+    setMovie(lastViewed.movie)
+    setDetailFromRandom(lastViewed.detailFromRandom)
+    setLastRandomSnapshot(lastViewed.randomSnapshot)
+    setPrevScreen(lastViewed.prevScreen)
+    setScreen('detail')
+  }, [lastViewed])
+
   useLayoutEffect(() => {
     const html = document.documentElement
     const body = document.body
@@ -267,6 +303,7 @@ export default function MoviePickWidget() {
 
   const handleSelectMovie = useCallback(
     async (id: string, kind: 'movie' | 'tv') => {
+      setLastTabActive(false)
       setDetailLoading(true)
       setPrevScreen(screen === 'loading' ? 'search' : screen)
       setDetailFromRandom(false)
@@ -290,6 +327,7 @@ export default function MoviePickWidget() {
   }, [prevScreen, detailFromRandom])
 
   const handleNavigate = useCallback((s: Screen) => {
+    setLastTabActive(false)
     setPrevScreen((prev) => (prev === 'loading' ? 'search' : prev))
     setScreen(s)
   }, [])
@@ -298,6 +336,7 @@ export default function MoviePickWidget() {
     if (!lastRandomSnapshot) {
       return
     }
+    setLastTabActive(false)
     setRandomAgainLoading(true)
     const m = await fetchRandomMovie({
       media: lastRandomSnapshot.media,
@@ -312,6 +351,7 @@ export default function MoviePickWidget() {
   }, [lastRandomSnapshot])
 
   const handleChangeRandomFilters = useCallback(() => {
+    setLastTabActive(false)
     setLastRandomSnapshot(null)
     setDetailFromRandom(false)
     setMovie(null)
@@ -347,6 +387,10 @@ export default function MoviePickWidget() {
         screen={screen}
         detailFromRandom={detailFromRandom}
         onNavigate={handleNavigate}
+        lastViewedTitle={lastViewed?.movie.title ?? null}
+        hasLastViewed={Boolean(lastViewed)}
+        onOpenLast={handleOpenLast}
+        lastTabActive={lastTabActive}
       />
       <div className="flex-1 overflow-y-auto overflow-x-hidden">
         {detailLoading && (
@@ -383,6 +427,7 @@ export default function MoviePickWidget() {
             mcpInit={randomMcpInit}
             onAutoPickConsumed={handleRandomAutoPickConsumed}
             onPicked={(m, snap) => {
+              setLastTabActive(false)
               setPrevScreen('random')
               setLastRandomSnapshot(snap)
               setDetailFromRandom(true)

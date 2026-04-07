@@ -200,8 +200,10 @@ async function handleFindMovie(
     })
     const payload = detailPayload(detail)
     if (payload) {
+      const summary = String(payload.message ?? '')
       return {
         ...payload,
+        message: summary ? `Random pick: ${summary}` : summary,
         fromRandom: true,
         random: true,
         randomSnapshot: {
@@ -314,6 +316,10 @@ async function handleFindMovie(
     }
   }
 
+  const top = results[0]
+  const topLine = top
+    ? ` Top match: "${top.title}" (${top.year}, ${top.kind}).`
+    : ''
   return {
     success: true,
     mode: 'results',
@@ -330,7 +336,7 @@ async function handleFindMovie(
       poster: r.poster,
     })),
     total_pages: totalPages,
-    message: `Found ${results.length} result(s) on page 1 for "${query}".`,
+    message: `Found ${results.length} result(s) on page 1 for "${query}".${topLine} Open the widget to browse or pick another title.`,
   }
 }
 
