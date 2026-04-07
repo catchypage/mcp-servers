@@ -53,6 +53,13 @@ function buildMcpClients() {
       stylesCss: 'chefplan2-styles.css',
       tailwindContent: './components/mcp/nutri/**/*.{tsx,ts}',
     },
+    {
+      name: 'MoviePick',
+      entry: '../components/mcp/moviepick/moviepick-entry.tsx',
+      output: 'moviepick.bundle.js',
+      stylesCss: 'moviepick-styles.css',
+      tailwindContent: './components/mcp/moviepick/**/*.{tsx,ts}',
+    },
   ]
 
   components.forEach((comp) => {

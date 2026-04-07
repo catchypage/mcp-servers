@@ -7,6 +7,7 @@ import type { McpAppConfig } from './registry'
 import { getResumeToolHandlers } from '@/utils/mcp/apps/resume/tools'
 import { getLangcoachToolHandlers } from '@/utils/mcp/apps/langcoach/tools'
 import { getNutriToolHandlers } from '@/utils/mcp/apps/nutri/tools'
+import { getMoviepickToolHandlers } from '@/utils/mcp/apps/moviepick/tools'
 
 export type ToolHandler = (
   app: McpAppConfig,
@@ -20,6 +21,7 @@ const handlerRegistry: Record<string, () => HandlersMap> = {
   resume: () => getResumeToolHandlers(),
   langcoach: () => getLangcoachToolHandlers(),
   chefplan2: () => getNutriToolHandlers(),
+  moviepick: () => getMoviepickToolHandlers(),
 }
 
 export function getToolHandlers(appId: string): HandlersMap | null {
@@ -30,6 +32,7 @@ export function getToolHandlers(appId: string): HandlersMap | null {
 import { resumeWidgetHTML } from '@/utils/mcp/apps/resume/widget'
 import { langcoachWidgetHTML } from '@/utils/mcp/apps/langcoach/widget'
 import { nutriWidgetHTML } from '@/utils/mcp/apps/nutri/widget'
+import { moviepickWidgetHTML } from '@/utils/mcp/apps/moviepick/widget'
 
 export function getWidgetHtml(app: McpAppConfig, baseUrl: string): string {
   if (app.id === 'resume') {
@@ -40,6 +43,9 @@ export function getWidgetHtml(app: McpAppConfig, baseUrl: string): string {
   }
   if (app.id === 'chefplan2') {
     return nutriWidgetHTML(baseUrl)
+  }
+  if (app.id === 'moviepick') {
+    return moviepickWidgetHTML(baseUrl)
   }
   return `<!DOCTYPE html><html><body><p>Widget for ${app.name}</p></body></html>`
 }

@@ -1,6 +1,5 @@
-Resume Builder — Tool justification (OpenAI Apps submission)
-Copy one block per form field. Annotations match utils/mcp/apps/resume/tools.ts
-No authentication required (skipAuth: true).
+Resume Booster — Tool justification (OpenAI Apps submission)
+Annotations match utils/mcp/apps/resume/tools.ts. No auth required.
 
 ================================================================================
 CSP Metadata (widget)
@@ -16,14 +15,10 @@ open_resume_builder
 ================================================================================
 
 Read Only: No
-Describe why Read Only is set to False
-This tool initializes the Resume Builder interactive widget session. It stores mode and context data (job title, style, vacancy text) for the widget to retrieve, which constitutes a server-side write to an in-memory store. It does not merely read existing data.
+Initializes widget session with mode/context data in server memory. Not a pure read.
 
 Open World: Yes
-Describe why Open World is set to True
-Inputs such as job_title, full_name, vacancy_description, resume_text, and feedback are free-form user-provided text. The tool accepts open-ended content that varies per user and request.
+Accepts free-form user text (job title, name, vacancy description, resume text, feedback).
 
 Destructive: No
-Describe why Destructive is set to False
-It does not delete any user data, accounts, or stored resumes. It only creates a new session context that is overwritten on the next call.
-
+No data is deleted. Session context is overwritten on next call.

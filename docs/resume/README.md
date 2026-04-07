@@ -1,4 +1,4 @@
-# Resume Builder — docs
+# Resume Booster — docs
 
 | File | Use |
 |------|-----|

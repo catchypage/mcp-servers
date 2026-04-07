@@ -10,6 +10,7 @@
 const HARDCODED_DOMAINS: Record<string, string> = {
   'mvp.mom': 'resume',
   'cuto.pro': 'chefplan2',
+  'nuova.pro': 'moviepick',
 }
 
 export const DOMAIN_TO_APP: Record<string, string> = (() => {
