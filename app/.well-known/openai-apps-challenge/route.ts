@@ -4,6 +4,8 @@ const DOMAIN_TOKENS: Record<string, string> = {
   'justmatch.us': 'a3trmgdg65ZJ61_6rfqQFKCWSeq0frXC3_HJA4guHOI',
   'mvp.mom': 'JCMzsJo41AsiT5UepUoZTCT5fq4zEy04iBOe4X3b2YU',
   'cuto.pro': 'yFMNh0nbCi10qpFEMioCCYY37ajddfpgrqarRlGOOgw',
+  'nuova.pro': 'hTCQrAewQUaziujgOESJNF_5dmwgalvnObGg0AviO64',
+  'www.nuova.pro': 'hTCQrAewQUaziujgOESJNF_5dmwgalvnObGg0AviO64',
 }
 
 const DEFAULT_TOKEN = DOMAIN_TOKENS['justmatch.us']
