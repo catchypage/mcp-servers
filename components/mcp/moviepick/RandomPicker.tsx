@@ -13,6 +13,8 @@ import YearRangeSlider from './YearRangeSlider'
 interface RandomPickerProps {
   mcpInit?: RandomMcpInit | null
   onPicked: (movie: MovieDetail, snapshot: RandomSnapshot) => void
+  /** After autoPick fails (no title); parent should set autoPick false */
+  onAutoPickConsumed?: () => void
 }
 
 function stableRandomMcpKey(init: RandomMcpInit): string {
@@ -35,6 +37,7 @@ const MEDIA_OPTIONS: { value: MediaScope; label: string }[] = [
 export default function RandomPicker({
   mcpInit = null,
   onPicked,
+  onAutoPickConsumed,
 }: RandomPickerProps) {
   const [media, setMedia] = useState<MediaScope>('movie')
   const [genres, setGenres] = useState<GenreOption[]>([])
@@ -47,8 +50,12 @@ export default function RandomPicker({
 
   const mcpApplyKeyRef = useRef<string | null>(null)
   const autoPickGenerationRef = useRef(0)
+  /** One autoPick per mcpInit key (no re-roll when loadingGenres flips) */
+  const autoPickRunForKeyRef = useRef<string | null>(null)
   const onPickedRef = useRef(onPicked)
   onPickedRef.current = onPicked
+  const onAutoPickConsumedRef = useRef(onAutoPickConsumed)
+  onAutoPickConsumedRef.current = onAutoPickConsumed
 
   useEffect(() => {
     if (!mcpInit) {
@@ -95,6 +102,12 @@ export default function RandomPicker({
     if (loadingGenres) {
       return
     }
+    const key = stableRandomMcpKey(mcpInit)
+    if (autoPickRunForKeyRef.current === key) {
+      return
+    }
+    autoPickRunForKeyRef.current = key
+
     const snap = mcpInit.snapshot
     autoPickGenerationRef.current += 1
     const myGen = autoPickGenerationRef.current
@@ -115,6 +128,7 @@ export default function RandomPicker({
         onPickedRef.current(movie, snap)
       } else {
         setError('No match — loosen genres or years, or clear filters.')
+        onAutoPickConsumedRef.current?.()
       }
     })()
     return () => {

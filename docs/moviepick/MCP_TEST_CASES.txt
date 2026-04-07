@@ -1,0 +1,122 @@
+MoviePick — MCP test cases (OpenAI Apps submission)
+Copy one block per form field.
+Connector: POST https://nuova.pro/api/mcp (Host: nuova.pro) or POST https://nuova.pro/api/mcp/moviepick
+No OAuth. Public tool: find_movie.
+
+================================================================================
+Positive test cases (5)
+================================================================================
+
+--------------------------------------------------------------------------------
+Test Case 1 — Search by title (multiple results)
+--------------------------------------------------------------------------------
+
+Scenario
+User searches for a common title; model should return a result list in the widget.
+
+User prompt
+Search for movies titled Inception and show me the list.
+
+Tool triggered
+find_movie (query: "Inception", media optional)
+
+Expected output
+tools/call succeeds with mode results (or single detail if exactly one hit). Widget shows posters and titles; user can open a title for detail.
+
+--------------------------------------------------------------------------------
+Test Case 2 — Search with year / genre prefill (opens widget)
+--------------------------------------------------------------------------------
+
+Scenario
+User asks for a filtered search; tool may open the widget with filters applied.
+
+User prompt
+Find drama movies from 2019 with "parasite" in the name.
+
+Tool triggered
+find_movie (query + year and/or genre_ids as the model maps)
+
+Expected output
+Structured content includes search mode, query, and filter fields where applicable. Widget shows results or empty state with message.
+
+--------------------------------------------------------------------------------
+Test Case 3 — Random movie
+--------------------------------------------------------------------------------
+
+Scenario
+User wants a random recommendation without a specific title.
+
+User prompt
+Pick a random popular movie for me tonight.
+
+Tool triggered
+find_movie (random: true, media: movie or default)
+
+Expected output
+mode random/detail with one title or a clear message if no match. Widget can show detail or random picker with auto-pick per init.
+
+--------------------------------------------------------------------------------
+Test Case 4 — Random with media and era
+--------------------------------------------------------------------------------
+
+Scenario
+User constrains random to TV and a year range.
+
+User prompt
+Random TV series from the 2010s, any genre.
+
+Tool triggered
+find_movie (random: true, media: tv, year_from/year_to or years as mapped)
+
+Expected output
+One TV title detail or random flow with snapshot for "again". No server-side writes.
+
+--------------------------------------------------------------------------------
+Test Case 5 — Open widget without query (filters only)
+--------------------------------------------------------------------------------
+
+Scenario
+User sets filters first; empty query still opens MoviePick for manual search.
+
+User prompt
+Open MoviePick with sci-fi genre and years 2000–2010 so I can type a title myself.
+
+Tool triggered
+find_movie (genre_ids / year range, query empty or omitted)
+
+Expected output
+success true, mode search, message inviting title entry; widget shows filters and search field.
+
+================================================================================
+Negative test cases (3)
+================================================================================
+
+--------------------------------------------------------------------------------
+Negative Test Case 1 — Unrelated booking
+--------------------------------------------------------------------------------
+
+Scenario
+User asks for travel booking; connector should not be used for movie discovery.
+
+User prompt
+Book a flight to Tokyo and reserve a hotel near Shibuya for next month.
+
+--------------------------------------------------------------------------------
+Negative Test Case 2 — Unrelated coding task
+--------------------------------------------------------------------------------
+
+Scenario
+User wants code, not entertainment search.
+
+User prompt
+Refactor this React component to use useReducer instead of five useState hooks.
+
+--------------------------------------------------------------------------------
+Negative Test Case 3 — Medical / legal advice
+--------------------------------------------------------------------------------
+
+Scenario
+MoviePick does not provide professional advice.
+
+User prompt
+My doctor said to avoid certain films for epilepsy. Which exact movies are medically unsafe for me?

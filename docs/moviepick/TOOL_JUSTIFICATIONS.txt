@@ -1,0 +1,34 @@
+MoviePick — Tool justification (OpenAI Apps submission)
+Annotations match utils/mcp/apps/moviepick/tools.ts (find_movie). No auth (skipAuth: true).
+
+================================================================================
+CSP Metadata (widget)
+================================================================================
+Declared in resources/read → _meta.openai.widgetCSP (utils/mcp/core/router.ts):
+today both arrays are only the request origin (e.g. https://nuova.pro).
+
+connect_domains (as shipped)
+https://nuova.pro
+Widget fetch/XHR stays same-origin (/api/mcp/moviepick/search, …).
+
+resource_domains (as shipped)
+https://nuova.pro
+
+If review/host blocks poster images: add https://image.tmdb.org to
+resource_domains for this app (TMDB poster URLs in structured content / img src).
+
+================================================================================
+find_movie
+================================================================================
+
+Read Only: Yes
+TMDB-backed search and discover only. No writes to our DB; no user state mutated by the tool.
+
+Open World: Yes
+User-defined title query and filters; external movie/TV metadata from TMDB (via our API routes).
+
+Destructive: No
+Read-only lookups. No deletes or account changes.
+
+Idempotent: No
+random=true uses discover + random page/title; repeated calls can return different titles.
