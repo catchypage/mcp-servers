@@ -3,10 +3,23 @@ import type { Screen } from './types'
 
 interface HeaderProps {
   screen: Screen
+  /** Detail opened from Random flow — keep Random tab highlighted */
+  detailFromRandom?: boolean
   onNavigate: (s: Screen) => void
 }
 
-export default function Header({ screen, onNavigate }: HeaderProps) {
+export default function Header({
+  screen,
+  detailFromRandom = false,
+  onNavigate,
+}: HeaderProps) {
+  const searchActive =
+    screen === 'search' ||
+    screen === 'results' ||
+    (screen === 'detail' && !detailFromRandom)
+  const randomActive =
+    screen === 'random' || (screen === 'detail' && detailFromRandom)
+
   return (
     <header className="flex items-center justify-between px-4 py-3 bg-slate-800/80 border-b border-slate-700/50 shrink-0">
       <button
@@ -20,16 +33,10 @@ export default function Header({ screen, onNavigate }: HeaderProps) {
         </h1>
       </button>
       <nav className="flex gap-1">
-        <NavBtn
-          active={screen === 'search' || screen === 'results'}
-          onClick={() => onNavigate('search')}
-        >
+        <NavBtn active={searchActive} onClick={() => onNavigate('search')}>
           Search
         </NavBtn>
-        <NavBtn
-          active={screen === 'random'}
-          onClick={() => onNavigate('random')}
-        >
+        <NavBtn active={randomActive} onClick={() => onNavigate('random')}>
           Random
         </NavBtn>
       </nav>

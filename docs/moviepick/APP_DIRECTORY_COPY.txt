@@ -1,0 +1,66 @@
+MoviePick — copy for ChatGPT catalog / submission form
+Edit per section; paste blocks into the form.
+
+Tool justification + CSP: docs/moviepick/TOOL_JUSTIFICATIONS.txt
+
+================================================================================
+App Name
+================================================================================
+MoviePick
+
+================================================================================
+Subtitle
+================================================================================
+Search and random-pick movies & TV in ChatGPT
+
+================================================================================
+Description
+================================================================================
+MoviePick helps you discover movies and TV shows inside ChatGPT. Search by title with optional genres and year range, browse results with posters, and open full details (plot, cast, rating, runtime). Prefer a surprise? Use random mode with the same filters — movies, TV, or both. No sign-in required. Data comes from TMDB via our read-only API.
+
+================================================================================
+Short pitch (one sentence, optional)
+================================================================================
+MoviePick: search or random-pick films and series with genres and years — widget in ChatGPT, no login.
+
+================================================================================
+Example user message (preview) — required
+================================================================================
+Find me sci-fi movies from the 1990s with "matrix" in the title.
+
+(Alternative: Pick a random comedy movie from the 2000s.)
+
+================================================================================
+Release Notes — required
+================================================================================
+Search movies and TV by title with optional genre and year filters; open detail view with poster, plot, and cast. Random discover with the same filters. Widget syncs tool input/output for quick picks. No authentication.
+
+================================================================================
+Support email (if asked)
+================================================================================
+gptprosite@gmail.com
+
+================================================================================
+Privacy policy URL
+================================================================================
+https://nuova.pro/policy
+
+================================================================================
+Terms URL
+================================================================================
+https://nuova.pro/terms
+
+================================================================================
+Developer / company name (if asked)
+================================================================================
+
+
+================================================================================
+Internal notes (not for the form)
+================================================================================
+App ID: moviepick. Domain: nuova.pro.
+Connector (host-mapped): https://nuova.pro/api/mcp
+Explicit path: https://nuova.pro/api/mcp/moviepick
+skipAuth: true — no OAuth for public tool.
+
+Update Release Notes when you ship user-visible widget or tool changes.

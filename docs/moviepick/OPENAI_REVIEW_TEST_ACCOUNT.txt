@@ -1,0 +1,5 @@
+OpenAI ChatGPT App submission — demo / review login
+Use when the form asks for test credentials.
+
+Not applicable — MoviePick uses skipAuth: true (public find_movie).
+No login credentials are needed to test the connector or widget.

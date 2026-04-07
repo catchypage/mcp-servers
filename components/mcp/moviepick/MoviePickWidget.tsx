@@ -319,6 +319,10 @@ export default function MoviePickWidget() {
     setPrevScreen('random')
   }, [])
 
+  const handleRandomAutoPickConsumed = useCallback(() => {
+    setRandomMcpInit((prev) => (prev ? { ...prev, autoPick: false } : null))
+  }, [])
+
   const shellStyle: React.CSSProperties = {
     height: isExpandedLayout ? '100%' : MOVIEPICK_INLINE_HEIGHT_PX,
   }
@@ -339,7 +343,11 @@ export default function MoviePickWidget() {
       className="w-full min-h-0 flex flex-col bg-slate-900 text-slate-200 font-sans overflow-hidden"
       style={shellStyle}
     >
-      <Header screen={screen} onNavigate={handleNavigate} />
+      <Header
+        screen={screen}
+        detailFromRandom={detailFromRandom}
+        onNavigate={handleNavigate}
+      />
       <div className="flex-1 overflow-y-auto overflow-x-hidden">
         {detailLoading && (
           <div className="flex items-center justify-center py-20">
@@ -373,12 +381,14 @@ export default function MoviePickWidget() {
         {!detailLoading && screen === 'random' && (
           <RandomPicker
             mcpInit={randomMcpInit}
+            onAutoPickConsumed={handleRandomAutoPickConsumed}
             onPicked={(m, snap) => {
               setPrevScreen('random')
               setLastRandomSnapshot(snap)
               setDetailFromRandom(true)
               setMovie(m)
               setScreen('detail')
+              setRandomMcpInit({ snapshot: snap, autoPick: false })
             }}
           />
         )}
