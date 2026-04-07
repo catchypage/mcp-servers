@@ -3,8 +3,65 @@ const TMDB_IMAGE = 'https://image.tmdb.org/t/p/w500'
 
 export type MediaScope = 'movie' | 'tv' | 'both'
 
+/**
+ * When true: TMDB error logs + route handler console.error on 500.
+ * Dev: on. Production: off unless MOVIEPICK_DEBUG=1.
+ */
+export function moviepickServerDebugEnabled(): boolean {
+  return (
+    process.env.MOVIEPICK_DEBUG === '1' || process.env.NODE_ENV !== 'production'
+  )
+}
+
+/** TMDB failures only; gated like moviepickServerDebugEnabled */
+function moviepickTmdbErrorLog(
+  message: string,
+  data?: Record<string, unknown>,
+): void {
+  if (!moviepickServerDebugEnabled()) {
+    return
+  }
+  if (data !== undefined) {
+    console.warn(`[moviepick] ${message}`, data)
+  } else {
+    console.warn(`[moviepick] ${message}`)
+  }
+}
+
 function getApiKey(): string {
   return process.env.TMDB_KEY ?? ''
+}
+
+function tmdbUrlForLog(path: string, params: Record<string, string>): string {
+  const q = new URLSearchParams({ api_key: '***', ...params })
+  return `${TMDB_BASE}${path}?${q.toString()}`
+}
+
+function serializeFetchError(err: unknown): Record<string, unknown> {
+  if (!(err instanceof Error)) {
+    return { message: String(err) }
+  }
+  const out: Record<string, unknown> = {
+    name: err.name,
+    message: err.message,
+  }
+  const c = err.cause
+  if (c instanceof Error) {
+    out.cause = {
+      name: c.name,
+      message: c.message,
+      ...(typeof (c as NodeJS.ErrnoException).code === 'string'
+        ? { code: (c as NodeJS.ErrnoException).code }
+        : {}),
+    }
+  } else if (c !== undefined) {
+    out.cause = String(c)
+  }
+  const code = (err as NodeJS.ErrnoException).code
+  if (typeof code === 'string') {
+    out.code = code
+  }
+  return out
 }
 
 function posterUrl(path: string | null): string {
@@ -20,16 +77,40 @@ async function tmdbGet<T>(
 ): Promise<T | null> {
   const key = getApiKey()
   if (!key) {
+    moviepickTmdbErrorLog('tmdbGet skipped: TMDB_KEY is empty', { path })
     return null
   }
   const q = new URLSearchParams({ api_key: key, ...params })
+  const url = `${TMDB_BASE}${path}?${q.toString()}`
   try {
-    const res = await fetch(`${TMDB_BASE}${path}?${q.toString()}`)
+    const res = await fetch(url)
+    const text = await res.text()
     if (!res.ok) {
+      moviepickTmdbErrorLog('tmdbGet HTTP error', {
+        url: tmdbUrlForLog(path, params),
+        status: res.status,
+        statusText: res.statusText,
+        bodyPreview: text.slice(0, 500),
+      })
       return null
     }
-    return (await res.json()) as T
-  } catch {
+    let parsed: T
+    try {
+      parsed = JSON.parse(text) as T
+    } catch (e) {
+      moviepickTmdbErrorLog('tmdbGet JSON parse failed', {
+        url: tmdbUrlForLog(path, params),
+        preview: text.slice(0, 300),
+        error: e instanceof Error ? e.message : String(e),
+      })
+      return null
+    }
+    return parsed
+  } catch (e) {
+    moviepickTmdbErrorLog('tmdbGet fetch failed', {
+      url: tmdbUrlForLog(path, params),
+      ...serializeFetchError(e),
+    })
     return null
   }
 }
@@ -231,12 +312,20 @@ function hitMatchesSearchFilters(
   if (filters.year != null && filters.year > 1900 && filters.year < 2100) {
     return Number.isFinite(y) && y === filters.year
   }
-  if (filters.yearGte != null && filters.yearGte > 1900 && filters.yearGte < 2100) {
+  if (
+    filters.yearGte != null &&
+    filters.yearGte > 1900 &&
+    filters.yearGte < 2100
+  ) {
     if (!Number.isFinite(y) || y < filters.yearGte) {
       return false
     }
   }
-  if (filters.yearLte != null && filters.yearLte > 1900 && filters.yearLte < 2100) {
+  if (
+    filters.yearLte != null &&
+    filters.yearLte > 1900 &&
+    filters.yearLte < 2100
+  ) {
     if (!Number.isFinite(y) || y > filters.yearLte) {
       return false
     }

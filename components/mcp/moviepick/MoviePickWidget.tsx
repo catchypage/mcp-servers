@@ -1,20 +1,33 @@
 'use client'
 
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useRef } from 'react'
 import type {
   Screen,
   MovieDetail as MovieDetailType,
   RandomSnapshot,
 } from './types'
-import { useToolData } from './useToolData'
+import { YEAR_SLIDER_MAX, YEAR_SLIDER_MIN } from './types'
+import { useToolInput, useToolOutput } from '../hooks/useOpenAiGlobals'
+import '../openai-types'
 import { fetchMovieDetail, fetchRandomMovie } from './api'
 import Header from './Header'
 import MovieSearch from './MovieSearch'
 import MovieDetailView from './MovieDetail'
 import RandomPicker from './RandomPicker'
+import {
+  mergeMoviepickToolOutputAndInput,
+  unwrapMoviepickPayload,
+  parseSearchResultsFromInit,
+  randomSnapshotFromMerged,
+  parseMediaFromInit,
+} from './resolve-moviepick-init'
+import type { MovieSearchMcpInit, RandomMcpInit } from './types'
 
 export default function MoviePickWidget() {
-  const { data: toolData, ready } = useToolData()
+  const toolOutput = useToolOutput()
+  const toolInput = useToolInput()
+  const initAppliedRef = useRef(false)
+
   const [screen, setScreen] = useState<Screen>('loading')
   const [movie, setMovie] = useState<MovieDetailType | null>(null)
   const [detailLoading, setDetailLoading] = useState(false)
@@ -23,20 +36,152 @@ export default function MoviePickWidget() {
     useState<RandomSnapshot | null>(null)
   const [detailFromRandom, setDetailFromRandom] = useState(false)
   const [randomAgainLoading, setRandomAgainLoading] = useState(false)
+  const [searchMcpInit, setSearchMcpInit] = useState<MovieSearchMcpInit | null>(
+    null,
+  )
+  const [randomMcpInit, setRandomMcpInit] = useState<RandomMcpInit | null>(null)
 
-  useEffect(() => {
-    if (!ready) {
+  const applyMergedContext = useCallback((ctx: Record<string, unknown>) => {
+    setRandomMcpInit(null)
+    setSearchMcpInit(null)
+
+    const mode = String(ctx.mode ?? 'search')
+
+    if (mode === 'detail' && ctx.movie && typeof ctx.movie === 'object') {
+      setMovie(ctx.movie as unknown as MovieDetailType)
+      setDetailFromRandom(Boolean(ctx.fromRandom))
+      if (ctx.fromRandom) {
+        setLastRandomSnapshot(randomSnapshotFromMerged(ctx))
+      } else {
+        setLastRandomSnapshot(null)
+      }
+      setPrevScreen(ctx.fromRandom ? 'random' : 'search')
+      setScreen('detail')
       return
     }
-    if (toolData?.mode === 'detail' && toolData.movie) {
-      setMovie(toolData.movie as unknown as MovieDetailType)
-      setDetailFromRandom(false)
-      setLastRandomSnapshot(null)
-      setScreen('detail')
-    } else {
-      setScreen('search')
+
+    if (mode === 'results' && Array.isArray(ctx.results)) {
+      const results = parseSearchResultsFromInit(ctx.results) ?? []
+      const q = String(ctx.query ?? '')
+      setSearchMcpInit({
+        query: q,
+        scope: parseMediaFromInit(ctx.media),
+        genreIds: Array.isArray(ctx.genreIds)
+          ? (ctx.genreIds as unknown[])
+              .map((x) => Number(x))
+              .filter((n) => n > 0)
+          : [],
+        yearFrom:
+          typeof ctx.yearFrom === 'number' ? ctx.yearFrom : YEAR_SLIDER_MIN,
+        yearTo: typeof ctx.yearTo === 'number' ? ctx.yearTo : YEAR_SLIDER_MAX,
+        initialResults: results,
+        initialTotalPages:
+          typeof ctx.total_pages === 'number' && ctx.total_pages >= 1
+            ? ctx.total_pages
+            : 1,
+        autoSearch: false,
+      })
+      setPrevScreen('search')
+      setScreen('results')
+      return
     }
-  }, [ready, toolData])
+
+    if (mode === 'random') {
+      setRandomMcpInit({
+        snapshot: randomSnapshotFromMerged(ctx),
+        autoPick: ctx.autoPick !== false,
+      })
+      setPrevScreen('random')
+      setScreen('random')
+      return
+    }
+
+    const q = String(ctx.query ?? '')
+    const hasQuery = q.trim().length > 0
+    const initial = parseSearchResultsFromInit(ctx.results)
+    setSearchMcpInit({
+      query: q,
+      scope: parseMediaFromInit(ctx.media),
+      genreIds: Array.isArray(ctx.genreIds)
+        ? (ctx.genreIds as unknown[]).map((x) => Number(x)).filter((n) => n > 0)
+        : [],
+      yearFrom:
+        typeof ctx.yearFrom === 'number' ? ctx.yearFrom : YEAR_SLIDER_MIN,
+      yearTo: typeof ctx.yearTo === 'number' ? ctx.yearTo : YEAR_SLIDER_MAX,
+      initialResults: initial ?? undefined,
+      initialTotalPages:
+        typeof ctx.total_pages === 'number' && ctx.total_pages >= 1
+          ? ctx.total_pages
+          : 1,
+      autoSearch: Boolean(ctx.autoSearch) && hasQuery && !initial?.length,
+    })
+    setPrevScreen('search')
+    setScreen('search')
+  }, [])
+
+  useEffect(() => {
+    const merged = mergeMoviepickToolOutputAndInput(toolOutput, toolInput)
+    if (merged && !initAppliedRef.current) {
+      initAppliedRef.current = true
+      applyMergedContext(merged)
+    }
+  }, [toolOutput, toolInput, applyMergedContext])
+
+  useEffect(() => {
+    let cancelled = false
+    const toolIn = toolInput
+
+    void (async () => {
+      for (let attempt = 0; attempt < 30; attempt++) {
+        if (cancelled || initAppliedRef.current) {
+          return
+        }
+        const w = window.openai
+        if (w?.toolResult) {
+          const merged = mergeMoviepickToolOutputAndInput(w.toolResult, toolIn)
+          if (merged?.mode) {
+            initAppliedRef.current = true
+            applyMergedContext(merged)
+            return
+          }
+        }
+        if (attempt < 10 && w?.getToolResult) {
+          try {
+            const gr = await w.getToolResult()
+            const merged = mergeMoviepickToolOutputAndInput(gr, toolIn)
+            if (merged?.mode) {
+              initAppliedRef.current = true
+              applyMergedContext(merged)
+              return
+            }
+          } catch {
+            /* host may not support */
+          }
+        }
+        await new Promise((r) => setTimeout(r, 100))
+      }
+      if (!cancelled && !initAppliedRef.current) {
+        const w = window.openai
+        const merged = mergeMoviepickToolOutputAndInput(w?.toolResult, toolIn)
+        if (merged?.mode) {
+          initAppliedRef.current = true
+          applyMergedContext(merged)
+        } else {
+          const u = unwrapMoviepickPayload(w?.toolResult)
+          if (u?.mode) {
+            initAppliedRef.current = true
+            applyMergedContext(u)
+          } else {
+            setScreen((prev) => (prev === 'loading' ? 'search' : prev))
+          }
+        }
+      }
+    })()
+
+    return () => {
+      cancelled = true
+    }
+  }, [applyMergedContext, toolInput])
 
   const handleSelectMovie = useCallback(
     async (id: string, kind: 'movie' | 'tv') => {
@@ -112,6 +257,7 @@ export default function MoviePickWidget() {
 
         {!detailLoading && (screen === 'search' || screen === 'results') && (
           <MovieSearch
+            mcpInit={searchMcpInit}
             onSelect={(id, kind) => void handleSelectMovie(id, kind)}
           />
         )}
@@ -134,6 +280,7 @@ export default function MoviePickWidget() {
 
         {!detailLoading && screen === 'random' && (
           <RandomPicker
+            mcpInit={randomMcpInit}
             onPicked={(m, snap) => {
               setPrevScreen('random')
               setLastRandomSnapshot(snap)

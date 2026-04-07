@@ -1,11 +1,40 @@
-import React, { useState, useCallback, useEffect, useMemo } from 'react'
-import type { MovieSearchItem, MediaScope, GenreOption } from './types'
+import React, { useState, useCallback, useEffect, useMemo, useRef } from 'react'
+import type {
+  MovieSearchItem,
+  MediaScope,
+  GenreOption,
+  MovieSearchMcpInit,
+} from './types'
 import { YEAR_SLIDER_MAX, YEAR_SLIDER_MIN, isDefaultYearRange } from './types'
 import { searchMovies, proxyImageUrl, fetchMovieGenres } from './api'
 import YearRangeSlider from './YearRangeSlider'
 
 interface MovieSearchProps {
+  mcpInit?: MovieSearchMcpInit | null
   onSelect: (id: string, kind: 'movie' | 'tv') => void
+}
+
+function stableMovieSearchMcpKey(init: MovieSearchMcpInit): string {
+  return JSON.stringify({
+    q: init.query,
+    s: init.scope,
+    g: [...init.genreIds].sort((a, b) => a - b),
+    yf: init.yearFrom,
+    yt: init.yearTo,
+    ir: init.initialResults?.map((x) => `${x.kind}:${x.id}`).join(',') ?? '',
+    tp: init.initialTotalPages ?? 0,
+    as: init.autoSearch,
+  })
+}
+
+function filterParamsFromMcpInit(init: MovieSearchMcpInit) {
+  const genreIds = init.genreIds.length > 0 ? init.genreIds : undefined
+  const yActive = !isDefaultYearRange(init.yearFrom, init.yearTo)
+  return {
+    genreIds,
+    yearFrom: yActive ? init.yearFrom : undefined,
+    yearTo: yActive ? init.yearTo : undefined,
+  }
 }
 
 const SCOPE_OPTIONS: { value: MediaScope; label: string }[] = [
@@ -14,7 +43,10 @@ const SCOPE_OPTIONS: { value: MediaScope; label: string }[] = [
   { value: 'both', label: 'Both' },
 ]
 
-export default function MovieSearch({ onSelect }: MovieSearchProps) {
+export default function MovieSearch({
+  mcpInit = null,
+  onSelect,
+}: MovieSearchProps) {
   const [scope, setScope] = useState<MediaScope>('movie')
   const [query, setQuery] = useState('')
   const [yearFrom, setYearFrom] = useState(YEAR_SLIDER_MIN)
@@ -27,6 +59,69 @@ export default function MovieSearch({ onSelect }: MovieSearchProps) {
   const [searched, setSearched] = useState(false)
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
+
+  const mcpApplyKeyRef = useRef<string | null>(null)
+  const autoSearchGenerationRef = useRef(0)
+
+  useEffect(() => {
+    if (!mcpInit) {
+      mcpApplyKeyRef.current = null
+      return
+    }
+    const key = stableMovieSearchMcpKey(mcpInit)
+    if (mcpApplyKeyRef.current === key) {
+      return
+    }
+    mcpApplyKeyRef.current = key
+
+    setScope(mcpInit.scope)
+    setQuery(mcpInit.query)
+    setYearFrom(mcpInit.yearFrom)
+    setYearTo(mcpInit.yearTo)
+    setSelectedGenres(new Set(mcpInit.genreIds))
+    if (mcpInit.initialResults?.length) {
+      setResults(mcpInit.initialResults)
+      setTotalPages(Math.max(1, mcpInit.initialTotalPages ?? 1))
+      setPage(1)
+      setSearched(true)
+    }
+    return () => {
+      mcpApplyKeyRef.current = null
+    }
+  }, [mcpInit])
+
+  useEffect(() => {
+    if (!mcpInit?.autoSearch) {
+      return
+    }
+    const q = mcpInit.query.trim()
+    if (!q) {
+      return
+    }
+    const fp = filterParamsFromMcpInit(mcpInit)
+    autoSearchGenerationRef.current += 1
+    const myGen = autoSearchGenerationRef.current
+    void (async () => {
+      setLoading(true)
+      setSearched(true)
+      const { results: items, total_pages: tp } = await searchMovies(
+        q,
+        1,
+        mcpInit.scope,
+        fp,
+      )
+      if (autoSearchGenerationRef.current !== myGen) {
+        return
+      }
+      setResults(items)
+      setTotalPages(Math.max(1, tp))
+      setPage(1)
+      setLoading(false)
+    })()
+    return () => {
+      autoSearchGenerationRef.current += 1
+    }
+  }, [mcpInit])
 
   useEffect(() => {
     let cancelled = false
@@ -42,10 +137,6 @@ export default function MovieSearch({ onSelect }: MovieSearchProps) {
     return () => {
       cancelled = true
     }
-  }, [scope])
-
-  useEffect(() => {
-    setSelectedGenres(new Set())
   }, [scope])
 
   const toggleGenre = (id: number) => {
@@ -114,7 +205,10 @@ export default function MovieSearch({ onSelect }: MovieSearchProps) {
             <button
               key={opt.value}
               type="button"
-              onClick={() => setScope(opt.value)}
+              onClick={() => {
+                setScope(opt.value)
+                setSelectedGenres(new Set())
+              }}
               className={`px-3 py-1.5 text-xs font-medium rounded-md border transition-colors ${
                 scope === opt.value
                   ? 'bg-indigo-600 border-indigo-500 text-white'

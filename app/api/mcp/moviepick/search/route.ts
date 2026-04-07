@@ -4,6 +4,7 @@ import {
   getTmdbDetail,
   getTmdbGenresForScope,
   discoverRandomTitle,
+  moviepickServerDebugEnabled,
   type MediaScope,
 } from '@/utils/mcp/apps/moviepick/api-clients'
 
@@ -89,7 +90,7 @@ export async function GET(req: NextRequest) {
       const yearFrom = parseIntParam(sp.get('year_from'))
       const yearTo = parseIntParam(sp.get('year_to'))
       const media = parseScope(sp.get('media'))
-      const detail = await discoverRandomTitle({
+      const randomOpts = {
         media,
         genreIds,
         years: years.length > 0 ? years : undefined,
@@ -98,13 +99,15 @@ export async function GET(req: NextRequest) {
           years.length > 0 || year != null ? undefined : yearFrom ?? undefined,
         yearTo:
           years.length > 0 || year != null ? undefined : yearTo ?? undefined,
-      })
+      }
+      const detail = await discoverRandomTitle(randomOpts)
       if (detail) {
         return NextResponse.json({ ok: true, movie: detail }, { headers: cors })
       }
+      // 200 + ok:false so clients don't confuse with missing Next route
       return NextResponse.json(
         { ok: false, error: 'No title matched those filters' },
-        { status: 404, headers: cors },
+        { status: 200, headers: cors },
       )
     }
 
@@ -158,7 +161,10 @@ export async function GET(req: NextRequest) {
       { ok: true, results, page, total_pages: totalPages, scope },
       { headers: cors },
     )
-  } catch {
+  } catch (e) {
+    if (moviepickServerDebugEnabled()) {
+      console.error('[moviepick] GET handler error', e)
+    }
     return NextResponse.json(
       { ok: false, error: 'Request failed' },
       { status: 500, headers: cors },

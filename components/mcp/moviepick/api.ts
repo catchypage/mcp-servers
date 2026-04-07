@@ -5,6 +5,7 @@ import {
   type MovieSearchItem,
   isDefaultYearRange,
 } from './types'
+import { getStaticGenresForScope } from './static-genres'
 
 function getBaseUrl(): string {
   const scripts = document.querySelectorAll('script[src*="moviepick.bundle"]')
@@ -18,26 +19,6 @@ async function readJson(res: Response): Promise<unknown> {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- Response.json() is typed as any
   const body = await res.json()
   return body as unknown
-}
-
-function parseGenresPayload(raw: unknown): GenreOption[] {
-  if (!raw || typeof raw !== 'object') {
-    return [] as GenreOption[]
-  }
-  const o = raw as Record<string, unknown>
-  if (o.ok !== true || !Array.isArray(o.genres)) {
-    return [] as GenreOption[]
-  }
-  const out: GenreOption[] = []
-  for (const el of o.genres) {
-    if (el && typeof el === 'object') {
-      const g = el as Record<string, unknown>
-      if (typeof g.id === 'number' && typeof g.name === 'string') {
-        out.push({ id: g.id, name: g.name })
-      }
-    }
-  }
-  return out
 }
 
 function parseKind(v: unknown): 'movie' | 'tv' {
@@ -161,22 +142,11 @@ export function openExternal(url: string) {
   }
 }
 
+/** TMDB lists baked into static-genres.ts (no network). */
 export async function fetchMovieGenres(
   scope: MediaScope,
 ): Promise<GenreOption[]> {
-  const base = getBaseUrl()
-  try {
-    const res = await fetch(
-      `${base}/api/mcp/moviepick/search?genres=1&scope=${encodeURIComponent(scope)}`,
-    )
-    if (!res.ok) {
-      return [] as GenreOption[]
-    }
-    const parsed = parseGenresPayload(await readJson(res))
-    return parsed
-  } catch {
-    return [] as GenreOption[]
-  }
+  return getStaticGenresForScope(scope)
 }
 
 export async function searchMovies(
@@ -226,7 +196,9 @@ export async function fetchMovieDetail(
   const base = getBaseUrl()
   try {
     const res = await fetch(
-      `${base}/api/mcp/moviepick/search?id=${encodeURIComponent(id)}&kind=${kind}`,
+      `${base}/api/mcp/moviepick/search?id=${encodeURIComponent(
+        id,
+      )}&kind=${kind}`,
     )
     if (!res.ok) {
       return null

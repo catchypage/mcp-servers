@@ -44,3 +44,21 @@ export interface RandomSnapshot {
 }
 
 export type Screen = 'loading' | 'search' | 'results' | 'detail' | 'random'
+
+/** Bootstrap search UI from MCP toolOutput + toolInput */
+export interface MovieSearchMcpInit {
+  query: string
+  scope: MediaScope
+  genreIds: number[]
+  yearFrom: number
+  yearTo: number
+  initialResults?: MovieSearchItem[]
+  initialTotalPages?: number
+  autoSearch: boolean
+}
+
+/** Bootstrap random tab + optional auto-pick from MCP */
+export interface RandomMcpInit {
+  snapshot: RandomSnapshot
+  autoPick: boolean
+}

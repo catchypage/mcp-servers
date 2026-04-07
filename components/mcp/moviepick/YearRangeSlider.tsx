@@ -1,10 +1,8 @@
-import React, { useCallback, useId } from 'react'
-import {
-  YEAR_SLIDER_MAX,
-  YEAR_SLIDER_MIN,
-} from './types'
+import React, { useEffect, useId, useRef, useState } from 'react'
+import { Direction, getTrackBackground, Range } from 'react-range'
+import { YEAR_SLIDER_MAX, YEAR_SLIDER_MIN } from './types'
 
-type YearRangeSliderProps = {
+interface YearRangeSliderProps {
   fromYear: number
   toYear: number
   onChange: (fromYear: number, toYear: number) => void
@@ -19,61 +17,82 @@ export default function YearRangeSlider({
 }: YearRangeSliderProps) {
   const lo = Math.min(fromYear, toYear)
   const hi = Math.max(fromYear, toYear)
+  const values = [lo, hi]
   const baseId = useId()
+  const labelId = `${baseId}-yr-label`
 
-  const setLo = useCallback(
-    (v: number) => {
-      const n = Math.max(YEAR_SLIDER_MIN, Math.min(v, hi))
-      onChange(n, hi)
-    },
-    [onChange, hi],
-  )
+  const [draftFrom, setDraftFrom] = useState(() => String(lo))
+  const [draftTo, setDraftTo] = useState(() => String(hi))
+  const fromFocusedRef = useRef(false)
+  const toFocusedRef = useRef(false)
 
-  const setHi = useCallback(
-    (v: number) => {
-      const n = Math.min(YEAR_SLIDER_MAX, Math.max(v, lo))
-      onChange(lo, n)
-    },
-    [onChange, lo],
-  )
+  useEffect(() => {
+    if (!fromFocusedRef.current) {
+      setDraftFrom(String(lo))
+    }
+  }, [lo])
 
-  const onLoInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setLo(Number(e.target.value))
-  }
+  useEffect(() => {
+    if (!toFocusedRef.current) {
+      setDraftTo(String(hi))
+    }
+  }, [hi])
 
-  const onHiInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setHi(Number(e.target.value))
-  }
-
-  const onLoNumber = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const raw = e.target.value.replace(/\D/g, '').slice(0, 4)
+  function parseDraft(s: string): number | null {
+    const raw = s.replace(/\D/g, '').slice(0, 4)
     if (raw.length === 0) {
-      return
+      return null
     }
     const y = parseInt(raw, 10)
-    if (Number.isFinite(y)) {
-      setLo(Math.min(Math.max(y, YEAR_SLIDER_MIN), YEAR_SLIDER_MAX))
-    }
+    return Number.isFinite(y) ? y : null
   }
 
-  const onHiNumber = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const raw = e.target.value.replace(/\D/g, '').slice(0, 4)
-    if (raw.length === 0) {
+  const commitFrom = () => {
+    fromFocusedRef.current = false
+    const n = parseDraft(draftFrom)
+    if (n == null) {
+      setDraftFrom(String(lo))
       return
     }
-    const y = parseInt(raw, 10)
-    if (Number.isFinite(y)) {
-      setHi(Math.min(Math.max(y, YEAR_SLIDER_MIN), YEAR_SLIDER_MAX))
+    const clamped = Math.max(YEAR_SLIDER_MIN, Math.min(n, hi))
+    setDraftFrom(String(clamped))
+    if (clamped !== lo) {
+      onChange(clamped, hi)
     }
   }
 
-  const zLo = lo >= hi - 1 ? 20 : 10
-  const zHi = lo >= hi - 1 ? 10 : 20
+  const commitTo = () => {
+    toFocusedRef.current = false
+    const n = parseDraft(draftTo)
+    if (n == null) {
+      setDraftTo(String(hi))
+      return
+    }
+    const clamped = Math.min(YEAR_SLIDER_MAX, Math.max(n, lo))
+    setDraftTo(String(clamped))
+    if (clamped !== hi) {
+      onChange(lo, clamped)
+    }
+  }
+
+  const onDraftFromChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setDraftFrom(e.target.value.replace(/\D/g, '').slice(0, 4))
+  }
+
+  const onDraftToChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setDraftTo(e.target.value.replace(/\D/g, '').slice(0, 4))
+  }
 
   return (
     <div
-      className={`space-y-2 ${disabled ? 'opacity-40 pointer-events-none' : ''}`}
+      className={`space-y-2 ${
+        disabled ? 'opacity-40 pointer-events-none' : ''
+      }`}
     >
+      <span id={labelId} className="sr-only">
+        Year range from {YEAR_SLIDER_MIN} to {YEAR_SLIDER_MAX}
+      </span>
+
       <div className="flex flex-wrap items-end gap-3">
         <div className="flex flex-col gap-0.5 min-w-[4.5rem]">
           <label
@@ -86,8 +105,17 @@ export default function YearRangeSlider({
             id={`${baseId}-from`}
             type="text"
             inputMode="numeric"
-            value={String(lo)}
-            onChange={onLoNumber}
+            value={draftFrom}
+            onChange={onDraftFromChange}
+            onFocus={() => {
+              fromFocusedRef.current = true
+            }}
+            onBlur={commitFrom}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                ;(e.target as HTMLInputElement).blur()
+              }
+            }}
             className="w-full px-2 py-1.5 rounded-md bg-slate-800 border border-slate-600 text-xs text-white tabular-nums focus:outline-none focus:border-indigo-500"
           />
         </div>
@@ -102,39 +130,81 @@ export default function YearRangeSlider({
             id={`${baseId}-to`}
             type="text"
             inputMode="numeric"
-            value={String(hi)}
-            onChange={onHiNumber}
+            value={draftTo}
+            onChange={onDraftToChange}
+            onFocus={() => {
+              toFocusedRef.current = true
+            }}
+            onBlur={commitTo}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                ;(e.target as HTMLInputElement).blur()
+              }
+            }}
             className="w-full px-2 py-1.5 rounded-md bg-slate-800 border border-slate-600 text-xs text-white tabular-nums focus:outline-none focus:border-indigo-500"
           />
         </div>
       </div>
 
-      <div className="relative h-9 pt-1">
-        <div
-          className="absolute left-0 right-0 top-1/2 h-1 -translate-y-1/2 rounded-full bg-slate-700"
-          aria-hidden
-        />
-        <input
-          type="range"
+      <div className="relative h-10 flex items-center w-full min-w-0">
+        <Range
+          label="Year range"
+          labelledBy={labelId}
+          values={values}
+          step={1}
           min={YEAR_SLIDER_MIN}
-          max={hi}
-          value={lo}
-          disabled={disabled}
-          onChange={onLoInput}
-          className="absolute w-full h-9 bg-transparent appearance-none cursor-pointer accent-indigo-500 pointer-events-auto"
-          style={{ zIndex: zLo }}
-        />
-        <input
-          type="range"
-          min={lo}
           max={YEAR_SLIDER_MAX}
-          value={hi}
-          disabled={disabled}
-          onChange={onHiInput}
-          className="absolute w-full h-9 bg-transparent appearance-none cursor-pointer accent-violet-500 pointer-events-auto"
-          style={{ zIndex: zHi }}
+          direction={Direction.Right}
+          disabled={Boolean(disabled)}
+          allowOverlap={false}
+          draggableTrack={false}
+          rtl={false}
+          onChange={(vals) => {
+            const [a, b] = vals
+            onChange(a, b)
+          }}
+          renderTrack={({ props, children }) => (
+            <div
+              onMouseDown={props.onMouseDown}
+              onTouchStart={props.onTouchStart}
+              className="w-full h-10 flex items-center"
+              style={props.style}
+            >
+              <div
+                ref={props.ref}
+                className="h-2 w-full rounded-full relative"
+                style={{
+                  background: getTrackBackground({
+                    values,
+                    colors: [
+                      'rgb(51 65 85)',
+                      'rgb(79 70 229)',
+                      'rgb(51 65 85)',
+                    ],
+                    min: YEAR_SLIDER_MIN,
+                    max: YEAR_SLIDER_MAX,
+                    direction: Direction.Right,
+                  }),
+                }}
+              >
+                {children}
+              </div>
+            </div>
+          )}
+          renderThumb={({ index, props, isDragged }) => (
+            <div
+              {...props}
+              className={`h-4 w-4 rounded-full border-2 border-solid bg-slate-900 shadow-md outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 ${
+                index === 0 ? 'border-indigo-500' : 'border-violet-500'
+              } ${isDragged ? 'ring-2 ring-white/25' : ''}`}
+              style={{
+                ...props.style,
+              }}
+            />
+          )}
         />
       </div>
+
       <p className="text-[10px] text-slate-500 leading-snug">
         Full bar ({YEAR_SLIDER_MIN}–{YEAR_SLIDER_MAX}) means no year filter.
         Narrow the range to limit release or first-air years.

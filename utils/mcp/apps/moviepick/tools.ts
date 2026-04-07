@@ -7,7 +7,70 @@ import {
   parseYearsList,
   parseMediaScope,
   type SearchTmdbFilterOptions,
+  type MediaScope,
 } from './api-clients'
+
+const SLIDER_YEAR_MIN = 1950
+const SLIDER_YEAR_MAX = 2032
+
+function isRandomTrue(v: unknown): boolean {
+  if (v === true || v === 1) {
+    return true
+  }
+  if (typeof v === 'string') {
+    const s = v.toLowerCase().trim()
+    return s === 'true' || s === '1' || s === 'yes'
+  }
+  return false
+}
+
+function widgetYearRangeFromArgs(args: Record<string, unknown>): {
+  yearFrom: number
+  yearTo: number
+} {
+  let yearFrom = SLIDER_YEAR_MIN
+  let yearTo = SLIDER_YEAR_MAX
+  const single =
+    typeof args.year === 'number' && Number.isFinite(args.year)
+      ? Math.floor(args.year)
+      : undefined
+  const yf =
+    typeof args.year_from === 'number' && Number.isFinite(args.year_from)
+      ? Math.floor(args.year_from)
+      : undefined
+  const yt =
+    typeof args.year_to === 'number' && Number.isFinite(args.year_to)
+      ? Math.floor(args.year_to)
+      : undefined
+  if (single != null && single > 1900 && single < 2100) {
+    yearFrom = Math.min(SLIDER_YEAR_MAX, Math.max(SLIDER_YEAR_MIN, single))
+    yearTo = yearFrom
+  } else {
+    if (yf != null && yt != null) {
+      yearFrom = Math.min(yf, yt)
+      yearTo = Math.max(yf, yt)
+      yearFrom = Math.min(SLIDER_YEAR_MAX, Math.max(SLIDER_YEAR_MIN, yearFrom))
+      yearTo = Math.min(SLIDER_YEAR_MAX, Math.max(SLIDER_YEAR_MIN, yearTo))
+    } else if (yf != null) {
+      yearFrom = Math.min(SLIDER_YEAR_MAX, Math.max(SLIDER_YEAR_MIN, yf))
+    } else if (yt != null) {
+      yearTo = Math.min(SLIDER_YEAR_MAX, Math.max(SLIDER_YEAR_MIN, yt))
+    }
+  }
+  return { yearFrom, yearTo }
+}
+
+function widgetPrefillFromArgs(args: Record<string, unknown>): {
+  media: MediaScope
+  genreIds: number[]
+  yearFrom: number
+  yearTo: number
+} {
+  const media = parseMediaScope(args.media)
+  const genreIds = parseGenreIds(args.genre_ids)
+  const { yearFrom, yearTo } = widgetYearRangeFromArgs(args)
+  return { media, genreIds, yearFrom, yearTo }
+}
 
 const findMovieTool: McpToolDefinition = {
   name: 'find_movie',
@@ -19,8 +82,7 @@ const findMovieTool: McpToolDefinition = {
     properties: {
       query: {
         type: 'string',
-        description:
-          'Title search. Ignored when random=true.',
+        description: 'Title search. Ignored when random=true.',
       },
       year: {
         type: 'number',
@@ -109,8 +171,9 @@ async function handleFindMovie(
   args: Record<string, unknown>,
 ): Promise<Record<string, unknown>> {
   const media = parseMediaScope(args.media)
+  const prefill = widgetPrefillFromArgs(args)
 
-  if (args.random === true) {
+  if (isRandomTrue(args.random)) {
     const genreIds = parseGenreIds(args.genre_ids)
     const years = parseYearsList(args.years)
     const singleYear =
@@ -137,17 +200,49 @@ async function handleFindMovie(
     })
     const payload = detailPayload(detail)
     if (payload) {
-      return payload
+      return {
+        ...payload,
+        fromRandom: true,
+        random: true,
+        randomSnapshot: {
+          media: prefill.media,
+          genreIds: prefill.genreIds,
+          yearFrom: prefill.yearFrom,
+          yearTo: prefill.yearTo,
+        },
+      }
     }
     return {
       success: false,
+      mode: 'random',
+      random: true,
+      autoPick: true,
       message:
         'No title matched random discover with those filters. Try fewer filters or different genres/years.',
+      ...prefill,
     }
   }
 
   const query = String(args.query ?? '').trim()
+  const hasFilters =
+    prefill.genreIds.length > 0 ||
+    prefill.yearFrom > SLIDER_YEAR_MIN ||
+    prefill.yearTo < SLIDER_YEAR_MAX
+
   if (!query) {
+    if (hasFilters) {
+      return {
+        success: true,
+        mode: 'search',
+        message:
+          'MoviePick opened with your filters — enter a title to search.',
+        query: '',
+        media: prefill.media,
+        genreIds: prefill.genreIds,
+        yearFrom: prefill.yearFrom,
+        yearTo: prefill.yearTo,
+      }
+    }
     return {
       success: true,
       mode: 'search',
@@ -194,7 +289,16 @@ async function handleFindMovie(
     filters,
   )
   if (results.length === 0) {
-    return { success: false, message: `No results for "${query}".` }
+    return {
+      success: false,
+      mode: 'search',
+      message: `No results for "${query}".`,
+      query,
+      media,
+      genreIds: prefill.genreIds,
+      yearFrom: prefill.yearFrom,
+      yearTo: prefill.yearTo,
+    }
   }
 
   if (results.length === 1) {
@@ -202,13 +306,22 @@ async function handleFindMovie(
     const detail = await getTmdbDetail(hit.kind, hit.id)
     const payload = detailPayload(detail)
     if (payload) {
-      return payload
+      return {
+        ...payload,
+        query,
+        media,
+      }
     }
   }
 
   return {
     success: true,
     mode: 'results',
+    query,
+    media,
+    genreIds: prefill.genreIds,
+    yearFrom: prefill.yearFrom,
+    yearTo: prefill.yearTo,
     results: results.map((r) => ({
       id: r.id,
       kind: r.kind,

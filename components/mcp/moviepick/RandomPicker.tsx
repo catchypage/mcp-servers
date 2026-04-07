@@ -1,16 +1,29 @@
-import React, { useEffect, useState, useMemo } from 'react'
+import React, { useEffect, useState, useMemo, useRef } from 'react'
 import type {
   GenreOption,
   MovieDetail,
   MediaScope,
   RandomSnapshot,
+  RandomMcpInit,
 } from './types'
 import { YEAR_SLIDER_MAX, YEAR_SLIDER_MIN, isDefaultYearRange } from './types'
 import { fetchMovieGenres, fetchRandomMovie } from './api'
 import YearRangeSlider from './YearRangeSlider'
 
 interface RandomPickerProps {
+  mcpInit?: RandomMcpInit | null
   onPicked: (movie: MovieDetail, snapshot: RandomSnapshot) => void
+}
+
+function stableRandomMcpKey(init: RandomMcpInit): string {
+  const s = init.snapshot
+  return JSON.stringify({
+    m: s.media,
+    g: [...s.genreIds].sort((a, b) => a - b),
+    yf: s.yearFrom,
+    yt: s.yearTo,
+    ap: init.autoPick,
+  })
 }
 
 const MEDIA_OPTIONS: { value: MediaScope; label: string }[] = [
@@ -19,7 +32,10 @@ const MEDIA_OPTIONS: { value: MediaScope; label: string }[] = [
   { value: 'both', label: 'Both' },
 ]
 
-export default function RandomPicker({ onPicked }: RandomPickerProps) {
+export default function RandomPicker({
+  mcpInit = null,
+  onPicked,
+}: RandomPickerProps) {
   const [media, setMedia] = useState<MediaScope>('movie')
   const [genres, setGenres] = useState<GenreOption[]>([])
   const [selected, setSelected] = useState<Set<number>>(new Set())
@@ -28,6 +44,33 @@ export default function RandomPicker({ onPicked }: RandomPickerProps) {
   const [loadingGenres, setLoadingGenres] = useState(true)
   const [picking, setPicking] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  const mcpApplyKeyRef = useRef<string | null>(null)
+  const autoPickGenerationRef = useRef(0)
+  const onPickedRef = useRef(onPicked)
+  onPickedRef.current = onPicked
+
+  useEffect(() => {
+    if (!mcpInit) {
+      mcpApplyKeyRef.current = null
+      return
+    }
+    const key = stableRandomMcpKey(mcpInit)
+    if (mcpApplyKeyRef.current === key) {
+      return
+    }
+    mcpApplyKeyRef.current = key
+
+    const s = mcpInit.snapshot
+    setMedia(s.media)
+    setYearFrom(s.yearFrom)
+    setYearTo(s.yearTo)
+    setSelected(new Set(s.genreIds))
+    setError(null)
+    return () => {
+      mcpApplyKeyRef.current = null
+    }
+  }, [mcpInit])
 
   useEffect(() => {
     let cancelled = false
@@ -46,8 +89,38 @@ export default function RandomPicker({ onPicked }: RandomPickerProps) {
   }, [media])
 
   useEffect(() => {
-    setSelected(new Set())
-  }, [media])
+    if (!mcpInit?.autoPick) {
+      return
+    }
+    if (loadingGenres) {
+      return
+    }
+    const snap = mcpInit.snapshot
+    autoPickGenerationRef.current += 1
+    const myGen = autoPickGenerationRef.current
+    void (async () => {
+      setPicking(true)
+      setError(null)
+      const movie = await fetchRandomMovie({
+        media: snap.media,
+        genreIds: snap.genreIds,
+        yearFrom: snap.yearFrom,
+        yearTo: snap.yearTo,
+      })
+      if (autoPickGenerationRef.current !== myGen) {
+        return
+      }
+      setPicking(false)
+      if (movie) {
+        onPickedRef.current(movie, snap)
+      } else {
+        setError('No match — loosen genres or years, or clear filters.')
+      }
+    })()
+    return () => {
+      autoPickGenerationRef.current += 1
+    }
+  }, [mcpInit, loadingGenres])
 
   const hasActiveFilters = useMemo(
     () =>
@@ -128,7 +201,10 @@ export default function RandomPicker({ onPicked }: RandomPickerProps) {
             <button
               key={opt.value}
               type="button"
-              onClick={() => setMedia(opt.value)}
+              onClick={() => {
+                setMedia(opt.value)
+                setSelected(new Set())
+              }}
               className={`px-3 py-1.5 text-xs font-medium rounded-md border transition-colors ${
                 media === opt.value
                   ? 'bg-indigo-600 border-indigo-500 text-white'
