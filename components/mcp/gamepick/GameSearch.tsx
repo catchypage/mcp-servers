@@ -168,8 +168,8 @@ export default function GameSearch({
             Find your next game
           </h2>
           <p className="text-sm text-zinc-400 leading-relaxed max-w-md mb-4">
-            Search by vibe, genre, or name — live suggestions as you type. Open a
-            title for details and similar picks.
+            Search by vibe, genre, or name — live suggestions as you type. Open
+            a title for details and similar picks.
           </p>
           <div className="flex flex-wrap gap-2">
             <span className="text-xs text-zinc-500 w-full sm:w-auto sm:mr-1">

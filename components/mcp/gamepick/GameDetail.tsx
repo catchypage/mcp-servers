@@ -101,7 +101,9 @@ export default function GameDetail({
             {game.developer && <span>· {game.developer}</span>}
           </div>
           {rl && (
-            <p className="text-xs text-emerald-400/95 font-medium pt-0.5">{rl}</p>
+            <p className="text-xs text-emerald-400/95 font-medium pt-0.5">
+              {rl}
+            </p>
           )}
           {(game.rating_mean_players ?? game.rating_mean_critics) != null && (
             <p className="text-[11px] text-zinc-500">
@@ -180,9 +182,7 @@ export default function GameDetail({
         <h3 className="text-xs font-bold text-teal-400/90 uppercase tracking-widest mb-2">
           Similar games
         </h3>
-        {similarLoading && (
-          <p className="text-sm text-zinc-500">Loading…</p>
-        )}
+        {similarLoading && <p className="text-sm text-zinc-500">Loading…</p>}
         {!similarLoading && similar.length === 0 && (
           <p className="text-sm text-zinc-500">No suggestions yet.</p>
         )}
@@ -246,9 +246,7 @@ export default function GameDetail({
               alt=""
               className="max-h-[min(85vh,100%)] max-w-full object-contain rounded-lg shadow-2xl ring-1 ring-teal-500/30"
             />
-            <p className="mt-3 text-xs text-zinc-500">
-              Tap outside to close
-            </p>
+            <p className="mt-3 text-xs text-zinc-500">Tap outside to close</p>
           </div>
         </div>
       )}

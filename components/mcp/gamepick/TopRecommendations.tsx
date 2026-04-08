@@ -97,15 +97,7 @@ export default function TopRecommendations({
       return
     }
     void loadAt(genre, 0).then(() => setIndex(0))
-  }, [
-    batchStep,
-    genre,
-    index,
-    items.length,
-    loadAt,
-    offset,
-    totalResults,
-  ])
+  }, [batchStep, genre, index, items.length, loadAt, offset, totalResults])
 
   const goPrev = useCallback(() => {
     if (items.length === 0) {
@@ -179,8 +171,7 @@ export default function TopRecommendations({
             <div>
               <p className="text-[11px] text-zinc-500">
                 #{rank}
-                {totalResults > 0 ? ` of ~${totalResults}` : ''} ·{' '}
-                {genreLabel}
+                {totalResults > 0 ? ` of ~${totalResults}` : ''} · {genreLabel}
               </p>
               <p className="font-semibold text-zinc-100 text-sm leading-snug">
                 {current.title}

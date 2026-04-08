@@ -36,8 +36,8 @@ export default function Header({
           !hasLastViewed
             ? 'text-zinc-600 cursor-not-allowed opacity-60'
             : lastTabActive
-              ? 'bg-teal-600 text-white shadow-md shadow-teal-950/40'
-              : 'text-zinc-400 hover:text-teal-200 hover:bg-zinc-800/80 border border-zinc-700/60'
+            ? 'bg-teal-600 text-white shadow-md shadow-teal-950/40'
+            : 'text-zinc-400 hover:text-teal-200 hover:bg-zinc-800/80 border border-zinc-700/60'
         }`}
       >
         Last
