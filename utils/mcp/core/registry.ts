@@ -44,6 +44,7 @@ import {
 } from '@/utils/mcp/apps/langcoach/tools'
 import { nutriTools } from '@/utils/mcp/apps/nutri/tools'
 import { moviepickTools } from '@/utils/mcp/apps/moviepick/tools'
+import { gamepickTools } from '@/utils/mcp/apps/gamepick/tools'
 
 export const MCP_APPS: Record<string, McpAppConfig> = {
   resume: {
@@ -125,6 +126,26 @@ export const MCP_APPS: Record<string, McpAppConfig> = {
       },
     ],
   },
+  gamepick: {
+    id: 'gamepick',
+    name: 'GamePick',
+    description:
+      'GamePick: search video games by name or phrase; open details and similar titles',
+    version: '1.0.0',
+    widgetInvoking: 'Opening GamePick…',
+    widgetInvoked: 'Ready!',
+    skipAuth: true,
+    tools: gamepickTools,
+    widget: '/mcp/gamepick.bundle.js',
+    resources: [
+      {
+        uri: '/api/mcp/gamepick/widget',
+        name: 'GamePick Widget',
+        description: 'Game search and discovery',
+        mimeType: 'text/html+skybridge',
+      },
+    ],
+  },
 }
 
 export function resolveApp(appId: string): McpAppConfig | null {
@@ -136,4 +157,5 @@ export const APP_DOMAINS: Record<string, string[]> = {
   langcoach: ['justmatch.us'],
   chefplan2: ['cuto.pro'],
   moviepick: ['nuova.pro'],
+  gamepick: [],
 }
