@@ -157,5 +157,5 @@ export const APP_DOMAINS: Record<string, string[]> = {
   langcoach: ['justmatch.us'],
   chefplan2: ['cuto.pro'],
   moviepick: ['nuova.pro'],
-  gamepick: [],
+  gamepick: ['haos.pro', 'www.haos.pro'],
 }

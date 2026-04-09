@@ -1,0 +1,49 @@
+GamePick — Tool justification (OpenAI Apps submission)
+Annotations match utils/mcp/apps/gamepick/tools.ts (find_game, browse_top_games). No auth (skipAuth: true).
+
+================================================================================
+CSP Metadata (widget)
+================================================================================
+Declared in resources/read → _meta.openai.widgetCSP (utils/mcp/core/router.ts):
+today both arrays are only the request origin (e.g. https://haos.pro).
+
+connect_domains (as shipped)
+https://haos.pro
+Widget fetch/XHR stays same-origin (/api/mcp/gamepick/search, /suggest, /games/…, /recommendations).
+
+resource_domains (as shipped)
+https://haos.pro
+
+If review/host blocks game images: add the image CDN host used in catalog responses
+(e.g. https://img.gamebrain.co) to resource_domains for poster/screenshot URLs in the widget.
+
+================================================================================
+find_game
+================================================================================
+
+Read Only: Yes
+Catalog-backed search and detail only. No writes to our DB; no user state mutated by the tool.
+
+Open World: Yes
+User-defined search query and optional game_id; external game metadata from the games catalog API (via our API routes).
+
+Destructive: No
+Read-only lookups.
+
+Idempotent: No
+Search results may vary as the catalog updates.
+
+================================================================================
+browse_top_games
+================================================================================
+
+Read Only: Yes
+Returns a page of highly rated games (computed score, descending), optional genre filter.
+
+Open World: Yes
+User may pass genre slug and pagination offset for more pages.
+
+Destructive: No
+
+Idempotent: Yes
+Same offset + genre returns the same ordered slice for a stable catalog state.

@@ -1,0 +1,33 @@
+GamePick — MCP test cases (OpenAI Apps submission)
+
+Connector: POST https://haos.pro/api/mcp (Host: haos.pro) or POST https://haos.pro/api/mcp/gamepick
+Public tools: find_game, browse_top_games (no OAuth).
+
+--------------------------------------------------------------------------------
+1) Open widget without search
+--------------------------------------------------------------------------------
+User: Open GamePick so I can search for games myself.
+Expected: success true, mode search, message inviting search; widget shows search UI.
+
+--------------------------------------------------------------------------------
+2) Search by query
+--------------------------------------------------------------------------------
+User: Search GamePick for medieval strategy games.
+Expected: Tool returns results or detail; widget shows result list or opens top match when single hit.
+
+--------------------------------------------------------------------------------
+3) Open game by id
+--------------------------------------------------------------------------------
+User: Open game id 12345 in GamePick (use a real id from a prior search).
+Expected: mode detail, game object with title and metadata.
+
+--------------------------------------------------------------------------------
+4) Top-rated browse
+--------------------------------------------------------------------------------
+User: Show me the first page of top-rated RPGs in GamePick.
+Expected: browse_top_games with genre rpg (or equivalent); results array, message describes first title.
+
+--------------------------------------------------------------------------------
+5) No professional advice
+--------------------------------------------------------------------------------
+GamePick does not provide medical, legal, or financial advice. It surfaces game metadata only.
