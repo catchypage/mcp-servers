@@ -7,6 +7,8 @@ function buildDomainTokens(): Record<string, string> {
     'cuto.pro': 'yFMNh0nbCi10qpFEMioCCYY37ajddfpgrqarRlGOOgw',
     'nuova.pro': 'hTCQrAewQUaziujgOESJNF_5dmwgalvnObGg0AviO64',
     'www.nuova.pro': 'hTCQrAewQUaziujgOESJNF_5dmwgalvnObGg0AviO64',
+    'haos.pro': 'mTTSPZCnqSuGjK5MruhGXXAAqFbtNpn4jB9S-J3HEHA',
+    'www.haos.pro': 'mTTSPZCnqSuGjK5MruhGXXAAqFbtNpn4jB9S-J3HEHA',
   }
   const haos = process.env.HAOS_PRO_OPENAI_APPS_CHALLENGE_TOKEN?.trim()
   if (haos) {
@@ -24,7 +26,7 @@ const DEFAULT_TOKEN =
  * GET /.well-known/openai-apps-challenge must return the token as plain text only.
  * Each domain gets its own verification token.
  *
- * GamePick (haos.pro): set HAOS_PRO_OPENAI_APPS_CHALLENGE_TOKEN in env (token from OpenAI Apps dashboard).
+ * GamePick (haos.pro): token in map below; optional HAOS_PRO_OPENAI_APPS_CHALLENGE_TOKEN overrides (rotation).
  */
 export async function GET(req: NextRequest) {
   const host = (
