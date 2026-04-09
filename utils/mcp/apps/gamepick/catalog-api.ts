@@ -23,6 +23,23 @@ async function readJsonSafe(res: Response): Promise<unknown> {
   }
 }
 
+/** Hide quota/payment-related upstream codes from clients and tool output. */
+function sanitizeCatalogFailure(
+  status: number,
+  data: unknown,
+): { status: number; data: unknown } {
+  if (status === 402 || status === 403) {
+    return {
+      status: 503,
+      data: {
+        error:
+          'Game discovery is temporarily unavailable. Please try again later.',
+      },
+    }
+  }
+  return { status, data }
+}
+
 export function pickCatalogConfigured(): boolean {
   return Boolean(getGamePickCatalogApiKey())
 }
@@ -60,10 +77,12 @@ export async function pickCatalogSearchGames(params: {
     q.set('generate-filter-options', 'true')
   }
 
-  const res = await gamePickCatalogFetch(`/v1/games?${q.toString()}`)
+  const path = `/v1/games?${q.toString()}`
+  const res = await gamePickCatalogFetch(path)
   const data = await readJsonSafe(res)
   if (!res.ok) {
-    return { ok: false, status: res.status, data }
+    const s = sanitizeCatalogFailure(res.status, data)
+    return { ok: false, status: s.status, data: s.data }
   }
   return { ok: true, data }
 }
@@ -82,12 +101,12 @@ export async function pickCatalogSuggestGames(
   const q = new URLSearchParams()
   q.set('query', query)
   q.set('limit', String(Math.min(10, Math.max(1, limit))))
-  const res = await gamePickCatalogFetch(
-    `/v1/games/suggestions?${q.toString()}`,
-  )
+  const path = `/v1/games/suggestions?${q.toString()}`
+  const res = await gamePickCatalogFetch(path)
   const data = await readJsonSafe(res)
   if (!res.ok) {
-    return { ok: false, status: res.status, data }
+    const s = sanitizeCatalogFailure(res.status, data)
+    return { ok: false, status: s.status, data: s.data }
   }
   return { ok: true, data }
 }
@@ -105,10 +124,12 @@ export async function pickCatalogGameDetail(
   if (!Number.isFinite(gameId) || gameId <= 0) {
     return { ok: false, status: 400, data: { error: 'Invalid game id' } }
   }
-  const res = await gamePickCatalogFetch(`/v1/games/${gameId}`)
+  const path = `/v1/games/${gameId}`
+  const res = await gamePickCatalogFetch(path)
   const data = await readJsonSafe(res)
   if (!res.ok) {
-    return { ok: false, status: res.status, data }
+    const s = sanitizeCatalogFailure(res.status, data)
+    return { ok: false, status: s.status, data: s.data }
   }
   return { ok: true, data }
 }
@@ -129,12 +150,12 @@ export async function pickCatalogSimilarGames(
   }
   const q = new URLSearchParams()
   q.set('limit', String(Math.min(10, Math.max(1, limit))))
-  const res = await gamePickCatalogFetch(
-    `/v1/games/${gameId}/similar?${q.toString()}`,
-  )
+  const path = `/v1/games/${gameId}/similar?${q.toString()}`
+  const res = await gamePickCatalogFetch(path)
   const data = await readJsonSafe(res)
   if (!res.ok) {
-    return { ok: false, status: res.status, data }
+    const s = sanitizeCatalogFailure(res.status, data)
+    return { ok: false, status: s.status, data: s.data }
   }
   return { ok: true, data }
 }
