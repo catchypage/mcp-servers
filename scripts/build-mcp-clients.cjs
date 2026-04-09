@@ -60,6 +60,13 @@ function buildMcpClients() {
       stylesCss: 'moviepick-styles.css',
       tailwindContent: './components/mcp/moviepick/**/*.{tsx,ts}',
     },
+    {
+      name: 'GamePick',
+      entry: '../components/mcp/gamepick/gamepick-entry.tsx',
+      output: 'gamepick.bundle.js',
+      stylesCss: 'gamepick-styles.css',
+      tailwindContent: './components/mcp/gamepick/**/*.{tsx,ts}',
+    },
   ]
 
   components.forEach((comp) => {

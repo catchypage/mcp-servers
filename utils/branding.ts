@@ -4,6 +4,7 @@ export type LegalProductLine =
   | 'resume'
   | 'chefplan'
   | 'moviepick'
+  | 'gamepick'
 
 export interface BrandConfig {
   name: string
@@ -51,6 +52,24 @@ const DOMAIN_BRANDS: Record<string, BrandConfig> = {
     supportEmail: 'gptprosite@gmail.com',
     tagline: 'Pick your next watch',
     legalProductLine: 'moviepick',
+  },
+  'haos.pro': {
+    name: 'GamePick',
+    shortName: 'GP',
+    description:
+      'Discover video games in ChatGPT: search and suggestions, top-rated picks by genre, game details and similar titles — powered by a games metadata API.',
+    supportEmail: 'gptprosite@gmail.com',
+    tagline: 'Pick your next game',
+    legalProductLine: 'gamepick',
+  },
+  'www.haos.pro': {
+    name: 'GamePick',
+    shortName: 'GP',
+    description:
+      'Discover video games in ChatGPT: search and suggestions, top-rated picks by genre, game details and similar titles — powered by a games metadata API.',
+    supportEmail: 'gptprosite@gmail.com',
+    tagline: 'Pick your next game',
+    legalProductLine: 'gamepick',
   },
   'pyxl.pro': {
     name: 'Pyxl',

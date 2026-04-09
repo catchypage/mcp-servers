@@ -223,6 +223,75 @@ export function getTermsDocument(
     },
   ]
 
+  const gamepickSections: TermsSection[] = [
+    {
+      title: '1. Agreement',
+      description: `By using ${brand.name} at ${siteUrl} or through OpenAI ChatGPT (including our MCP integration), you agree to these Terms of Service. If you disagree, do not use the service.`,
+    },
+    {
+      title: '2. Description of service',
+      description: `${brand.name} helps you discover video games: search and live suggestions, top-rated picks (optionally by genre), game details, and similar titles. The service is available as a widget inside OpenAI ChatGPT via MCP (Model Context Protocol). No sign-in is required for the public flow.`,
+    },
+    {
+      title: '3. No account required',
+      description:
+        'The public GamePick MCP flow works without authentication. You do not need to create an account on our site. Tool arguments and responses are processed transiently.',
+    },
+    {
+      title: '4. Third-party game data',
+      description:
+        'Game metadata, images, ratings, and descriptions are provided by an external catalog API. We do not own that data.',
+      items: [
+        'Accuracy, completeness, and age-appropriateness of catalog entries are ultimately determined by the metadata provider and game publishers.',
+        'Store links and offers may point to third-party sellers; their terms apply when you leave our widget or ChatGPT.',
+      ],
+    },
+    {
+      title: '5. Not professional advice',
+      description:
+        'Scores, reviews, and summaries are informational. They are not buying advice, financial advice, or guarantees of quality. Always check official sources, system requirements, and regional availability before purchasing.',
+    },
+    {
+      title: '6. OpenAI ChatGPT',
+      description:
+        "When you use GamePick through ChatGPT, OpenAI's terms and policies govern your use of ChatGPT itself.",
+      items: [
+        'We are not responsible for ChatGPT model output, availability, or how OpenAI processes your conversations.',
+        'We receive only structured tool arguments (e.g. search text, game id, genre, offset) from ChatGPT, not your full chat history.',
+      ],
+    },
+    {
+      title: '7. Acceptable use',
+      description: 'You must not:',
+      items: [
+        'use the service unlawfully or to harm others;',
+        'attempt to interfere with or disrupt our systems or APIs;',
+        'reverse engineer, scrape, or abuse the MCP integration;',
+        'use automated means to overload our servers or the catalog API.',
+      ],
+    },
+    {
+      title: '8. Disclaimers',
+      description:
+        'The service is provided "as is" without warranties of any kind. We do not guarantee uninterrupted or error-free operation. Game metadata may change without notice.',
+    },
+    {
+      title: '9. Limitation of liability',
+      description:
+        'To the maximum extent permitted by law, we are not liable for indirect, incidental, or consequential damages arising from your use of the service, including decisions made based on catalog ratings or descriptions.',
+    },
+    {
+      title: '10. Changes',
+      description:
+        'We may modify these terms or the service at any time. The updated terms will be posted on this page. Continued use after changes constitutes acceptance where permitted by law.',
+    },
+    {
+      title: '11. Contact',
+      description: 'Questions about these terms:',
+      isContact: true,
+    },
+  ]
+
   const platformSections: TermsSection[] = [
     {
       title: '1. Agreement',
@@ -265,18 +334,22 @@ export function getTermsDocument(
 
   const introChefplan = `These Terms of Service ("Terms") govern your use of ${brand.name} at ${siteUrl} and when you use ChefPlan through OpenAI ChatGPT via MCP. No account or sign-in is required. Please read the health disclaimer carefully.`
 
+  const introGamepick = `These Terms of Service ("Terms") govern your use of ${brand.name} at ${siteUrl} and when you use GamePick through OpenAI ChatGPT via MCP. No account or sign-in is required for the public discovery flow.`
+
   const introPlatform = `These Terms of Service govern your use of ${brand.name} services at ${siteUrl}.`
 
   const introMap: Record<string, string> = {
     langcoach: introLangCoach,
     resume: introResume,
     chefplan: introChefplan,
+    gamepick: introGamepick,
   }
 
   const sectionsMap: Record<string, TermsSection[]> = {
     langcoach: langCoachSections,
     resume: resumeSections,
     chefplan: chefplanSections,
+    gamepick: gamepickSections,
   }
 
   return {

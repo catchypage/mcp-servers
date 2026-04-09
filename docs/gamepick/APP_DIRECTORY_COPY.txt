@@ -1,0 +1,68 @@
+GamePick — copy for ChatGPT catalog / submission form
+Edit per section; paste blocks into the form.
+
+Tool justification + CSP: docs/gamepick/TOOL_JUSTIFICATIONS.txt
+
+================================================================================
+App Name
+================================================================================
+GamePick
+
+================================================================================
+Subtitle
+================================================================================
+Discover video games in ChatGPT — search, top picks, details
+
+================================================================================
+Description
+================================================================================
+GamePick helps you discover video games inside ChatGPT. Search by name or vibe with live suggestions, browse top-rated titles (all genres or one genre), open full details, and explore similar games. No sign-in required. Game metadata comes from a commercial games catalog API (read-only on our side).
+
+================================================================================
+Short pitch (one sentence, optional)
+================================================================================
+GamePick: search games, walk top-rated lists by genre, open details and similar titles — in ChatGPT, no login.
+
+================================================================================
+Example user message (preview) — required
+================================================================================
+Find cozy RPGs from the last five years and show me one with a high player score.
+
+(Alternative: Open top-rated strategy games and let me flip through the list.)
+
+================================================================================
+Release Notes — required
+================================================================================
+Search games with suggestions; top-rated discovery with optional genre filter; game detail with description, platforms, and similar titles. Tools: find_game (search / open by id), browse_top_games (highly rated, paginated). Widget syncs tool output. No authentication for public tools.
+
+================================================================================
+Support email (if asked)
+================================================================================
+gptprosite@gmail.com
+
+================================================================================
+Privacy policy URL
+================================================================================
+https://haos.pro/policy
+
+================================================================================
+Terms URL
+================================================================================
+https://haos.pro/terms
+
+================================================================================
+Developer / company name (if asked)
+================================================================================
+
+
+================================================================================
+Internal notes (not for the form)
+================================================================================
+App ID: gamepick. Domain: haos.pro.
+Connector (host-mapped): https://haos.pro/api/mcp
+Explicit path: https://haos.pro/api/mcp/gamepick
+skipAuth: true — no OAuth for public tools.
+
+Set HAOS_PRO_OPENAI_APPS_CHALLENGE_TOKEN for OpenAI domain verification on haos.pro.
+
+Update Release Notes when you ship user-visible widget or tool changes.

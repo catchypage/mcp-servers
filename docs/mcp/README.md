@@ -20,6 +20,12 @@
 
 ---
 
+## GamePick (`gamepick`)
+
+Поиск игр, подсказки, топ по рейтингу (опционально по жанру), карточка и похожие тайтлы. **Без OAuth** (`skipAuth: true`), как MoviePick. Публичные тулы: **`find_game`** (`query`, `game_id`), **`browse_top_games`** (`genre`, `offset`). **Домен:** **`haos.pro`** → **`POST https://haos.pro/api/mcp`**. Явный путь: **`POST https://haos.pro/api/mcp/gamepick`**. На сервере нужен **`GAMEPICK_API_KEY`**. Верификация домена в OpenAI: **`HAOS_PRO_OPENAI_APPS_CHALLENGE_TOKEN`**. Виджет: **`/api/mcp/gamepick/widget`**, статика: **`/mcp/gamepick.bundle.js`**, **`/mcp/gamepick-styles.css`**. Тексты для каталога и ревью: **[../gamepick/](../gamepick/)**.
+
+---
+
 ## Что делает Resume app
 
 **Resume** — тестовое MCP-приложение для проверки архитектуры. В ChatGPT доступны инструменты:
