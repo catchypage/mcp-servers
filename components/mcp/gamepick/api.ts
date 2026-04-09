@@ -9,6 +9,24 @@ function getBaseUrl(): string {
   return ''
 }
 
+/**
+ * Same-origin image URL for ChatGPT widget CSP (img.gamebrain.co is not allowlisted).
+ */
+export function proxyGameImageUrl(originalUrl: string): string {
+  const u = originalUrl.trim()
+  if (!u) {
+    return ''
+  }
+  if (u.includes('/api/mcp/gamepick/img?')) {
+    return u
+  }
+  const base = getBaseUrl()
+  if (!base) {
+    return u
+  }
+  return `${base}/api/mcp/gamepick/img?url=${encodeURIComponent(u)}`
+}
+
 async function readJson(res: Response): Promise<unknown> {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- Response.json()
   const body = await res.json()
@@ -43,12 +61,13 @@ function parseSearchData(data: unknown): {
     if (!id || !title) {
       continue
     }
+    const rawPoster = typeof r.image === 'string' ? r.image : ''
     items.push({
       id,
       title,
       year: typeof r.year === 'number' ? String(r.year) : '',
       genre: typeof r.genre === 'string' ? r.genre : '',
-      poster: typeof r.image === 'string' ? r.image : '',
+      poster: proxyGameImageUrl(rawPoster),
       link: typeof r.link === 'string' ? r.link : '',
     })
   }
@@ -113,15 +132,16 @@ export function parseGameDetailPayload(raw: unknown): GameDetail | null {
   if (Array.isArray(g.screenshots)) {
     for (const x of g.screenshots) {
       if (typeof x === 'string') {
-        screenshots.push(x)
+        screenshots.push(proxyGameImageUrl(x))
       }
     }
   }
+  const rawImage = typeof g.image === 'string' ? g.image : ''
   return {
     id: g.id,
     title: g.title,
     year: typeof g.year === 'number' ? g.year : 0,
-    image: typeof g.image === 'string' ? g.image : '',
+    image: proxyGameImageUrl(rawImage),
     link: typeof g.link === 'string' ? g.link : '',
     short_description:
       typeof g.short_description === 'string' ? g.short_description : '',
@@ -169,12 +189,13 @@ function parseSuggestItems(raw: unknown): GameSearchItem[] {
     if (!id || !title) {
       continue
     }
+    const rawPoster = typeof r.image === 'string' ? r.image : ''
     items.push({
       id,
       title,
       year: typeof r.year === 'number' ? String(r.year) : '',
       genre: typeof r.genre === 'string' ? r.genre : '',
-      poster: typeof r.image === 'string' ? r.image : '',
+      poster: proxyGameImageUrl(rawPoster),
       link: typeof r.link === 'string' ? r.link : '',
     })
   }
@@ -198,12 +219,13 @@ function parseSimilarItems(raw: unknown): GameSearchItem[] {
     if (typeof r.id !== 'string' || typeof r.title !== 'string') {
       continue
     }
+    const rawPoster = typeof r.poster === 'string' ? r.poster : ''
     items.push({
       id: r.id,
       title: r.title,
       year: typeof r.year === 'string' ? r.year : '',
       genre: typeof r.genre === 'string' ? r.genre : '',
-      poster: typeof r.poster === 'string' ? r.poster : '',
+      poster: proxyGameImageUrl(rawPoster),
       link: typeof r.link === 'string' ? r.link : '',
     })
   }

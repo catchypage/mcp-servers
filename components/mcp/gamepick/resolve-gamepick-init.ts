@@ -3,6 +3,7 @@
  */
 
 import type { GameSearchItem } from './types'
+import { proxyGameImageUrl } from './api'
 
 const MODES = new Set(['search', 'results', 'detail'])
 
@@ -164,12 +165,13 @@ export function parseGamesFromInit(raw: unknown): GameSearchItem[] | null {
     }
     const r = el as Record<string, unknown>
     if (typeof r.id === 'string' && typeof r.title === 'string') {
+      const rawPoster = typeof r.poster === 'string' ? r.poster : ''
       out.push({
         id: r.id,
         title: r.title,
         year: typeof r.year === 'string' ? r.year : '',
         genre: typeof r.genre === 'string' ? r.genre : '',
-        poster: typeof r.poster === 'string' ? r.poster : '',
+        poster: proxyGameImageUrl(rawPoster),
         link: typeof r.link === 'string' ? r.link : '',
       })
     }

@@ -14,8 +14,8 @@ Widget fetch/XHR stays same-origin (/api/mcp/gamepick/search, /suggest, /games/â
 resource_domains (as shipped)
 https://haos.pro
 
-If review/host blocks game images: add the image CDN host used in catalog responses
-(e.g. https://img.gamebrain.co) to resource_domains for poster/screenshot URLs in the widget.
+Posters and screenshots load via same-origin proxy GET /api/mcp/gamepick/img?url=â€¦
+so the widget does not need img.gamebrain.co (or Steam CDNs) in resource_domains.
 
 ================================================================================
 find_game
