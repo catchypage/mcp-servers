@@ -40,6 +40,10 @@ export default function GameSearch({
   const [suggestions, setSuggestions] = useState<GameSearchItem[]>([])
   const [suggestOpen, setSuggestOpen] = useState(false)
   const [pickGenre, setPickGenre] = useState('')
+  const [totalResults, setTotalResults] = useState(0)
+  const [spotlightIndex, setSpotlightIndex] = useState(0)
+  /** Shown in spotlight header; only updated after a real search, not while typing. */
+  const [committedSearchQuery, setCommittedSearchQuery] = useState('')
   const mcpApplyKeyRef = useRef<string | null>(null)
   const autoSearchGenRef = useRef(0)
   const suggestTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -60,6 +64,13 @@ export default function GameSearch({
       setTotalPages(Math.max(1, mcpInit.initialTotalPages ?? 1))
       setPage(1)
       setSearched(true)
+      setSpotlightIndex(0)
+      setCommittedSearchQuery(mcpInit.query.trim())
+      setTotalResults(
+        typeof mcpInit.initialTotalResults === 'number'
+          ? mcpInit.initialTotalResults
+          : mcpInit.initialResults.length,
+      )
     }
   }, [mcpInit])
 
@@ -76,19 +87,30 @@ export default function GameSearch({
     void (async () => {
       setLoading(true)
       setSearched(true)
-      const { items, totalPages: tp } = await searchGames(q, 1)
+      const { items, totalPages: tp, totalResults: tr } = await searchGames(
+        q,
+        1,
+      )
       if (autoSearchGenRef.current !== gen) {
         return
       }
       setResults(items)
       setTotalPages(Math.max(1, tp))
+      setTotalResults(tr)
       setPage(1)
+      setSpotlightIndex(0)
+      setCommittedSearchQuery(q)
       setLoading(false)
     })()
   }, [mcpInit])
 
   const runSearch = useCallback(
-    async (pageNum: number, q: string, genreOverride?: string) => {
+    async (
+      pageNum: number,
+      q: string,
+      genreOverride?: string,
+      listFocus: 'first' | 'last' = 'first',
+    ) => {
       const t = q.trim()
       if (!t) {
         return
@@ -98,12 +120,21 @@ export default function GameSearch({
       setLoading(true)
       setSearched(true)
       setSuggestOpen(false)
-      const { items, totalPages: tp } = await searchGames(t, pageNum, {
-        genreSlug: genreForRequest || undefined,
-      })
+      const { items, totalPages: tp, totalResults: tr } = await searchGames(
+        t,
+        pageNum,
+        {
+          genreSlug: genreForRequest || undefined,
+        },
+      )
       setResults(items)
       setTotalPages(Math.max(1, tp))
+      setTotalResults(tr)
       setPage(pageNum)
+      setSpotlightIndex(
+        listFocus === 'last' ? Math.max(0, items.length - 1) : 0,
+      )
+      setCommittedSearchQuery(t)
       setLoading(false)
     },
     [pickGenre],
@@ -114,11 +145,18 @@ export default function GameSearch({
       setPickGenre(slug)
       const q = query.trim()
       if (searched && q) {
-        void runSearch(1, q, slug)
+        void runSearch(1, q, slug, 'first')
       }
     },
     [query, runSearch, searched],
   )
+
+  useEffect(() => {
+    if (results.length === 0) {
+      return
+    }
+    setSpotlightIndex((i) => Math.min(i, results.length - 1))
+  }, [results])
 
   const onSubmit = useCallback(
     (e: React.FormEvent) => {
@@ -196,6 +234,31 @@ export default function GameSearch({
         genre={pickGenre}
         onGenreChange={handlePickGenreChange}
         onSelect={onSelect}
+        searchActive={searched && results.length > 0}
+        searchItems={results}
+        spotlightIndex={spotlightIndex}
+        onSpotlightIndexChange={setSpotlightIndex}
+        searchPage={page}
+        searchTotalPages={totalPages}
+        searchTotalResults={totalResults}
+        searchQuery={committedSearchQuery}
+        searchLoading={loading}
+        onSpotlightNextPage={() => {
+          void runSearch(
+            page + 1,
+            committedSearchQuery || query,
+            undefined,
+            'first',
+          )
+        }}
+        onSpotlightPrevPage={() => {
+          void runSearch(
+            page - 1,
+            committedSearchQuery || query,
+            undefined,
+            'last',
+          )
+        }}
       />
 
       <form onSubmit={onSubmit} className="space-y-2 relative">
@@ -319,7 +382,14 @@ export default function GameSearch({
               <button
                 type="button"
                 disabled={page <= 1 || loading}
-                onClick={() => void runSearch(page - 1, query)}
+                onClick={() =>
+                  void runSearch(
+                    page - 1,
+                    committedSearchQuery || query,
+                    undefined,
+                    'first',
+                  )
+                }
                 className="px-3 py-1.5 text-xs rounded-lg bg-zinc-800 hover:bg-zinc-700 disabled:opacity-40 text-zinc-200 border border-zinc-700"
               >
                 Previous
@@ -327,7 +397,14 @@ export default function GameSearch({
               <button
                 type="button"
                 disabled={page >= totalPages || loading}
-                onClick={() => void runSearch(page + 1, query)}
+                onClick={() =>
+                  void runSearch(
+                    page + 1,
+                    committedSearchQuery || query,
+                    undefined,
+                    'first',
+                  )
+                }
                 className="px-3 py-1.5 text-xs rounded-lg bg-zinc-800 hover:bg-zinc-700 disabled:opacity-40 text-zinc-200 border border-zinc-700"
               >
                 Next

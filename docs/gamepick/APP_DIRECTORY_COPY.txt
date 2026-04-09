@@ -26,7 +26,7 @@ GamePick: search games, walk top-rated lists by genre, open details and similar 
 ================================================================================
 Example user message (preview) — required
 ================================================================================
-Find cozy RPGs from the last five years and show me one with a high player score.
+Find cozy RPGs from the last five years and show me a well-rated one.
 
 (Alternative: Open top-rated strategy games and let me flip through the list.)
 

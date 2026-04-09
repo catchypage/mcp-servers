@@ -20,7 +20,7 @@ export async function OPTIONS() {
 }
 
 /**
- * Top-rated games (Game Brain computed_rating, desc). Optional genre filter.
+ * Top-rated games (catalog score sort, desc). Optional genre filter.
  * GET /api/mcp/gamepick/recommendations?genre=action&offset=0
  */
 export async function GET(req: NextRequest) {
