@@ -1,33 +1,122 @@
 GamePick — MCP test cases (OpenAI Apps submission)
-
+Copy one block per form field.
 Connector: POST https://haos.pro/api/mcp (Host: haos.pro) or POST https://haos.pro/api/mcp/gamepick
-Public tools: find_game, browse_top_games (no OAuth).
+No OAuth. Public tools: find_game, browse_top_games.
+
+================================================================================
+Positive test cases (5)
+================================================================================
 
 --------------------------------------------------------------------------------
-1) Open widget without search
+Test Case 1 — Search (result list)
 --------------------------------------------------------------------------------
-User: Open GamePick so I can search for games myself.
-Expected: success true, mode search, message inviting search; widget shows search UI.
+
+Scenario
+User searches by a specific title; model should return a result list in the widget.
+
+User prompt
+Search for Elden Ring and show me matching games.
+
+Tool triggered
+find_game (query: "Elden Ring" or title user said)
+
+Expected output
+tools/call succeeds with mode results (or single detail if exactly one strong hit). Widget shows posters and titles; user can open a title for detail.
 
 --------------------------------------------------------------------------------
-2) Search by query
+Test Case 2 — Search with a genre or style hint
 --------------------------------------------------------------------------------
-User: Search GamePick for medieval strategy games.
-Expected: Tool returns results or detail; widget shows result list or opens top match when single hit.
+
+Scenario
+User narrows by genre or style; may or may not name a title.
+
+User prompt
+I want strategy games — show me what is out there.
+
+Tool triggered
+find_game (query including strategy or equivalent)
+
+Expected output
+Structured content includes search mode and query. Widget shows results or empty state with a clear message.
 
 --------------------------------------------------------------------------------
-3) Open game by id
+Test Case 3 — Open game by catalog id
 --------------------------------------------------------------------------------
-User: Open game id 12345 in GamePick (use a real id from a prior search).
-Expected: mode detail, game object with title and metadata.
+
+Scenario
+User already has a catalog id from a prior message or link; model opens detail directly.
+
+User prompt
+Open game id 12345. (Use a real catalog id from a prior search in this session.)
+
+Tool triggered
+find_game (game_id: numeric catalog id)
+
+Expected output
+mode detail with game object (title, metadata, links). No server-side writes.
 
 --------------------------------------------------------------------------------
-4) Top-rated browse
+Test Case 4 — Top-rated browse
 --------------------------------------------------------------------------------
-User: Show me the first page of top-rated RPGs in GamePick.
-Expected: browse_top_games with genre rpg (or equivalent); results array, message describes first title.
+
+Scenario
+User wants a ranked list from the catalog; pagination via offset when they ask for more.
+
+User prompt
+Show me the first page of top-rated RPGs.
+
+Tool triggered
+browse_top_games (genre: rpg or equivalent slug, offset: 0)
+
+Expected output
+success true, results array, message summarizes first title(s). Read-only catalog data.
 
 --------------------------------------------------------------------------------
-5) No professional advice
+Test Case 5 — Open widget without query (manual search)
 --------------------------------------------------------------------------------
-GamePick does not provide medical, legal, or financial advice. It surfaces game metadata only.
+
+Scenario
+User opens the game search UI to type or browse themselves; empty query still returns a helpful widget state.
+
+User prompt
+Open game search — I will type what I want myself.
+
+Tool triggered
+find_game (query empty or omitted)
+
+Expected output
+success true, mode search, message inviting search; widget shows search UI and top/browse entry points as in init.
+
+================================================================================
+Negative test cases (3)
+================================================================================
+
+--------------------------------------------------------------------------------
+Negative Test Case 1 — Unrelated booking
+--------------------------------------------------------------------------------
+
+Scenario
+User asks for travel booking; connector should not be used for game discovery.
+
+User prompt
+Book a flight to Tokyo and reserve a hotel near Shibuya for next month.
+
+--------------------------------------------------------------------------------
+Negative Test Case 2 — Unrelated coding task
+--------------------------------------------------------------------------------
+
+Scenario
+User wants code, not game catalog search.
+
+User prompt
+Refactor this React component to use useReducer instead of five useState hooks.
+
+--------------------------------------------------------------------------------
+Negative Test Case 3 — Medical / legal advice
+--------------------------------------------------------------------------------
+
+Scenario
+Connector must not substitute professional advice; it surfaces game metadata only.
+
+User prompt
+My therapist asked me to avoid violent games. Which exact titles are medically unsafe for my diagnosis?
