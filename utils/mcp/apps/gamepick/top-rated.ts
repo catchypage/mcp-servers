@@ -1,6 +1,5 @@
 /**
- * GameBrain "best games" discovery: sort by computed_rating desc + optional genre filter.
- * @see https://gamebrain.co/api/docs/search-games
+ * Catalog "best games" discovery: sort by computed_rating desc + optional genre filter.
  */
 
 import {

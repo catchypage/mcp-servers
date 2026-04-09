@@ -1,5 +1,5 @@
 /**
- * Labels for GameBrain genre filter slugs (must match server allowlist in
+ * Labels for catalog genre filter slugs (must match server allowlist in
  * utils/mcp/apps/gamepick/top-rated.ts).
  */
 export const TOP_GENRE_OPTIONS: { value: string; label: string }[] = [
@@ -20,7 +20,7 @@ export const TOP_GENRE_OPTIONS: { value: string; label: string }[] = [
 ]
 
 /**
- * JSON for GameBrain `filters` query param (genre key).
+ * JSON for catalog `filters` query param (genre key).
  */
 export function buildGenreFiltersParam(slug: string): string | undefined {
   const s = slug.trim().toLowerCase()

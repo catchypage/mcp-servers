@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
-/** Upstream hosts allowed for the image proxy (Game Brain + common Steam image CDNs). */
+/** Upstream hosts allowed for the image proxy (catalog CDN + common Steam image hosts). */
 const ALLOWED_HOSTS = [
   'img.gamebrain.co',
   'cdn.akamai.steamstatic.com',

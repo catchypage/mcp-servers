@@ -47,7 +47,7 @@ const browseTopGamesTool: McpToolDefinition = {
   name: 'browse_top_games',
   title: 'Browse Top-Rated Games',
   description:
-    'GamePick: list highly rated games (Game Brain computed score), best first. Optional genre filter. Use offset 10, 20, … for the next page when the user wants more.',
+    'GamePick: list highly rated games from the catalog (score order, best first). Optional genre filter. Use offset 10, 20, … for the next page when the user wants more.',
   inputSchema: {
     type: 'object',
     properties: {

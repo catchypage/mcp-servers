@@ -15,7 +15,7 @@ resource_domains (as shipped)
 https://haos.pro
 
 Posters and screenshots load via same-origin proxy GET /api/mcp/gamepick/img?url=…
-so the widget does not need img.gamebrain.co (or Steam CDNs) in resource_domains.
+so the widget does not need the catalog image CDN (or Steam CDNs) in resource_domains.
 
 ================================================================================
 find_game

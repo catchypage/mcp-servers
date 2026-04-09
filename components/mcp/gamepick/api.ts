@@ -10,7 +10,7 @@ function getBaseUrl(): string {
 }
 
 /**
- * Same-origin image URL for ChatGPT widget CSP (img.gamebrain.co is not allowlisted).
+ * Same-origin image URL for ChatGPT widget CSP (external poster CDN is not allowlisted).
  */
 export function proxyGameImageUrl(originalUrl: string): string {
   const u = originalUrl.trim()
