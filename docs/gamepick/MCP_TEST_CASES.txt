@@ -1,66 +1,66 @@
 GamePick — MCP test cases (OpenAI Apps submission)
 Copy one block per form field.
 Connector: POST https://haos.pro/api/mcp (Host: haos.pro) or POST https://haos.pro/api/mcp/gamepick
-No OAuth. Public tools: find_game, browse_top_games.
+No OAuth. Public tools: find_game (text search only), browse_top_games.
 
 ================================================================================
 Positive test cases (5)
 ================================================================================
 
 --------------------------------------------------------------------------------
-Test Case 1 — Search (result list)
+Test Case 1 — Search by game title
 --------------------------------------------------------------------------------
 
 Scenario
-User searches by a specific title; model should return a result list in the widget.
+User searches using a concrete game name; results appear in the widget.
 
 User prompt
 Search for Elden Ring and show me matching games.
 
 Tool triggered
-find_game (query: "Elden Ring" or title user said)
+find_game (query describing the title, e.g. "Elden Ring")
 
 Expected output
-tools/call succeeds with mode results (or single detail if exactly one strong hit). Widget shows posters and titles; user can open a title for detail.
+tools/call succeeds with mode results (or detail if the catalog returns a single strong match). Widget lists titles/posters; user can open one for detail.
 
 --------------------------------------------------------------------------------
-Test Case 2 — Search with a genre or style hint
+Test Case 2 — Search by genre / style (natural language)
 --------------------------------------------------------------------------------
 
 Scenario
-User narrows by genre or style; may or may not name a title.
+User asks for games in a genre or style without naming one specific title.
 
 User prompt
 I want strategy games — show me what is out there.
 
 Tool triggered
-find_game (query including strategy or equivalent)
+find_game (query including strategy or equivalent wording)
 
 Expected output
-Structured content includes search mode and query. Widget shows results or empty state with a clear message.
+Structured content reflects the search (mode search or results). Widget shows matches or a clear empty state with message.
 
 --------------------------------------------------------------------------------
-Test Case 3 — Open game by catalog id
+Test Case 3 — Top-rated discovery (no genre filter)
 --------------------------------------------------------------------------------
 
 Scenario
-User already has a catalog id from a prior message or link; model opens detail directly.
+User wants highly rated picks from the catalog across genres (“surprise me”, explore the chart).
 
 User prompt
-Open game id 12345. (Use a real catalog id from a prior search in this session.)
+Surprise me with some highly rated games worth trying — any genre is fine.
 
 Tool triggered
-find_game (game_id: numeric catalog id)
+browse_top_games (genre omitted or all genres; offset: 0)
 
 Expected output
-mode detail with game object (title, metadata, links). No server-side writes.
+success true, mode results, results array from ranked catalog data, message summarizes what is shown. Read-only.
 
 --------------------------------------------------------------------------------
-Test Case 4 — Top-rated browse
+Test Case 4 — Top-rated by genre + pagination
 --------------------------------------------------------------------------------
 
 Scenario
-User wants a ranked list from the catalog; pagination via offset when they ask for more.
+User asks for ranked games in one genre; later they can ask for “more” (next page).
 
 User prompt
 Show me the first page of top-rated RPGs.
@@ -69,14 +69,14 @@ Tool triggered
 browse_top_games (genre: rpg or equivalent slug, offset: 0)
 
 Expected output
-success true, results array, message summarizes first title(s). Read-only catalog data.
+success true, results array, genre filter applied, message mentions first title(s). Read-only.
 
 --------------------------------------------------------------------------------
 Test Case 5 — Open widget without query (manual search)
 --------------------------------------------------------------------------------
 
 Scenario
-User opens the game search UI to type or browse themselves; empty query still returns a helpful widget state.
+User opens the game UI to search or browse themselves.
 
 User prompt
 Open game search — I will type what I want myself.
@@ -85,7 +85,7 @@ Tool triggered
 find_game (query empty or omitted)
 
 Expected output
-success true, mode search, message inviting search; widget shows search UI and top/browse entry points as in init.
+success true, mode search, helpful message; widget shows search UI and links to top/browse as designed.
 
 ================================================================================
 Negative test cases (3)
