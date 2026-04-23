@@ -26,10 +26,10 @@ const openLangCoachTool: McpToolDefinition = {
     required: [],
   },
   annotations: {
-    readOnlyHint: false,
+    readOnlyHint: true,
     destructiveHint: false,
-    openWorldHint: true,
-    idempotentHint: false,
+    openWorldHint: false,
+    idempotentHint: true,
   },
   securitySchemes: [{ type: 'oauth2', scopes: ['user:read'] }],
 }
@@ -41,9 +41,9 @@ const getUserInfoTool: McpToolDefinition = {
     'INTERNAL: Only the client widget calls this. GPT must never call. Returns user + langcoach profile.',
   inputSchema: { type: 'object', properties: {}, required: [] },
   annotations: {
-    readOnlyHint: true,
+    readOnlyHint: false,
     destructiveHint: false,
-    openWorldHint: true,
+    openWorldHint: false,
     idempotentHint: true,
   },
   securitySchemes: [{ type: 'oauth2', scopes: ['user:read'] }],
