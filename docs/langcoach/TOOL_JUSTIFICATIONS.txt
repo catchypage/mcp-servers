@@ -14,33 +14,37 @@ https://justmatch.us
 open_lang_coach
 ================================================================================
 
-Read Only: No
-Describe why Read Only is set to False
-This tool is not a pure read: it is the entry action that opens the Lang Coach interactive widget session and returns structured context (message, optional topic). It initializes the in-chat UI experience rather than only fetching existing data.
+Read Only: Yes
+Describe why Read Only is set to True
+The handler only returns structured content (message and optional topic). It does not write to our database or call external services; it has no server-side mutating side effects beyond the JSON response.
 
-Open World: Yes
-Describe why Open World is set to True
-The optional topic and user session context are open-ended and user-specific; the tool is tied to the authenticated user’s workspace in ChatGPT.
+Open World: No
+Describe why Open World is set to False
+Inputs are an optional topic string; the implementation does not query arbitrary external systems or the open web. ChatGPT loads the widget via the standard MCP resource URL.
 
 Destructive: No
 Describe why Destructive is set to False
-It does not delete accounts, erase stored data, or perform irreversible destructive operations.
+No deletion or destructive operations.
+
+Idempotent: Yes
+Describe why Idempotent is set to True
+Repeated calls do not accumulate extra persistence on our side for this tool; same arguments yield the same structured response shape.
 
 ================================================================================
 get_user_info
 ================================================================================
 
-Read Only: Yes
-Describe why Read Only is set to True
-The handler reads the authenticated user row and langcoach_profiles. If no profile exists yet, it may insert a minimal row (get-or-create) so the widget can load; it does not update placement, preferences, or other mutable fields. The tool’s purpose is to supply read data for the widget.
+Read Only: No
+Describe why Read Only is set to False
+The handler loads users and langcoach_profiles and uses get-or-create: if no profile row exists yet, it inserts a minimal langcoach_profiles row so the widget can render. That insert is a write (not read-only), even though placement and preferences are not arbitrarily updated here.
 
-Open World: Yes
-Describe why Open World is set to True
-The response is user-specific (email, name, avatar, placement level, theme, locale) and varies per account.
+Open World: No
+Describe why Open World is set to False
+Data comes from our application database (authenticated user + profile). That is bounded app state, not open-ended browsing of external networks.
 
 Destructive: No
 Describe why Destructive is set to False
-No deletion or destructive updates; profile creation is a minimal upsert for an empty row only so the widget can load.
+No account deletion or destructive wipes; optional first-row insert uses fixed defaults only.
 
 ================================================================================
 start_placement_test

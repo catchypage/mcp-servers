@@ -28,9 +28,11 @@ Resume Booster: create, tailor, and download professional resumes in 8 styles, d
 Example user message (preview) — required
 ================================================================================
 Enter a user prompt
-Open Resume Booster and help me create a resume for a frontend developer role.
+Open Resume Booster. I need a resume for a senior backend engineer — fill in that job title when you open the builder.
 
-(Alternative, shorter: Open Resume Booster.)
+(Shorter: Open Resume Booster with job_title Senior backend engineer.)
+
+Note: For catalog preview, pick one clear intent. Exact tool arguments are documented in docs/resume/MCP_TEST_CASES.txt for review consistency.
 
 ================================================================================
 Release Notes — required (may appear on app details page)

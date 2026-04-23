@@ -1,89 +1,93 @@
 Resume Booster — MCP test cases (OpenAI Apps submission)
-Connector: POST https://mvp.mom/api/mcp/resume (no OAuth required). Tool: open_resume_builder.
+Copy one block per form field where applicable.
+
+Connector: POST https://mvp.mom/api/mcp/resume (Host: mvp.mom). No OAuth.
+
+Tool arguments and enums are defined on the MCP server (tools/list → open_resume_builder inputSchema).
 
 ================================================================================
 Positive test cases (5)
 ================================================================================
 
 --------------------------------------------------------------------------------
-Test Case 1 — Create a resume
+Test Case 1 — Create from scratch
 --------------------------------------------------------------------------------
 
 Scenario
-User asks to create a resume from scratch.
+User starts a new resume without asking for a pre-filled role.
 
 User prompt
-Help me create a resume for a frontend developer role.
+I need a brand-new resume from scratch. Open Resume Booster and start the builder — I will fill everything myself.
 
-Tool triggered
+Tool
 open_resume_builder
 
-Expected output
-Widget opens. User fills in details inside the form.
+Expected
+Widget opens in create flow; user can pick a style and fill the form.
 
 --------------------------------------------------------------------------------
-Test Case 2 — Resume with pre-filled job title
---------------------------------------------------------------------------------
-
-Scenario
-User mentions a specific role; the tool pre-fills the job title.
-
-User prompt
-I need a resume for a senior backend engineer position.
-
-Tool triggered
-open_resume_builder (with job_title argument)
-
-Expected output
-Widget opens with the role pre-filled.
-
---------------------------------------------------------------------------------
-Test Case 3 — Tailor resume for a vacancy
+Test Case 2 — Pre-filled job title
 --------------------------------------------------------------------------------
 
 Scenario
-User wants to adapt their resume to a specific job posting.
+User states a target role and opens the app.
 
 User prompt
-Tailor my resume for this job: "We are looking for a React developer with 3+ years experience..."
+I need a resume for a senior backend engineer position. Open Resume Booster with that role filled in.
 
-Tool triggered
-open_resume_builder (mode=vacancy, vacancy_description provided)
+Tool
+open_resume_builder
 
-Expected output
-Widget opens in vacancy mode with the job description available.
+Expected
+Widget opens with the job title available for the resume (aligned with tool args from the model).
 
 --------------------------------------------------------------------------------
-Test Case 4 — Improve an existing resume
+Test Case 3 — Vacancy tailoring
 --------------------------------------------------------------------------------
 
 Scenario
-User wants to improve their current resume.
+User provides job posting text and wants tailoring.
 
 User prompt
-Improve my resume — make it more concise and add stronger action verbs.
+Tailor my resume to this posting using Resume Booster. Job description: We are looking for a React developer with 3+ years of experience building SPAs. Strong TypeScript required.
 
-Tool triggered
-open_resume_builder (mode=improve, feedback provided)
+Tool
+open_resume_builder
 
-Expected output
-Widget opens in improve mode. User can paste and edit their resume.
+Expected
+Widget opens in vacancy tailoring flow with the posting context available.
 
 --------------------------------------------------------------------------------
-Test Case 5 — Choose a specific style
+Test Case 4 — Improve resume
 --------------------------------------------------------------------------------
 
 Scenario
-User asks for a specific resume style.
+User asks to improve wording and tone.
 
 User prompt
-Make me an executive-style resume for a VP of Engineering role.
+Open Resume Booster in improve mode. Make my resume more concise and use stronger action verbs.
 
-Tool triggered
-open_resume_builder (style=executive, job_title provided)
+Tool
+open_resume_builder
 
-Expected output
-Widget opens with executive style and job title set.
+Expected
+Widget opens in improve flow so the user can paste or edit their resume with that feedback.
+
+--------------------------------------------------------------------------------
+Test Case 5 — Named style + role
+--------------------------------------------------------------------------------
+
+Scenario
+User asks for executive look and a specific title.
+
+User prompt
+Open Resume Booster: executive-style resume for VP of Engineering.
+
+Tool
+open_resume_builder
+
+Expected
+Widget opens with executive style and VP of Engineering reflected in the builder (aligned with tool args from the model).
 
 ================================================================================
 Negative test cases (3)
@@ -96,6 +100,9 @@ Negative Test Case 1 — Unrelated cooking request
 User prompt
 Find me a recipe for chicken parmesan with a side of garlic bread.
 
+Tool
+Do not invoke Resume Booster.
+
 --------------------------------------------------------------------------------
 Negative Test Case 2 — Cover letter (not a resume)
 --------------------------------------------------------------------------------
@@ -103,9 +110,15 @@ Negative Test Case 2 — Cover letter (not a resume)
 User prompt
 Write me a cover letter for a marketing manager position.
 
+Tool
+Do not invoke Resume Booster unless the user explicitly asks for the resume builder.
+
 --------------------------------------------------------------------------------
 Negative Test Case 3 — Code review
 --------------------------------------------------------------------------------
 
 User prompt
 Review this TypeScript code and suggest improvements for better error handling.
+
+Tool
+Do not invoke Resume Booster.

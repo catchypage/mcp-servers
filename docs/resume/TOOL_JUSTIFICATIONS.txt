@@ -15,10 +15,13 @@ open_resume_builder
 ================================================================================
 
 Read Only: No
-Initializes widget session with mode/context data in server memory. Not a pure read.
+Describe why Read Only is set to False
+The tool returns structured widget context (mode, optional style, job title, vacancy text, improvement feedback). That output drives the interactive UI state for the session; it is not a pure metadata-free read of a fixed database row.
 
 Open World: Yes
-Accepts free-form user text (job title, name, vacancy description, resume text, feedback).
+Describe why Open World is set to True
+Arguments accept open-ended user strings: job title, vacancy description, resume body, feedback, optional image URL — content is not limited to a fixed enum beyond style and mode.
 
 Destructive: No
-No data is deleted. Session context is overwritten on next call.
+Describe why Destructive is set to False
+The handler does not delete user accounts or wipe stored server records; it only returns JSON for the widget host.
